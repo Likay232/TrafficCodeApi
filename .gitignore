@@ -1,0 +1,99 @@
+## .NET MAUI / .NET
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.tmp
+*.log
+*.sln.docstates
+
+# For Rider
+.idea/
+*.sln.iml
+
+# For Mac Catalyst
+**/bin/**/*.app/
+**/obj/**/app/
+
+# For Android
+*.apk
+*.ap_
+*.dex
+*.class
+*.jar
+*.keystore
+*.so
+*.aab
+
+# For iOS
+*.dSYM/
+*.ipa
+*.xcuserstate
+*.xcworkspace
+*.xcuserdata/
+
+# VS for Mac
+.vscode/
+.vscode-test/
+.vscode-test-exploration/
+
+# Rider generated caches
+.idea/
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/.idea.*
+
+# Local user settings
+*.userprefs
+*.user.config
+
+# Maui specific
+Platforms/Android/obj/
+Platforms/Android/bin/
+Platforms/iOS/obj/
+Platforms/iOS/bin/
+Platforms/MacCatalyst/obj/
+Platforms/MacCatalyst/bin/
+Platforms/Tizen/obj/
+Platforms/Tizen/bin/
+Platforms/Windows/obj/
+Platforms/Windows/bin/
+
+# Optional: remove generated Maui program files if you don't customize them
+App.xaml.*
+MauiProgram.cs
+MainPage.xaml.*
+MainPage.cs
+
+# Logs
+*.log
+*.nlog
+
+# NuGet packages
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Test results
+TestResults/
+*.coverage
+*.coveragexml
+
+# Build results
+build/
+publish/
+
+# Backup & misc
+*.bak
+*.orig
+*.rej
+*.tmp
+*.swp
+*.DS_Store
+Thumbs.db
+ehthumbs.db
+*.sdf
+*.cache
