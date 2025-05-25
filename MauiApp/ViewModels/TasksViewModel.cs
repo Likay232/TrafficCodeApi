@@ -1,29 +1,24 @@
-﻿using MauiApp.Services;
+﻿using System.Diagnostics;
+using MauiApp.Models;
+using MauiApp.Services;
 
 namespace MauiApp.ViewModels;
 
-[QueryProperty(nameof(ThemeId), "themeId")]
-public class TasksViewModel : ViewModelBase<List<Task>>
+public class TasksViewModel : ViewModelBase<List<TaskForTest>>
 {
-    private int _themeId;
-    public int ThemeId
-    {
-        get => _themeId;
-        set
-        {
-            _themeId = value;
-            LoadTasks();
-        }
-    }
+    public int ThemeId { get; set; }
 
     public TasksViewModel(ApiService service)
     {
         _apiService = service;
     }
 
-    private void LoadTasks()
+    public async void LoadTasksAsync()
     {
-        var result = _apiService.GetTasksForThemeAsync(_themeId).Result;
-        Model = result ?? new List<Task>();
+        var userId = Convert.ToInt32(Preferences.Default.Get<string>("user_id", "0"));
+        
+        var result = await _apiService.GetTasksForThemeAsync(ThemeId, userId);
+        Model = result ?? new List<TaskForTest>();
+        OnPropertyChanged(nameof(Model));
     }
 }

@@ -2,17 +2,61 @@
 
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MauiApp.Pages.AuthView"
-             Title="Вход">
+             xmlns:viewModel="clr-namespace:MauiApp.ViewModels"
+             x:Class="MauiApp.Views.AuthView"
+             x:DataType="viewModel:AuthViewModel"
+             Title="Авторизация"
+             BackgroundColor="#F5F5F5">
 
-    <StackLayout Padding="20" Spacing="10">
+    <ScrollView>
+        <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
+            
+            <Label Text="Авторизация"
+                   FontSize="28"
+                   HorizontalOptions="Center"
+                   FontAttributes="Bold"
+                   TextColor="#333" />
 
-        <Entry Placeholder="Логин" Text="{Binding Model.Username}" />
-        <Entry Placeholder="Пароль" IsPassword="True" Text="{Binding Model.Password}" />
+            <Frame BackgroundColor="White"
+                   CornerRadius="12"
+                   Padding="20"
+                   HasShadow="True"
+                   BorderColor="#DDD">
+                
+                <VerticalStackLayout Spacing="15">
 
-        <Label Text="{Binding ErrorMessage}" TextColor="Red" />
+                    <Entry Placeholder="Логин"
+                           Text="{Binding Username}"
+                           FontSize="16"
+                           BackgroundColor="#FAFAFA"
+                           HeightRequest="48"
+                           Margin="0"
+                           ClearButtonVisibility="WhileEditing"/>
 
-        <Button Text="Войти" Command="{Binding LoginCommand}" CommandParameter="{Binding Model}" />
-        
-    </StackLayout>
+                    <Entry Placeholder="Пароль"
+                           IsPassword="True"
+                           Text="{Binding Password}"
+                           FontSize="16"
+                           BackgroundColor="#FAFAFA"
+                           HeightRequest="48"
+                           ClearButtonVisibility="WhileEditing"/>
+
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="Red"
+                           FontSize="14"
+                           IsVisible="{Binding ErrorMessage}"
+                           HorizontalTextAlignment="Center"/>
+
+                    <Button Text="Войти"
+                            Command="{Binding LoginCommand}"
+                            CommandParameter="{Binding Model}"
+                            CornerRadius="8"
+                            HeightRequest="50"
+                            FontSize="18"
+                            TextColor="White"/>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

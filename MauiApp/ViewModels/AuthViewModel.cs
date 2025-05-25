@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+﻿using System.Diagnostics;
+using System.Security.Claims;
+using System.Windows.Input;
 using MauiApp.Commands;
 using MauiApp.Models;
 using MauiApp.Services;
@@ -7,25 +9,66 @@ namespace MauiApp.ViewModels;
 
 public class AuthViewModel : ViewModelBase<AuthModel>
 {
-    public string? ErrorMessage { get; set; }
-    
+    private string? _errorMessage;
+    public string? ErrorMessage
+    {
+        get => _errorMessage;
+        set
+        {
+            if (_errorMessage != value)
+            {
+                _errorMessage = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+    public string? Username
+    {
+        get => Model.Username;
+
+        set
+        {
+            if (Username != value)
+            {
+                Model.Username = value;
+                OnPropertyChanged();
+                ((RelayCommand)LoginCommand).RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    public string? Password
+    {
+        get => Model.Password;
+        set
+        {
+            if (Password != value)
+            {
+                Model.Password = value;
+                OnPropertyChanged();
+                ((RelayCommand)LoginCommand).RaiseCanExecuteChanged();
+            }
+        }
+    }
+
     public ICommand LoginCommand { get; set; }
 
     public AuthViewModel(ApiService service)
     {
         _apiService = service;
-        
+
         Model = new AuthModel();
+        
         LoginCommand = new RelayCommand(ExecuteLogin, CanExecuteLogin);
     }
     
     private bool CanExecuteLogin(object obj)
     {
         if (obj is not AuthModel authModel) return false;
-        return authModel is { Username: not null, Password: not null };
+        return !string.IsNullOrWhiteSpace(authModel.Username) && !string.IsNullOrWhiteSpace(authModel.Password);
     }
 
-    private void ExecuteLogin(object obj)
+    private async void ExecuteLogin(object obj)
     {
         if (obj is not AuthModel authModel) return;
             
@@ -34,9 +77,16 @@ public class AuthViewModel : ViewModelBase<AuthModel>
             return;
         }
 
-        if (AuthenticateUser(authModel.Username, authModel.Password))
+        if (await AuthenticateUser(authModel))
         {
+            ErrorMessage = null;
             
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                if (Application.Current != null) Application.Current.MainPage = new AppShell();
+
+                await Shell.Current.GoToAsync($"//ThemesView");
+            });
         }
         else
         {
@@ -44,9 +94,35 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         }
     }
         
-    private bool AuthenticateUser(string username, string password)
+    private async Task<bool> AuthenticateUser(AuthModel authModel)
     {
-        return true;
+        var token = await _apiService.Login(authModel);
+
+        if (token == null) return false;
+        
+        try
+        {
+            await SecureStorage.Default.SetAsync("auth_token", token);
+            
+            var claims = TokenParseService.DecodeClaims(token);
+            
+            if (claims.TryGetValue("nameid", out var userId))
+            { 
+                Preferences.Default.Set("user_id", userId);
+            }
+
+            if (claims.TryGetValue("unique_name", out var username))
+            {
+                Preferences.Default.Set("username", username);
+            }
+            
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e.Message);
+            return false;
+        }
     }
 
 }

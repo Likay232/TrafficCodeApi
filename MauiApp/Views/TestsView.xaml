@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModel="clr-namespace:MauiApp.ViewModels"
+             xmlns:models="clr-namespace:MauiApp.Models"
+             x:Class="MauiApp.Views.TestsView"
+             x:DataType="viewModel:TestsViewModel"
+             BackgroundColor="White"
+             Title="Тесты">
+
+    <Grid>
+        <CollectionView ItemsSource="{Binding Model}"
+                        Margin="10">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Test">
+                    <Frame Padding="15"
+                           Margin="10,5"
+                           BackgroundColor="#FAFAFA"
+                           BorderColor="#DDD"
+                           CornerRadius="10"
+                           HasShadow="True">
+                        
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnTaskTapped" CommandParameter="{Binding .}" />
+                        </Frame.GestureRecognizers>
+
+                        <Label Text="{Binding Title}" 
+                               FontSize="18"
+                               TextColor="#333" 
+                               HorizontalOptions="Center" />
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Text="Сгенерировать тест"
+                Clicked="OnGenerateTestClicked"
+                BackgroundColor="#007ACC"
+                TextColor="White"
+                FontSize="16"
+                CornerRadius="10"
+                Padding="12,6"
+                HorizontalOptions="Center"
+                VerticalOptions="End"
+                Margin="0,20" />
+    </Grid>
+
+</ContentPage>

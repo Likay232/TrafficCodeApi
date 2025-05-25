@@ -3,35 +3,16 @@
     x:Class="MauiApp.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:pages="clr-namespace:MauiApp.Pages"
-    Shell.FlyoutBehavior="Disabled"
+    xmlns:pages="clr-namespace:MauiApp.Views"
+    Shell.FlyoutBehavior="Flyout"
     Title="MauiApp">
-
-    <ShellContent
-        Title="Login"
-        ContentTemplate="{DataTemplate pages:AuthView}"
-        Route="AuthPage" />
-
-    <ShellContent
-        Title="Темы"
-        ContentTemplate="{DataTemplate pages:AuthView}"
-        Route="ThemesPage"/>
     
-    <ShellContent
-        Title="Все тесты"
-        ContentTemplate="{DataTemplate pages:AuthView}"
-        Route="TestsPage"/>
+    <FlyoutItem Title="Темы" Route="ThemesView">
+        <ShellContent Title="Темы" ContentTemplate="{DataTemplate pages:ThemesView}" />
+    </FlyoutItem>
     
-    <ShellContent
-        Title="Тест"
-        ContentTemplate="{DataTemplate pages:AuthView}"
-        Route="Test"/>
+    <FlyoutItem Title="Тесты" Route="TestsView">
+        <ShellContent Title="Тесты" ContentTemplate="{DataTemplate pages:TestsView}" />
+    </FlyoutItem>
     
-    <ShellContent
-        Title="Теория"
-        ContentTemplate="{DataTemplate pages:AuthView}"
-        Route="LessonsPage"/>
-
-
-
 </Shell>

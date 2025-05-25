@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModel="clr-namespace:MauiApp.ViewModels"
+             x:Class="MauiApp.Views.TestView"
+             x:DataType="viewModel:TestViewModel"
+             Title="Тест">
+    
+    <ContentPage.Content>
+        <StackLayout Padding="20" Spacing="20">
+
+            <Label Text="{Binding CurrentTask.Text, FallbackValue='Задание недоступно'}" 
+                   FontSize="20" 
+                   LineBreakMode="WordWrap" />
+
+            <Entry Text="{Binding CurrentAnswer.Answer, Mode=TwoWay}"
+                   Placeholder="Введите ответ"
+                   Completed="Entry_Completed" />
+
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="30">
+                <Button Text="Назад"
+                        Command="{Binding PreviousTaskCommand}"
+                        CommandParameter="{Binding Model}"/>
+                <Button Text="Вперёд"
+                        Command="{Binding NextTaskCommand}"
+                        CommandParameter="{Binding Model}"/>
+            </StackLayout>
+
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

@@ -8,13 +8,13 @@ public class TestsViewModel : ViewModelBase<List<Test>>
     public TestsViewModel(ApiService service)
     {
         _apiService = service;
-        LoadTests();
     }
 
-    private void LoadTests()
+    public async void LoadTests()
     {
-        var result = _apiService.GetTestsAsync().Result;
+        var result = await _apiService.GetTestsAsync();
         Model = result ?? new List<Test>();
+        OnPropertyChanged(nameof(Model));
     }
 
 }

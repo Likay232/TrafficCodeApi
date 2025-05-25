@@ -2,8 +2,51 @@
 
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MauiApp.Views.ThemesView">
+             xmlns:viewModel="clr-namespace:MauiApp.ViewModels"
+             xmlns:models="clr-namespace:MauiApp.Models"
+             x:Class="MauiApp.Views.ThemesView"
+             x:DataType="viewModel:ThemesViewModel">
     <ContentPage.Content>
-        
+        <CollectionView ItemsSource="{Binding Model}"
+                        SelectionMode="Single"
+                        SelectionChanged="SelectableItemsView_OnSelectionChanged"
+                        BackgroundColor="White">
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Theme">
+                    <Frame Padding="15"
+                           Margin="10"
+                           BackgroundColor="White"
+                           BorderColor="#DDD"
+                           CornerRadius="10"
+                           HasShadow="True">
+                        
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnThemeTapped" CommandParameter="{Binding .}" />
+                        </Frame.GestureRecognizers>
+                        
+                        <StackLayout Spacing="10">
+                            <Label Text="{Binding Title}" 
+                                   FontSize="20" 
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding Description}" 
+                                   FontSize="14"
+                                   TextColor="#666"
+                                   Margin="0,0,0,10" />
+
+                            <Button Text="Материалы"
+                                    FontSize="12"
+                                    Padding="4,2"
+                                    CornerRadius="5"
+                                    BackgroundColor="#EEF"
+                                    TextColor="#3366BB"
+                                    HorizontalOptions="End"
+                                    Clicked="OnMaterialsClicked"
+                                    CommandParameter="{Binding .}" />
+                        </StackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
     </ContentPage.Content>
 </ContentPage>

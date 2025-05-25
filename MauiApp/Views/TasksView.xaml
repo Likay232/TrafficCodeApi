@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:MauiApp.ViewModels"
+             xmlns:models="clr-namespace:MauiApp.Models"
+             x:Class="MauiApp.Views.TasksView"
+             x:DataType="viewModels:TasksViewModel"
+             Title="Задачи">
+
+    <ScrollView>
+        <CollectionView ItemsSource="{Binding Model}"
+                        BackgroundColor="White"
+                        Margin="10">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:TaskForTest">
+                    <Frame Padding="15"
+                           Margin="10,5"
+                           BackgroundColor="#FAFAFA"
+                           BorderColor="#DDD"
+                           CornerRadius="10"
+                           HasShadow="True">
+                        
+                        <Frame.Triggers>
+                            <DataTrigger TargetType="Frame"
+                                         Binding="{Binding IsCorrect}"
+                                         Value="true">
+                                <Setter Property="BackgroundColor" Value="LightGreen"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Frame"
+                                         Binding="{Binding IsCorrect}"
+                                         Value="false">
+                                <Setter Property="BackgroundColor" Value="LightCoral"/>
+                            </DataTrigger>
+                        </Frame.Triggers>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Задача"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center" 
+                                   />
+
+                            <Label Text="{Binding Text}"
+                                   FontSize="16"
+                                   TextColor="#333" 
+                                   />
+
+                            <Image Source="{Binding Image, Converter={StaticResource BytesToImageConverter}}"
+                                   HeightRequest="150"
+                                   Aspect="AspectFit"
+                                   IsVisible="{Binding Image, Converter={StaticResource NullToBoolConverter}}" 
+                                   />
+
+                            <Label Text="{Binding DifficultyLevel, StringFormat='Сложность: {0}'}"
+                                   FontSize="14"
+                                   TextColor="#666"
+                                   HorizontalOptions="End" 
+                                   />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </ScrollView>
+</ContentPage>

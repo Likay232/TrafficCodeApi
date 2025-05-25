@@ -1,12 +1,8 @@
-﻿using MauiApp.Pages;
-using MauiApp.Services;
-using MauiApp.ViewModels;
-using MauiApp.Views;
-
-namespace MauiApp;
+﻿namespace MauiApp;
 
 using Microsoft.Maui.Hosting;
 using Microsoft.Extensions.Logging;
+using ApplicationExtension;
 
 public static class MauiProgram
 {
@@ -19,13 +15,11 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-            });
+            })
+            .RegisterSerivces()
+            .RegisterViewModels()
+            .RegisterViews();
         
-        builder.Services.AddSingleton<ApiService>();
-        builder.Services.AddTransient<AuthViewModel>();
-        builder.Services.AddTransient<AuthView>();
-        builder.Services.AddTransient<ThemesViewModel>();
-        builder.Services.AddTransient<ThemesView>();
         
 #if DEBUG
         builder.Logging.AddDebug();

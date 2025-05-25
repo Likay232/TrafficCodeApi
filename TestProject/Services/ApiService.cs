@@ -1,8 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using MauiApp.Models;
-using System.Diagnostics;
-using System.Net.Http.Headers;
+using Task = System.Threading.Tasks.Task;
 
 namespace MauiApp.Services;
 
@@ -17,49 +16,35 @@ public class ApiService
     {
         HttpClient client = new HttpClient();
         client.DefaultRequestHeaders.Add("Accept", "application/json");
-
-        var token = SecureStorage.GetAsync("auth_token").Result;
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-        client.BaseAddress = new Uri("http://10.0.2.2:5000/");
+        client.BaseAddress = new Uri("http://localhost:5000");
         return client;
-    }
-
-    public async Task<string?> Login(AuthModel authModel)
-    {
-        var response = await GetClient().PostAsJsonAsync("/Auth/LoginClient", authModel, _jsonSerializerOptions);
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadFromJsonAsync<string>(_jsonSerializerOptions);
     }
 
     public async Task<List<Theme>?> GetThemesAsync()
     {
         try
         {
-            var response = await GetClient().GetAsync("Client/GetThemes");
-            response.EnsureSuccessStatusCode();
+            var result = await GetClient().GetStringAsync("/Client/GetThemes/");
+            
+            Console.WriteLine(result);
 
-            var json = await response.Content.ReadAsStringAsync();
-
-            return JsonSerializer.Deserialize<List<Theme>>(json, _jsonSerializerOptions);
+            return JsonSerializer.Deserialize<List<Theme>>(result, _jsonSerializerOptions);
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"[GetThemesAsync] Exception: {e}");
+            Console.WriteLine($"[GetThemesAsync] {e.Message}");
             return null;
         }
     }
 
-
-    public async Task<List<TaskForTest>?> GetTasksForThemeAsync(int themeId, int userId)
+    public async Task<List<Task>?> GetTasksForThemeAsync(int themeId)
     {
         try
         {
-            var response = await GetClient().PostAsJsonAsync($"/Client/GetTasksForTheme", new { themeId, userId }, _jsonSerializerOptions);
+            var response = await GetClient().GetAsync($"/Client/GetTasksForTheme?themeId={themeId}");
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<TaskForTest>>(_jsonSerializerOptions);
+            return await response.Content.ReadFromJsonAsync<List<Task>>(_jsonSerializerOptions);
         }
         catch (Exception e)
         {

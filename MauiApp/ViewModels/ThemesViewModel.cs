@@ -8,15 +8,15 @@ public class ThemesViewModel : ViewModelBase<List<Theme>>
     public ThemesViewModel(ApiService service)
     {
         _apiService = service;
-        
-        LoadThemes();
     }
     
-    private void LoadThemes()
+    public async void LoadThemesAsync()
     {
-        var result = _apiService.GetThemesAsync().Result;
-        
+        var result = await _apiService.GetThemesAsync();
+
         Model = result ?? new List<Theme>();
+        
+        OnPropertyChanged(nameof(Model));
     }
 
 }
