@@ -1,7 +1,9 @@
-﻿using System.Windows.Input;
+﻿using System.Text.Json;
+using System.Windows.Input;
 using MauiApp.Commands;
 using MauiApp.Models;
 using MauiApp.Services;
+using MauiApp.Views;
 
 namespace MauiApp.ViewModels;
 
@@ -20,10 +22,13 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
             OnPropertyChanged();
             OnPropertyChanged(nameof(CurrentTask));
             OnPropertyChanged(nameof(CurrentAnswer));
+
+            ((RelayCommand)NextTaskCommand).RaiseCanExecuteChanged();
+            ((RelayCommand)PreviousTaskCommand).RaiseCanExecuteChanged();
         }
     }
 
-    public TaskForTest? CurrentTask => Model != null && Model.Count > CurrentIndex ? Model[CurrentIndex] : null;
+    public TaskForTest? CurrentTask => Model.Count > CurrentIndex ? Model[CurrentIndex] : null;
 
     public UserAnswer CurrentAnswer
     {
@@ -52,7 +57,7 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
     public ICommand PreviousTaskCommand { get; }
     public ICommand SaveAnswerCommand { get; }
     public ICommand CheckTestCommand { get; }
-    
+
     public TestViewModel(ApiService service)
     {
         _apiService = service;
@@ -70,6 +75,18 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
         var result = await _apiService.GetTestAsync(TestId);
         Model = result ?? new List<TaskForTest>();
         CurrentIndex = 0;
+
+        foreach (var task in Model)
+        {
+            if (_answers.Any(a => a.TaskId == task.Id))
+                continue;
+            
+            _answers.Add(new UserAnswer
+            {
+                Answer = "",
+                TaskId = task.Id
+            });
+        }
 
         OnPropertyChanged(nameof(Model));
         OnPropertyChanged(nameof(CurrentTask));
@@ -129,6 +146,12 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
         };
 
         var checkedTest = await _apiService.CheckTestAsync(testForCheck);
+        if (checkedTest != null)
+        {
+            var json = JsonSerializer.Serialize(checkedTest);
+            
+            await Shell.Current.GoToAsync($"{nameof(CheckedTestView)}?CheckedTest={Uri.EscapeDataString(json)}");
+        }
     }
 
     private bool CanExecuteCheckTest(object obj) => true;

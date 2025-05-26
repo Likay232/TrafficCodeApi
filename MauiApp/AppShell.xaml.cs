@@ -14,5 +14,6 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(TasksView), typeof(TasksView));
         Routing.RegisterRoute(nameof(TestsView), typeof(TestsView));
         Routing.RegisterRoute(nameof(TestView), typeof(TestView));
+        Routing.RegisterRoute(nameof(CheckedTestView), typeof(CheckedTestView));
     }
 }

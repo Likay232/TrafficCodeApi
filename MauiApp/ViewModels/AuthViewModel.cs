@@ -108,7 +108,7 @@ public class AuthViewModel : ViewModelBase<AuthModel>
             
             if (claims.TryGetValue("nameid", out var userId))
             { 
-                Preferences.Default.Set("user_id", userId);
+                Preferences.Default.Set("user_id", Convert.ToInt32(userId));
             }
 
             if (claims.TryGetValue("unique_name", out var username))

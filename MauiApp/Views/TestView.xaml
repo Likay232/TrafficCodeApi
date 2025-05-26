@@ -1,4 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModel="clr-namespace:MauiApp.ViewModels"
@@ -25,6 +26,17 @@
                         Command="{Binding NextTaskCommand}"
                         CommandParameter="{Binding Model}"/>
             </StackLayout>
+            
+            <Button Text="Завершить тест" 
+                    Command="{Binding CheckTestCommand}"
+                    BackgroundColor="#007ACC"
+                    TextColor="White"
+                    FontSize="16"
+                    CornerRadius="10"
+                    Padding="12,6"
+                    HorizontalOptions="Center"
+                    VerticalOptions="End"
+                    Margin="0,20" />
 
         </StackLayout>
     </ContentPage.Content>

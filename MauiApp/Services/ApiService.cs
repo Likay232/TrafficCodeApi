@@ -21,17 +21,29 @@ public class ApiService
         var token = SecureStorage.GetAsync("auth_token").Result;
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        client.BaseAddress = new Uri("http://10.0.2.2:5000/");
+        client.BaseAddress = new Uri("http://192.168.1.123:5000/");
         return client;
     }
 
     public async Task<string?> Login(AuthModel authModel)
     {
         var response = await GetClient().PostAsJsonAsync("/Auth/LoginClient", authModel, _jsonSerializerOptions);
-        response.EnsureSuccessStatusCode();
+        string? token = null;
+        
+        try
+        {
+            response.EnsureSuccessStatusCode();
+            token = await response.Content.ReadFromJsonAsync<string>(_jsonSerializerOptions);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            return null;
+        }
 
-        return await response.Content.ReadFromJsonAsync<string>(_jsonSerializerOptions);
+        return token;
     }
+    
 
     public async Task<List<Theme>?> GetThemesAsync()
     {
@@ -128,6 +140,21 @@ public class ApiService
         catch (Exception e)
         {
             Console.WriteLine($"[CheckTestAsync] {e.Message}");
+            return null;
+        }
+    }
+
+    public async Task<TaskForTest?> GetTaskById(int taskId)
+    {
+        try
+        {
+            var response = await GetClient().GetAsync($"/Client/GetTaskById?taskId={taskId}");
+            response.EnsureSuccessStatusCode();
+            
+            return await response.Content.ReadFromJsonAsync<TaskForTest>(_jsonSerializerOptions);
+        }
+        catch (Exception e)
+        {
             return null;
         }
     }

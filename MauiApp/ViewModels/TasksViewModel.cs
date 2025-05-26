@@ -15,7 +15,7 @@ public class TasksViewModel : ViewModelBase<List<TaskForTest>>
 
     public async void LoadTasksAsync()
     {
-        var userId = Convert.ToInt32(Preferences.Default.Get<string>("user_id", "0"));
+        var userId = Preferences.Default.Get("user_id", 0);
         
         var result = await _apiService.GetTasksForThemeAsync(ThemeId, userId);
         Model = result ?? new List<TaskForTest>();

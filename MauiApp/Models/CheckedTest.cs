@@ -1,7 +1,9 @@
-﻿namespace MauiApp.Models;
+﻿using WebApi.Infrastructure.Models.DTO;
+
+namespace MauiApp.Models;
 
 public class CheckedTest
 {
-    public List<UserAnswer> WrongAnswers { get; set; }
+    public List<WrongTask> WrongTasks { get; set; }
     public string Score { get; set; }
 }
