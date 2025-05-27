@@ -158,4 +158,36 @@ public class ApiService
             return null;
         }
     }
+
+    public async Task<TaskForTest?> GetRandomTask()
+    {
+        try
+        {
+            var response = await GetClient().GetAsync($"/Client/GetRandomTask");
+            response.EnsureSuccessStatusCode();
+            
+            Debug.WriteLine(response);
+            
+            return await response.Content.ReadFromJsonAsync<TaskForTest>(_jsonSerializerOptions);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+
+    public async Task<bool> CheckTask(CheckTask answer)
+    {
+        try
+        {
+            var response = await GetClient().PostAsJsonAsync("/Client/CheckTask", answer, _jsonSerializerOptions);
+            response.EnsureSuccessStatusCode();
+            
+            return await response.Content.ReadFromJsonAsync<bool>(_jsonSerializerOptions);
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
 }

@@ -16,5 +16,15 @@ public partial class AuthView : ContentPage
         InitializeComponent();
 
         BindingContext = vm;
+        
+        Shell.SetFlyoutBehavior(this, FlyoutBehavior.Disabled);
     }
+    
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        Shell.SetBackButtonBehavior(this, new BackButtonBehavior { IsVisible = false });
+    }
+
 }

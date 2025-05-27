@@ -28,6 +28,7 @@
                     <Entry Placeholder="Логин"
                            Text="{Binding Username}"
                            FontSize="16"
+                           TextColor="Black"
                            BackgroundColor="#FAFAFA"
                            HeightRequest="48"
                            Margin="0"
@@ -35,6 +36,7 @@
 
                     <Entry Placeholder="Пароль"
                            IsPassword="True"
+                           TextColor="Black"
                            Text="{Binding Password}"
                            FontSize="16"
                            BackgroundColor="#FAFAFA"

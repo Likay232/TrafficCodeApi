@@ -115,6 +115,11 @@ public class AuthViewModel : ViewModelBase<AuthModel>
             {
                 Preferences.Default.Set("username", username);
             }
+
+            if (claims.TryGetValue("exp", out var exp))
+            {
+                Preferences.Default.Set("exp", exp);
+            }
             
             return true;
         }
@@ -124,5 +129,4 @@ public class AuthViewModel : ViewModelBase<AuthModel>
             return false;
         }
     }
-
 }

@@ -5,14 +5,29 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:MauiApp.Views"
     Shell.FlyoutBehavior="Flyout"
+    Shell.FlyoutHeaderBehavior="CollapseOnScroll"
     Title="MauiApp">
-    
+
+    <Shell.FlyoutHeader>
+        <Grid Padding="20">
+            <Label x:Name="UserNameLabel"
+                   Text="Имя пользователя"
+                   FontAttributes="Bold"
+                   FontSize="18"
+                   TextColor="Black" />
+        </Grid>
+    </Shell.FlyoutHeader>
+
     <FlyoutItem Title="Темы" Route="ThemesView">
         <ShellContent Title="Темы" ContentTemplate="{DataTemplate pages:ThemesView}" />
     </FlyoutItem>
-    
+
     <FlyoutItem Title="Тесты" Route="TestsView">
         <ShellContent Title="Тесты" ContentTemplate="{DataTemplate pages:TestsView}" />
     </FlyoutItem>
     
+    <MenuItem 
+        Text="Выйти"
+        Clicked="OnLogoutClicked"
+        />
 </Shell>

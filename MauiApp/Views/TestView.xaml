@@ -13,6 +13,13 @@
             <Label Text="{Binding CurrentTask.Text, FallbackValue='Задание недоступно'}" 
                    FontSize="20" 
                    LineBreakMode="WordWrap" />
+            
+            <Image Source="{Binding CurrentTask.Image, Converter={StaticResource BytesToImageConverter}}"
+                   HeightRequest="150"
+                   Aspect="AspectFit"
+                   IsVisible="{Binding CurrentTask.Image, Converter={StaticResource NullToBoolConverter}}" 
+            />
+
 
             <Entry Text="{Binding CurrentAnswer.Answer, Mode=TwoWay}"
                    Placeholder="Введите ответ"

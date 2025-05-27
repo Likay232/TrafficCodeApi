@@ -33,6 +33,11 @@
                                 <Setter Property="BackgroundColor" Value="LightCoral"/>
                             </DataTrigger>
                         </Frame.Triggers>
+                        
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnTaskTapped" CommandParameter="{Binding .}" />
+                        </Frame.GestureRecognizers>
+
 
                         <VerticalStackLayout Spacing="8">
                             <Label Text="Задача"

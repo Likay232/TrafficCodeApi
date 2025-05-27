@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MauiApp.Models;
 using MauiApp.Services;
 using MauiApp.ViewModels;
 
@@ -25,5 +26,13 @@ public partial class TasksView : ContentPage
     {
         InitializeComponent();
         BindingContext = viewModel;
+    }
+
+    private async void OnTaskTapped(object? sender, TappedEventArgs e)
+    {
+        if (e.Parameter is TaskForTest taskForTest)
+        {
+            await Shell.Current.GoToAsync($"{nameof(TaskView)}?taskId={taskForTest.Id}");
+        }
     }
 }

@@ -4,10 +4,12 @@ using MauiApp.Services;
 
 namespace MauiApp.ViewModels;
 
-public class CheckedTestViewModel(ApiService service) : ViewModelBase<CheckedTest>
+public class CheckedTestViewModel : ViewModelBase<CheckedTest>
 {
-    public void UpdateModel()
+    public CheckedTestViewModel(TestResultScore testResultStore)
     {
+        Model = testResultStore.CurrentResult ?? new CheckedTest();
+        
         OnPropertyChanged(nameof(Model));
     }
 }

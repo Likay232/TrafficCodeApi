@@ -1,4 +1,6 @@
-﻿using MauiApp.Views;
+﻿using MauiApp.Services;
+using MauiApp.ViewModels;
+using MauiApp.Views;
 
 namespace MauiApp;
 
@@ -15,5 +17,19 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(TestsView), typeof(TestsView));
         Routing.RegisterRoute(nameof(TestView), typeof(TestView));
         Routing.RegisterRoute(nameof(CheckedTestView), typeof(CheckedTestView));
+        Routing.RegisterRoute(nameof(TaskView), typeof(TaskView));
+
+        if (Preferences.ContainsKey("username"))
+        {
+            UserNameLabel.Text = Preferences.Get("username", "Имя пользователя");
+        }
+    }
+
+    private async void OnLogoutClicked(object? sender, EventArgs e)
+    {
+        Preferences.Clear();
+        SecureStorage.RemoveAll();
+
+        await Shell.Current.GoToAsync(nameof(AuthView)); ;
     }
 }

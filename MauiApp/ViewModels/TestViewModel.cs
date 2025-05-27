@@ -52,15 +52,17 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
 
     private readonly List<UserAnswer> _answers = new();
     private readonly ApiService _apiService;
+    private readonly TestResultScore _result;
 
     public ICommand NextTaskCommand { get; }
     public ICommand PreviousTaskCommand { get; }
     public ICommand SaveAnswerCommand { get; }
     public ICommand CheckTestCommand { get; }
 
-    public TestViewModel(ApiService service)
+    public TestViewModel(ApiService service, TestResultScore result)
     {
         _apiService = service;
+        _result = result;
         Model = new List<TaskForTest>();
 
         NextTaskCommand = new RelayCommand(_ => NextTask(), _ => CanNext());
@@ -146,11 +148,11 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
         };
 
         var checkedTest = await _apiService.CheckTestAsync(testForCheck);
+        _result.CurrentResult = checkedTest;
+        
         if (checkedTest != null)
         {
-            var json = JsonSerializer.Serialize(checkedTest);
-            
-            await Shell.Current.GoToAsync($"{nameof(CheckedTestView)}?CheckedTest={Uri.EscapeDataString(json)}");
+            await Shell.Current.GoToAsync(nameof(CheckedTestView));
         }
     }
 
