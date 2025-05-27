@@ -22,6 +22,7 @@ public class AuthViewModel : ViewModelBase<AuthModel>
             }
         }
     }
+    
     public string? Username
     {
         get => Model.Username;

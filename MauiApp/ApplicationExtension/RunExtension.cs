@@ -24,6 +24,7 @@ public static class RunExtension
         builder.Services.AddTransient<ThemesViewModel>();
         builder.Services.AddTransient<CheckedTestViewModel>();
         builder.Services.AddTransient<TaskViewModel>();
+        builder.Services.AddTransient<RegisterViewModel>();
         
         return builder;
     }
@@ -38,6 +39,7 @@ public static class RunExtension
         builder.Services.AddTransient<ThemesView>();
         builder.Services.AddTransient<CheckedTestView>();
         builder.Services.AddTransient<TaskView>();
+        builder.Services.AddTransient<RegisterView>();
         
         return builder;
     }

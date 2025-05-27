@@ -190,4 +190,19 @@ public class ApiService
             return false;
         }
     }
+
+    public async Task<bool> RegisterUser(RegisterModel request)
+    {
+        try
+        {
+            var response = await GetClient().PostAsJsonAsync("/Auth/Register", request, _jsonSerializerOptions);
+            response.EnsureSuccessStatusCode();
+            
+            return await response.Content.ReadFromJsonAsync<bool>(_jsonSerializerOptions);
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+    }
 }

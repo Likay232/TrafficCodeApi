@@ -3,15 +3,15 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModel="clr-namespace:MauiApp.ViewModels"
-             x:Class="MauiApp.Views.AuthView"
-             x:DataType="viewModel:AuthViewModel"
-             Title="Авторизация"
+             x:Class="MauiApp.Views.RegisterView"
+             x:DataType="viewModel:RegisterViewModel"
+             Title="Регистрация"
              BackgroundColor="#F5F5F5">
 
     <ScrollView>
         <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
-            
-            <Label Text="Авторизация"
+
+            <Label Text="Регистрация"
                    FontSize="28"
                    HorizontalOptions="Center"
                    FontAttributes="Bold"
@@ -22,8 +22,24 @@
                    Padding="20"
                    HasShadow="True"
                    BorderColor="#DDD">
-                
+
                 <VerticalStackLayout Spacing="15">
+
+                    <Entry Placeholder="Имя"
+                           Text="{Binding FirstName}"
+                           FontSize="16"
+                           TextColor="Black"
+                           BackgroundColor="#FAFAFA"
+                           HeightRequest="48"
+                           />
+
+                    <Entry Placeholder="Фамилия"
+                           Text="{Binding LastName}"
+                           FontSize="16"
+                           TextColor="Black"
+                           BackgroundColor="#FAFAFA"
+                           HeightRequest="48"
+                           />
 
                     <Entry Placeholder="Логин"
                            Text="{Binding Username}"
@@ -31,14 +47,22 @@
                            TextColor="Black"
                            BackgroundColor="#FAFAFA"
                            HeightRequest="48"
-                           Margin="0"
                            />
 
                     <Entry Placeholder="Пароль"
                            IsPassword="True"
-                           TextColor="Black"
                            Text="{Binding Password}"
                            FontSize="16"
+                           TextColor="Black"
+                           BackgroundColor="#FAFAFA"
+                           HeightRequest="48"
+                           />
+
+                    <Entry Placeholder="Подтвердите пароль"
+                           IsPassword="True"
+                           Text="{Binding ConfirmPassword}"
+                           FontSize="16"
+                           TextColor="Black"
                            BackgroundColor="#FAFAFA"
                            HeightRequest="48"
                            />
@@ -49,24 +73,26 @@
                            IsVisible="{Binding ErrorMessage}"
                            HorizontalTextAlignment="Center"/>
 
-                    <Button Text="Войти"
-                            Command="{Binding LoginCommand}"
+                    <Button Text="Зарегистрироваться"
+                            Command="{Binding RegisterCommand}"
                             CommandParameter="{Binding Model}"
                             CornerRadius="8"
                             HeightRequest="50"
                             FontSize="18"
-                            TextColor="White"/>
+                            TextColor="White"
+                            BackgroundColor="#007AFF"/>
+
                 </VerticalStackLayout>
             </Frame>
-            
+
             <HorizontalStackLayout HorizontalOptions="Center" Spacing="5" Padding="10">
 
-                <Label Text="Нет аккаунта?"
+                <Label Text="Уже есть аккаунт?"
                        FontSize="14"
                        TextColor="#666"
                        VerticalTextAlignment="Center"/>
 
-                <Button Text="Зарегистрироваться"
+                <Button Text="Войти"
                         FontSize="14"
                         TextColor="#007AFF"
                         BackgroundColor="Transparent"
@@ -74,9 +100,8 @@
                         HeightRequest="30"
                         VerticalOptions="Center"
                         HorizontalOptions="Start"
-                        Clicked="Button_OnClicked"
+                        Clicked="LoginButton_OnClicked"
                         CornerRadius="0"/>
-
             </HorizontalStackLayout>
 
         </VerticalStackLayout>
