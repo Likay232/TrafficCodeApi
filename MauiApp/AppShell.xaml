@@ -27,6 +27,10 @@
     </FlyoutItem>
     
     <MenuItem 
+        Text="Сменить пароль"
+        Clicked="OnChangePasswordClicked" />
+    
+    <MenuItem 
         Text="Выйти"
         Clicked="OnLogoutClicked"
         />

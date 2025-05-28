@@ -21,14 +21,14 @@ public class ApiService
         var token = SecureStorage.GetAsync("auth_token").Result;
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        client.BaseAddress = new Uri("http://192.168.1.123:5000/");
+        client.BaseAddress = new Uri("http://192.168.55.106:5000/");
         return client;
     }
 
     public async Task<string?> Login(AuthModel authModel)
     {
         var response = await GetClient().PostAsJsonAsync("/Auth/LoginClient", authModel, _jsonSerializerOptions);
-        string? token = null;
+        string? token;
         
         try
         {
@@ -155,6 +155,7 @@ public class ApiService
         }
         catch (Exception e)
         {
+            Debug.WriteLine($"[GetTaskById] {e.Message}");
             return null;
         }
     }
@@ -172,6 +173,7 @@ public class ApiService
         }
         catch (Exception e)
         {
+            Debug.WriteLine($"[GetRandomTask] {e.Message}");
             return null;
         }
     }
@@ -187,6 +189,7 @@ public class ApiService
         }
         catch (Exception e)
         {
+            Debug.WriteLine($"[CheckTask] {e.Message}");
             return false;
         }
     }
@@ -202,7 +205,40 @@ public class ApiService
         }
         catch (Exception e)
         {
+            Debug.WriteLine($"[RegisterUser] {e.Message}");
             return false;
+        }
+    }
+
+    public async Task<bool> ChangePassword(ChangePassRequest request)
+    {
+        try
+        {
+            var response = await GetClient().PostAsJsonAsync("/Client/ChangePassword", request, _jsonSerializerOptions);
+            response.EnsureSuccessStatusCode();
+            
+            return await response.Content.ReadFromJsonAsync<bool>(_jsonSerializerOptions);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"[ChangePassword] {e.Message}");
+            return false;
+        }
+    }
+
+    public async Task<List<TaskForTest>?> GenerateTest(GenerateTest request)
+    {
+        try
+        {
+            var response = await GetClient().PostAsJsonAsync("/Client/GenerateTest", request, _jsonSerializerOptions);
+            response.EnsureSuccessStatusCode();
+    
+            return await response.Content.ReadFromJsonAsync<List<TaskForTest>>(_jsonSerializerOptions);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"[GenerateTest] {e.Message}");
+            return null;
         }
     }
 }

@@ -22,7 +22,7 @@
                            HasShadow="True">
                         
                         <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnTaskTapped" CommandParameter="{Binding .}" />
+                            <TapGestureRecognizer Tapped="OnTestTapped" CommandParameter="{Binding .}" />
                         </Frame.GestureRecognizers>
 
                         <Label Text="{Binding Title}" 

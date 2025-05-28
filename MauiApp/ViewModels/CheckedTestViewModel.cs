@@ -6,7 +6,7 @@ namespace MauiApp.ViewModels;
 
 public class CheckedTestViewModel : ViewModelBase<CheckedTest>
 {
-    public CheckedTestViewModel(TestResultScore testResultStore)
+    public CheckedTestViewModel(SharedObjectStorageService testResultStore)
     {
         Model = testResultStore.CurrentResult ?? new CheckedTest();
         

@@ -9,7 +9,7 @@ public static class RunExtension
     public static MauiAppBuilder RegisterSerivces(this MauiAppBuilder builder)
     {
         builder.Services.AddSingleton<ApiService>();
-        builder.Services.AddSingleton<TestResultScore>();
+        builder.Services.AddSingleton<SharedObjectStorageService>();
         
         return builder;
     }
@@ -25,6 +25,8 @@ public static class RunExtension
         builder.Services.AddTransient<CheckedTestViewModel>();
         builder.Services.AddTransient<TaskViewModel>();
         builder.Services.AddTransient<RegisterViewModel>();
+        builder.Services.AddTransient<ChangePassViewModel>();
+        builder.Services.AddTransient<GenerateTestViewModel>();
         
         return builder;
     }
@@ -40,6 +42,8 @@ public static class RunExtension
         builder.Services.AddTransient<CheckedTestView>();
         builder.Services.AddTransient<TaskView>();
         builder.Services.AddTransient<RegisterView>();
+        builder.Services.AddTransient<ChangePassView>();
+        builder.Services.AddTransient<GenerateTestView>();
         
         return builder;
     }

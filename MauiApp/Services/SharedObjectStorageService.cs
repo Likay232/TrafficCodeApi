@@ -2,7 +2,8 @@
 
 namespace MauiApp.Services;
 
-public class TestResultScore
+public class SharedObjectStorageService
 {
+    public List<TaskForTest>? CurrentTest { get; set; }
     public CheckedTest? CurrentResult { get; set; }
 }

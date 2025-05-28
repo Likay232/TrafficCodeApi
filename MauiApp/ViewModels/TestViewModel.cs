@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
 using System.Windows.Input;
 using MauiApp.Commands;
 using MauiApp.Models;
@@ -9,10 +9,7 @@ namespace MauiApp.ViewModels;
 
 public class TestViewModel : ViewModelBase<List<TaskForTest>>
 {
-    public int TestId { get; set; }
-
     private int _currentIndex;
-
     private int CurrentIndex
     {
         get => _currentIndex;
@@ -51,15 +48,15 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
 
 
     private readonly List<UserAnswer> _answers = new();
-    private readonly ApiService _apiService;
-    private readonly TestResultScore _result;
+    private new readonly ApiService _apiService;
+    private readonly SharedObjectStorageService _result;
 
     public ICommand NextTaskCommand { get; }
     public ICommand PreviousTaskCommand { get; }
     public ICommand SaveAnswerCommand { get; }
     public ICommand CheckTestCommand { get; }
 
-    public TestViewModel(ApiService service, TestResultScore result)
+    public TestViewModel(ApiService service, SharedObjectStorageService result)
     {
         _apiService = service;
         _result = result;
@@ -74,25 +71,31 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
 
     public async void LoadTestAsync()
     {
-        var result = await _apiService.GetTestAsync(TestId);
-        Model = result ?? new List<TaskForTest>();
-        CurrentIndex = 0;
-
-        foreach (var task in Model)
+        try
         {
-            if (_answers.Any(a => a.TaskId == task.Id))
-                continue;
-            
-            _answers.Add(new UserAnswer
-            {
-                Answer = "",
-                TaskId = task.Id
-            });
-        }
+            Model = _result.CurrentTest ?? new List<TaskForTest>();
+            CurrentIndex = 0;
 
-        OnPropertyChanged(nameof(Model));
-        OnPropertyChanged(nameof(CurrentTask));
-        OnPropertyChanged(nameof(CurrentAnswer));
+            foreach (var task in Model)
+            {
+                if (_answers.Any(a => a.TaskId == task.Id))
+                    continue;
+            
+                _answers.Add(new UserAnswer
+                {
+                    Answer = "",
+                    TaskId = task.Id
+                });
+            }
+
+            OnPropertyChanged(nameof(Model));
+            OnPropertyChanged(nameof(CurrentTask));
+            OnPropertyChanged(nameof(CurrentAnswer));
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e.Message);
+        }
     }
 
     private void NextTask()
@@ -100,6 +103,8 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
         if (CanNext())
         {
             CurrentIndex++;
+            
+            OnPropertyChanged(nameof(CurrentTask));
         }
     }
 
@@ -110,6 +115,8 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
         if (CanPrevious())
         {
             CurrentIndex--;
+            
+            OnPropertyChanged(nameof(CurrentTask));
         }
     }
 
@@ -140,19 +147,25 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
 
     private async void ExecuteCheckTest(object obj)
     {
-        var testForCheck = new TestForCheck
+        try
         {
-            UserId = Preferences.Get("user_id", 0),
-            Answers = _answers,
-            TestId = TestId
-        };
+            var testForCheck = new TestForCheck
+            {
+                UserId = Preferences.Get("user_id", 0),
+                Answers = _answers,
+            };
 
-        var checkedTest = await _apiService.CheckTestAsync(testForCheck);
-        _result.CurrentResult = checkedTest;
+            var checkedTest = await _apiService.CheckTestAsync(testForCheck);
+            _result.CurrentResult = checkedTest;
         
-        if (checkedTest != null)
+            if (checkedTest != null)
+            {
+                await Shell.Current.GoToAsync(nameof(CheckedTestView));
+            }
+        }
+        catch (Exception e)
         {
-            await Shell.Current.GoToAsync(nameof(CheckedTestView));
+            Debug.WriteLine(e.Message);
         }
     }
 

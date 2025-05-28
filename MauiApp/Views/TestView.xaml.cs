@@ -7,19 +7,8 @@ using MauiApp.ViewModels;
 
 namespace MauiApp.Views;
 
-[QueryProperty(nameof(TestId), "testId")]
 public partial class TestView : ContentPage
 {
-    public int TestId
-    {
-        get => ((TestViewModel)BindingContext).TestId;
-        set
-        {
-            ((TestViewModel)BindingContext).TestId = value;
-            ((TestViewModel)BindingContext).LoadTestAsync();
-        }
-    }
-
     public TestView(TestViewModel viewModel)
     {
         InitializeComponent();
@@ -33,5 +22,13 @@ public partial class TestView : ContentPage
         {
             vm.SaveAnswerCommand.Execute(entry.Text);
         }
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        
+        if (BindingContext is TestViewModel vm)
+            vm.LoadTestAsync();
     }
 }

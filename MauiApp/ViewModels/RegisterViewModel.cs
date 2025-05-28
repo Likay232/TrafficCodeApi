@@ -91,12 +91,11 @@ public class RegisterViewModel : ViewModelBase<RegisterModel>
         }
     }
 
-    private ApiService _service;
     public ICommand RegisterCommand { get; set; }
 
     public RegisterViewModel(ApiService service)
     {
-        _service = service;
+        _apiService = service;
 
         Model = new RegisterModel();
 
@@ -157,7 +156,7 @@ public class RegisterViewModel : ViewModelBase<RegisterModel>
             return false;
         }
 
-        return await _service.RegisterUser(regModel);
+        return await _apiService.RegisterUser(regModel);
     }
 
 }
