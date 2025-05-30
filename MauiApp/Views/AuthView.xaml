@@ -5,8 +5,7 @@
              xmlns:viewModel="clr-namespace:MauiApp.ViewModels"
              x:Class="MauiApp.Views.AuthView"
              x:DataType="viewModel:AuthViewModel"
-             Title="Авторизация"
-             BackgroundColor="#F5F5F5">
+             BackgroundColor="White">
 
     <ScrollView>
         <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">

@@ -30,7 +30,7 @@ public partial class AppShell : Shell
 
     private async void OnLogoutClicked(object? sender, EventArgs e)
     {
-        Preferences.Clear();
+        Preferences.Default.Clear();
         SecureStorage.RemoveAll();
 
         await Shell.Current.GoToAsync(nameof(AuthView)); ;

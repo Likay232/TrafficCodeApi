@@ -21,7 +21,7 @@ public class ApiService
         var token = SecureStorage.GetAsync("auth_token").Result;
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        client.BaseAddress = new Uri("http://192.168.55.102:5000/");
+        client.BaseAddress = new Uri("http://192.168.1.123:5000/");
         return client;
     }
 
