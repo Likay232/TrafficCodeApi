@@ -10,6 +10,7 @@ namespace MauiApp.ViewModels;
 public class TestViewModel : ViewModelBase<List<TaskForTest>>
 {
     private int _currentIndex;
+
     private int CurrentIndex
     {
         get => _currentIndex;
@@ -55,6 +56,7 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
     public ICommand PreviousTaskCommand { get; }
     public ICommand SaveAnswerCommand { get; }
     public ICommand CheckTestCommand { get; }
+    public ICommand DownloadFileCommand { get; }
 
     public TestViewModel(ApiService service, SharedObjectStorageService result)
     {
@@ -67,6 +69,8 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
 
         SaveAnswerCommand = new RelayCommand(ExecuteSaveAnswer, CanExecuteSaveAnswer);
         CheckTestCommand = new RelayCommand(ExecuteCheckTest, CanExecuteCheckTest);
+        
+        DownloadFileCommand = new DownloadFileCommand(service);
     }
 
     public async void LoadTestAsync()
@@ -80,7 +84,7 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
             {
                 if (_answers.Any(a => a.TaskId == task.Id))
                     continue;
-            
+
                 _answers.Add(new UserAnswer
                 {
                     Answer = "",
@@ -103,7 +107,7 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
         if (CanNext())
         {
             CurrentIndex++;
-            
+
             OnPropertyChanged(nameof(CurrentTask));
         }
     }
@@ -115,7 +119,7 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
         if (CanPrevious())
         {
             CurrentIndex--;
-            
+
             OnPropertyChanged(nameof(CurrentTask));
         }
     }
@@ -157,7 +161,7 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
 
             var checkedTest = await _apiService.CheckTestAsync(testForCheck);
             _result.CurrentResult = checkedTest;
-        
+
             if (checkedTest != null)
             {
                 await Shell.Current.GoToAsync(nameof(CheckedTestView));

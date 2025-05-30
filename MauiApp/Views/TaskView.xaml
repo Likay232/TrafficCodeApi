@@ -3,6 +3,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:MauiApp.ViewModels"
+             xmlns:models="clr-namespace:MauiApp.Models"
              x:Class="MauiApp.Views.TaskView"
              x:DataType="viewModels:TaskViewModel">
 
@@ -40,8 +41,21 @@
                            FontSize="14"
                            TextColor="#666"
                            HorizontalOptions="End" />
+                    
+                    <Button x:DataType="models:TaskForTest"
+                            Text="{Binding File}"
+                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DownloadFileCommand}"
+                            CommandParameter="{Binding .}"
+                            TextColor="White"
+                            BackgroundColor="#007ACC"
+                            FontSize="16"
+                            CornerRadius="10"
+                            Padding="12,6"
+                            HorizontalOptions="FillAndExpand"
+                            Margin="0,10,0,0"
+                            IsVisible="{Binding File, Converter={StaticResource NullToBoolConverter}}" />
 
-                    <!-- Spacer to push bottom section down -->
+
                     <BoxView HeightRequest="0" VerticalOptions="FillAndExpand" />
 
                     <Label Text="{Binding ResultText}"

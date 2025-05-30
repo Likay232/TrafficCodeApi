@@ -33,6 +33,8 @@ public class TaskViewModel : ViewModelBase<TaskForTest>
     public bool IsResultVisible => IsCorrect != null;
 
     public ICommand CheckTaskCommand { get; set; }
+    
+    public ICommand DownloadFileCommand { get; set; }
 
     public string Answer { get; set; }
 
@@ -42,6 +44,7 @@ public class TaskViewModel : ViewModelBase<TaskForTest>
 
         Answer = "";
         CheckTaskCommand = new RelayCommand(ExecuteCheckTask, CanExecuteCheckTask);
+        DownloadFileCommand = new DownloadFileCommand(service);
     }
 
     public async void LoadTask()

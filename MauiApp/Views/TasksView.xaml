@@ -37,8 +37,7 @@
                         <Frame.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnTaskTapped" CommandParameter="{Binding .}" />
                         </Frame.GestureRecognizers>
-
-
+                        
                         <VerticalStackLayout Spacing="8">
                             <Label Text="Задача"
                                    FontSize="20"
@@ -56,6 +55,19 @@
                                    Aspect="AspectFit"
                                    IsVisible="{Binding Image, Converter={StaticResource NullToBoolConverter}}" 
                                    />
+                            
+                            <Button x:DataType="models:TaskForTest"
+                                    Text="{Binding File}"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DownloadFileCommand}"
+                                    CommandParameter="{Binding .}"
+                                    TextColor="White"
+                                    BackgroundColor="#007ACC"
+                                    FontSize="16"
+                                    CornerRadius="10"
+                                    Padding="12,6"
+                                    HorizontalOptions="FillAndExpand"
+                                    Margin="0,10,0,0"
+                                    IsVisible="{Binding File, Converter={StaticResource NullToBoolConverter}}" />
 
                             <Label Text="{Binding DifficultyLevel, StringFormat='Сложность: {0}'}"
                                    FontSize="14"

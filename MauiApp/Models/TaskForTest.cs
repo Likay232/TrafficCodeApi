@@ -10,7 +10,7 @@ public class TaskForTest : BaseModel
     
     public byte[]? Image { get; set; }
     
-    public byte[]? File { get; set; }
+    public string? File { get; set; }
     
     public bool IsCorrect { get; set; }
 }
