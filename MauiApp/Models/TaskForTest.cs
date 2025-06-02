@@ -12,5 +12,5 @@ public class TaskForTest : BaseModel
     
     public string? File { get; set; }
     
-    public bool IsCorrect { get; set; }
+    public bool? IsCorrect { get; set; }
 }

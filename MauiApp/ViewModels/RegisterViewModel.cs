@@ -109,7 +109,11 @@ public class RegisterViewModel : ViewModelBase<RegisterModel>
                && !string.IsNullOrWhiteSpace(regModel.Password)
                && !string.IsNullOrWhiteSpace(regModel.ConfirmPassword)
                && !string.IsNullOrWhiteSpace(regModel.FirstName)
-               && !string.IsNullOrWhiteSpace(regModel.LastName);
+               && !string.IsNullOrWhiteSpace(regModel.LastName)
+               && !regModel.Password.Contains(" ")
+               && !regModel.Username.Contains(" ")
+               && !regModel.FirstName.Contains(" ")
+               && !regModel.LastName.Contains(" ");
     }
 
     private async void ExecuteRegister(object obj)
@@ -125,13 +129,9 @@ public class RegisterViewModel : ViewModelBase<RegisterModel>
 
         if (await RegisterUser(regModel))
         {
-            Model.FirstName = "";
-            Model.LastName = "";
-            Model.Username = "";
-            Model.Password = "";
-            Model.ConfirmPassword = "";
+            Model = new RegisterModel();
             
-            MainThread.BeginInvokeOnMainThread(async () =>
+            MainThread.BeginInvokeOnMainThread(async void () =>
             {
                 if (Application.Current == null) return;
                 if (Application.Current.MainPage == null) return;

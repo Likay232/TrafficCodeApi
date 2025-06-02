@@ -9,7 +9,8 @@ public partial class AppShell : Shell
     public AppShell()
     {
         InitializeComponent();
-        
+        Navigating += OnNavigating;
+
         Routing.RegisterRoute(nameof(AuthView), typeof(AuthView));
         Routing.RegisterRoute(nameof(ThemesView), typeof(ThemesView));
         Routing.RegisterRoute(nameof(LessonsView), typeof(LessonsView));
@@ -33,11 +34,21 @@ public partial class AppShell : Shell
         Preferences.Default.Clear();
         SecureStorage.RemoveAll();
 
-        await Shell.Current.GoToAsync(nameof(AuthView)); ;
+        await Shell.Current.GoToAsync(nameof(AuthView));
+        ;
     }
 
-    private async void OnChangePasswordClicked(object? sender, EventArgs e)
+    private void OnNavigating(object? sender, ShellNavigatingEventArgs e)
     {
-        await Shell.Current.GoToAsync(nameof(ChangePassView));
+        var userName = Preferences.Get("username", null);
+
+        var isAllowedTarget = e.Target?.Location?.OriginalString?.Contains("AuthView") == true ||
+                              e.Target?.Location?.OriginalString?.Contains("RegisterView") == true || 
+                              e.Current.Location.OriginalString.Contains("RegisterView")== true;
+
+        if (isAllowedTarget || userName != null)
+            return;
+
+        e.Cancel();
     }
 }

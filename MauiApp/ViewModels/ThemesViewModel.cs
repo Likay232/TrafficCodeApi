@@ -15,6 +15,8 @@ public class ThemesViewModel : ViewModelBase<List<Theme>>
         var result = await _apiService.GetThemesAsync();
 
         Model = result ?? new List<Theme>();
+
+        Model = Model.OrderBy(t => t.Title).ToList();
         
         OnPropertyChanged(nameof(Model));
     }

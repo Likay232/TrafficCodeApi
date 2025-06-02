@@ -27,11 +27,19 @@
                                          Value="true">
                                 <Setter Property="BackgroundColor" Value="LightGreen"/>
                             </DataTrigger>
+                            
                             <DataTrigger TargetType="Frame"
                                          Binding="{Binding IsCorrect}"
                                          Value="false">
                                 <Setter Property="BackgroundColor" Value="LightCoral"/>
                             </DataTrigger>
+                            
+                            <DataTrigger TargetType="Frame"
+                                         Binding="{Binding IsCorrect}"
+                                         Value="{Null}">
+                                <Setter Property="BackgroundColor" Value="White"/>
+                            </DataTrigger>
+
                         </Frame.Triggers>
                         
                         <Frame.GestureRecognizers>

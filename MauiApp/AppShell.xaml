@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <Shell
     x:Class="MauiApp.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -6,15 +7,26 @@
     xmlns:pages="clr-namespace:MauiApp.Views"
     Shell.FlyoutBehavior="Flyout"
     Shell.FlyoutHeaderBehavior="CollapseOnScroll"
-    Title="MauiApp">
+    Title="MauiApp"
+    FlyoutBackgroundColor="White"
+    >
 
     <Shell.FlyoutHeader>
-        <Grid Padding="20">
-            <Label x:Name="UserNameLabel"
+        <Grid Padding="25" BackgroundColor="White" HeightRequest="120">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="1"
+                   x:Name="UserNameLabel"
                    Text="Имя пользователя"
                    FontAttributes="Bold"
-                   FontSize="18"
-                   TextColor="Black" />
+                   FontSize="22"
+                   TextColor="Black"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,0" />
         </Grid>
     </Shell.FlyoutHeader>
 
@@ -26,12 +38,11 @@
         <ShellContent Title="Тесты" ContentTemplate="{DataTemplate pages:TestsView}" />
     </FlyoutItem>
     
-    <MenuItem 
-        Text="Сменить пароль"
-        Clicked="OnChangePasswordClicked" />
-    
-    <MenuItem 
-        Text="Выйти"
-        Clicked="OnLogoutClicked"
-        />
+    <FlyoutItem Title="Сменить пароль" Route="ChangePassView">
+        <ShellContent Title="Сменить пароль" ContentTemplate="{DataTemplate pages:ChangePassView}" />
+    </FlyoutItem>
+
+    <MenuItem Text="Выйти"
+              Clicked="OnLogoutClicked" />
+
 </Shell>

@@ -7,26 +7,41 @@
              Title="Тест">
 
     <ContentPage.Content>
-        <Grid Padding="20" RowSpacing="20">
+        <Grid Padding="20" RowSpacing="15">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" />    
+                <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            
-            <Frame Grid.Row="0" BackgroundColor="White" CornerRadius="10" Padding="15"
-                   HeightRequest="300" HorizontalOptions="FillAndExpand" VerticalOptions="Center">
-                <StackLayout Spacing="15" VerticalOptions="Center" HorizontalOptions="Center">
-                    <Label Text="{Binding CurrentTask.Text, FallbackValue='Задание недоступно'}"
-                           FontSize="20"
-                           HorizontalTextAlignment="Center"
-                           LineBreakMode="WordWrap" />
 
+            <Frame Grid.Row="0"
+                   BackgroundColor="White"
+                   CornerRadius="15"
+                   Padding="25"
+                   HasShadow="True"
+                   HorizontalOptions="FillAndExpand"
+                   VerticalOptions="FillAndExpand">
+                <StackLayout Spacing="20" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+                    
+                    <Label Text="{Binding CurrentTask.DifficultyLevel, StringFormat='Сложность: {0}'}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#D9534F" 
+                           HorizontalTextAlignment="Center" />
+                    
+                    <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Margin="0,0,0,10">
+                        <Label Text="{Binding CurrentTask.Text, FallbackValue='Задание недоступно'}"
+                               FontSize="16"
+                               HorizontalTextAlignment="Center"
+                               LineBreakMode="WordWrap" />
+                    </ScrollView>
+                    
                     <Image Source="{Binding CurrentTask.Image, Converter={StaticResource BytesToImageConverter}}"
-                           HeightRequest="150"
+                           HeightRequest="180"
                            Aspect="AspectFit"
+                           HorizontalOptions="Center"
                            IsVisible="{Binding CurrentTask.Image, Converter={StaticResource NullToBoolConverter}}" />
-
+                    
                     <Button Text="{Binding CurrentTask.File}"
                             Command="{Binding DownloadFileCommand}"
                             CommandParameter="{Binding CurrentTask}"
@@ -34,44 +49,45 @@
                             BackgroundColor="#007ACC"
                             FontSize="16"
                             CornerRadius="10"
-                            Padding="12,6"
+                            Padding="14,8"
                             HorizontalOptions="FillAndExpand"
                             IsVisible="{Binding CurrentTask.File, Converter={StaticResource NullToBoolConverter}}" />
                 </StackLayout>
             </Frame>
 
-            <StackLayout Grid.Row="1" Spacing="15">
-
+            <StackLayout Grid.Row="1" Spacing="10">
                 <Frame Padding="0" HasShadow="False" BackgroundColor="White" CornerRadius="10">
                     <Entry Text="{Binding CurrentAnswer.Answer, Mode=TwoWay}"
                            Placeholder="Введите ответ"
                            FontSize="16"
                            BackgroundColor="Transparent"
-                           Margin="10,6"
+                           Margin="12,8"
                            Completed="Entry_Completed" />
                 </Frame>
-                
-                <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="30">
+
+                <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="40">
                     <Button Text="Назад"
                             Command="{Binding PreviousTaskCommand}"
-                            CommandParameter="{Binding Model}" />
+                            CommandParameter="{Binding Model}"
+                            WidthRequest="120" />
 
                     <Button Text="Вперёд"
                             Command="{Binding NextTaskCommand}"
-                            CommandParameter="{Binding Model}" />
+                            CommandParameter="{Binding Model}"
+                            WidthRequest="120" />
                 </StackLayout>
             </StackLayout>
-            
+
             <Button Grid.Row="2"
                     Text="Завершить тест"
                     Command="{Binding CheckTestCommand}"
                     BackgroundColor="#007ACC"
                     TextColor="White"
-                    FontSize="16"
+                    FontSize="18"
                     CornerRadius="10"
-                    Padding="12,6"
+                    Padding="14,8"
                     HorizontalOptions="FillAndExpand"
-                    Margin="0,10,0,0" />
+                    Margin="0,15,0,0" />
         </Grid>
     </ContentPage.Content>
 </ContentPage>

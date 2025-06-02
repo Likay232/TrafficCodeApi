@@ -42,10 +42,10 @@
                            TextColor="#666"
                            HorizontalOptions="End" />
                     
-                    <Button x:DataType="models:TaskForTest"
-                            Text="{Binding File}"
-                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DownloadFileCommand}"
-                            CommandParameter="{Binding .}"
+                    <Button 
+                            Text="{Binding Model.File}"
+                            Command="{Binding DownloadFileCommand}"
+                            CommandParameter="{Binding Model}"
                             TextColor="White"
                             BackgroundColor="#007ACC"
                             FontSize="16"
@@ -53,7 +53,7 @@
                             Padding="12,6"
                             HorizontalOptions="FillAndExpand"
                             Margin="0,10,0,0"
-                            IsVisible="{Binding File, Converter={StaticResource NullToBoolConverter}}" />
+                            IsVisible="{Binding Model.File, Converter={StaticResource NullToBoolConverter}}" />
 
 
                     <BoxView HeightRequest="0" VerticalOptions="FillAndExpand" />

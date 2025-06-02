@@ -6,7 +6,7 @@
              x:Class="MauiApp.Views.ChangePassView"
              x:DataType="viewModel:ChangePassViewModel"
              Title="Смена пароля"
-             BackgroundColor="#F5F5F5">
+             BackgroundColor="White">
 
     <ScrollView>
         <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
@@ -32,7 +32,7 @@
                            TextColor="Black"
                            BackgroundColor="#FAFAFA"
                            HeightRequest="48"
-                           ClearButtonVisibility="WhileEditing"/>
+                           />
 
                     <Entry Placeholder="Новый пароль"
                            IsPassword="True"
@@ -41,7 +41,7 @@
                            TextColor="Black"
                            BackgroundColor="#FAFAFA"
                            HeightRequest="48"
-                           ClearButtonVisibility="WhileEditing"/>
+                           />
 
                     <Label Text="{Binding ErrorMessage}"
                            TextColor="Red"

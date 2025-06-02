@@ -44,7 +44,6 @@ public class GenerateTestViewModel : ViewModelBase<GenerateTest>
     private bool CanExecuteGenerateTest(object obj)
     {
         return true;
-        //return ThemeTaskCounts.Any(t => t.TaskCount > 0);
     }
 
     private async void ExecuteGenerateTest(object obj)
@@ -55,7 +54,8 @@ public class GenerateTestViewModel : ViewModelBase<GenerateTest>
         {
             DesiredTasksAmount = ThemeTaskCounts
                 .Where(t => t.TaskCount > 0)
-                .ToDictionary(t => t.ThemeId, t => t.TaskCount)
+                .ToDictionary(t => t.ThemeId, t => t.TaskCount),
+            UserId = Preferences.Default.Get("user_id", 0)
         };
 
         var generatedTasks = await _apiService.GenerateTest(generateRequest);

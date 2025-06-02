@@ -25,6 +25,9 @@ public class TasksViewModel : ViewModelBase<List<TaskForTest>>
         
         var result = await _apiService.GetTasksForThemeAsync(ThemeId, userId);
         Model = result ?? new List<TaskForTest>();
+        
+        Model = Model.OrderBy(t => t.DifficultyLevel).ToList();
+        
         OnPropertyChanged(nameof(Model));
     }
 }

@@ -5,33 +5,44 @@
              xmlns:viewModel="clr-namespace:MauiApp.ViewModels"
              xmlns:models="clr-namespace:MauiApp.Models"
              x:Class="MauiApp.Views.LessonsView"
-             x:DataType="viewModel:LessonsViewModel">
+             x:DataType="viewModel:LessonsViewModel"
+             Title="Материалы">
     <ContentPage.Content>
-        <CollectionView ItemsSource="{Binding Model}"
-                        BackgroundColor="White">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:Lesson">
-                    <Frame Padding="15"
-                           Margin="10"
-                           BackgroundColor="White"
-                           BorderColor="#DDD"
-                           CornerRadius="10"
-                           HasShadow="True">
-                        <StackLayout Spacing="10">
-                            <Label Text="{Binding Text}"
-                                   FontSize="16"
-                                   TextColor="Black"
-                                   HorizontalOptions="Center" />
+        <Grid>
+            <CollectionView ItemsSource="{Binding Model}"
+                            BackgroundColor="White"
+                            IsVisible="{Binding HasItems}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Lesson">
+                        <Frame Padding="15"
+                               Margin="10"
+                               BackgroundColor="White"
+                               BorderColor="#DDD"
+                               CornerRadius="10"
+                               HasShadow="True">
+                            <StackLayout Spacing="10">
+                                <Label Text="{Binding Text}"
+                                       FontSize="16"
+                                       TextColor="Black"
+                                       HorizontalOptions="Center" />
+                                <Button Text="Смотреть видео"
+                                        FontSize="14"
+                                        IsVisible="{Binding Link}"
+                                        Clicked="OnOpenLinkClicked"
+                                        CommandParameter="{Binding Link}" />
+                            </StackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
-                            <Button Text="Смотреть видео"
-                                    FontSize="14"
-                                    IsVisible="{Binding Link}"
-                                    Clicked="OnOpenLinkClicked"
-                                    CommandParameter="{Binding Link}" />
-                        </StackLayout>
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+            <Label Text="Материалы не найдены"
+                   TextColor="Gray"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   IsVisible="{Binding IsEmpty}" />
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

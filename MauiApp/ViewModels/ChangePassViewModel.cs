@@ -66,7 +66,10 @@ public class ChangePassViewModel : ViewModelBase<ChangePassRequest>
     private bool CanExecuteChangePass(object obj)
     {
         if (obj is not ChangePassRequest request) return false;
-        return !string.IsNullOrWhiteSpace(request.OldPassword) && !string.IsNullOrWhiteSpace(request.NewPassword);
+        return !string.IsNullOrWhiteSpace(request.OldPassword) 
+               && !string.IsNullOrWhiteSpace(request.NewPassword)
+               && !request.OldPassword.Equals(request.NewPassword)
+               && !request.NewPassword.Contains(" ");
     }
 
     private async void ExecuteChangePass(object obj)

@@ -4,6 +4,7 @@ using System.Windows.Input;
 using MauiApp.Commands;
 using MauiApp.Models;
 using MauiApp.Services;
+using MauiApp.Views;
 
 namespace MauiApp.ViewModels;
 
