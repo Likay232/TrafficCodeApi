@@ -2,7 +2,9 @@
 
 public class TestForCheck
 {
+    public bool IsExam { get; set; }
     public int UserId { get; set; }
+    public int TestId { get; set; }
     
     public List<UserAnswer> Answers { get; set; } = new ();
 }

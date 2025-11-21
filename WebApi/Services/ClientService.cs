@@ -136,10 +136,25 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
             }
         }
 
+        var score = $"{test.Answers.Count - wrongTasks.Count} / {test.Answers.Count}";
+
+        if (test.IsExam)
+        {
+            var testUser = new TestUser
+            {
+                UserId = test.UserId,
+                TestId = test.TestId,
+                CompletionTime = DateTime.Now,
+                Score = score
+            };
+            
+            await component.Insert(testUser);
+        }
+        
         return new CheckedTest
         {
             WrongTasks = wrongTasks,
-            Score = $"{test.Answers.Count - wrongTasks.Count} / {test.Answers.Count}"
+            Score = score
         };
     }
 
@@ -389,5 +404,23 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
             });
         
         return statistic.Values.ToList();
+    }
+
+    public async Task<List<TestStatistic>> GetStatisticForTests(string? username)
+    {
+        var userId = component.Users.FirstOrDefault(u => u.Username == username)?.Id;
+        
+        var  testStatistics = await component.TestUsers
+            .Where(u => u.UserId == userId)
+            .Include(u => u.Test)
+            .Select(t => new  TestStatistic
+            {
+                CompletionDate = t.CompletionTime,
+                Score = t.Score,
+                Title = t.Test == null ? "" : t.Test.Title,
+            })
+            .ToListAsync();
+        
+        return testStatistics;
     }
 }

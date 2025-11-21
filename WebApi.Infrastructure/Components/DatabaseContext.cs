@@ -34,6 +34,7 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<Lesson>().ToTable("lessons");
         modelBuilder.Entity<CompletedTask>().ToTable("completed_tasks");
         modelBuilder.Entity<UserDevice>().ToTable("user_devices");
+        modelBuilder.Entity<TestUser>().ToTable("test_users");
     }
     
     public DbSet<User> Users { get; set; }
@@ -46,4 +47,5 @@ public class DatabaseContext : DbContext
     public DbSet<Test> Tests { get; set; }
     
     public DbSet<UserDevice> UserDevices { get; set; }
+    public DbSet<TestUser> TestUsers { get; set; }
 }

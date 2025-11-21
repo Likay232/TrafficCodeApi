@@ -320,4 +320,18 @@ public class AdminController(AdminService service) : Controller
         }
     }
 
+    public async Task<ActionResult<List<ThemesStatistic>>> GetTestStatisticForUser(int userId)
+    {
+        try
+        {
+            var statistic = await service.GetTestStatisticForUser(userId);
+            
+            return StatusCode(200, statistic);
+        }
+        catch (Exception exception)
+        {
+            return StatusCode(500, exception.Message);
+        }
+    }
+
 }

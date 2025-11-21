@@ -272,4 +272,19 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
         return statistic.Values.ToList();
     }
 
+    public async Task<List<TestStatistic>> GetTestStatisticForUser(int userId)
+    {
+        var  testStatistics = await component.TestUsers
+            .Where(u => u.UserId == userId)
+            .Include(u => u.Test)
+            .Select(t => new  TestStatistic
+            {
+                CompletionDate = t.CompletionTime,
+                Score = t.Score,
+                Title = t.Test == null ? "" : t.Test.Title,
+            })
+            .ToListAsync();
+        
+        return testStatistics;
+    }
 }
