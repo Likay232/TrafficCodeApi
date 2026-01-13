@@ -6,7 +6,6 @@ public class TaskForClientDto
     public string Text { get; set; } = string.Empty;
     public string CorrectAnswer { get; set; } = string.Empty;
     public int DifficultyLevel { get; set; }
-    public byte[]? Image { get; set; }
     public string? File { get; set; }
     public bool? IsCorrect { get; set; }
 }

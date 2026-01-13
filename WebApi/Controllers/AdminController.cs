@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebApi.Infrastructure.Models.DTO;
 using WebApi.Infrastructure.Models.Requests;
 using WebApi.Services;
@@ -69,6 +68,14 @@ public class AdminController(AdminService service) : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> DeleteUser(int userId)
+    {
+        await service.DeleteUser(userId);
+        
+        return RedirectToAction(nameof(Users));
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Themes()
     {
         return View(await service.GetThemes());
@@ -124,30 +131,29 @@ public class AdminController(AdminService service) : Controller
     {
         var model = new TaskDto
         {
-            ThemeId = themeId
+            ThemeId = themeId,
+            ThemeName = service.GetThemeName(themeId),
         };
         return View(model);
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddTask([FromForm] TaskDto model, IFormFile? image, IFormFile? file)
+    public async Task<IActionResult> AddTask([FromForm]TaskDto model)
     {
         if (!ModelState.IsValid)
             return View(model);
 
         try
         {
-            if (image is { Length: > 0 })
+            if (model.Image is { Length: > 0 })
             {
-                using var ms = new MemoryStream();
-                await image.CopyToAsync(ms);
-                model.ImageData = ms.ToArray();
-            }
+                var ext = Path.GetExtension(model.Image.FileName);
+                var fileName = $"{Guid.NewGuid():N}{ext}";
 
-            if (file is { Length: > 0 })
-            {
-                if (await service.SaveFileToRepo(file))
-                    model.FilePath = Path.GetFileName(file.FileName);
+                var path = await service.SaveFileToRepo(model.Image, fileName); 
+                
+                if (path != null)
+                    model.FilePath = Path.GetFileName(model.Image.FileName);
                 else
                 {
                     ModelState.AddModelError("", "Не удалось добавить задание");
@@ -216,17 +222,15 @@ public class AdminController(AdminService service) : Controller
 
         try
         {
-            if (image is { Length: > 0 })
+            if (model.Image is { Length: > 0 })
             {
-                using var ms = new MemoryStream();
-                await image.CopyToAsync(ms);
-                model.ImageData = ms.ToArray();
-            }
+                var ext = Path.GetExtension(model.Image.FileName);
+                var fileName = $"{Guid.NewGuid():N}{ext}";
 
-            if (file is { Length: > 0 })
-            {
-                if (await service.SaveFileToRepo(file))
-                    model.FilePath = Path.GetFileName(file.FileName);
+                var path = await service.SaveFileToRepo(model.Image, fileName); 
+                
+                if (path != null)
+                    model.FilePath = Path.GetFileName(model.Image.FileName);
                 else
                 {
                     ModelState.AddModelError("", "Не удалось обновить задание.");

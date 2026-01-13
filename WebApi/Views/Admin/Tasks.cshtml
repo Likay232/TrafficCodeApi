@@ -8,7 +8,7 @@
 <h2>
     @if (Model != null && Model.Any())
     {
-        @:Задания для темы @Model[0].ThemeId
+        @:Задания для темы @Model[0].ThemeName
     }
     else
     {
@@ -103,11 +103,6 @@
                     {
                         var base64Image = "data:image/png;base64," + Convert.ToBase64String(task.ImageData);
                         <img src="@base64Image" alt="Изображение задания" class="task-image"/>
-                    }
-
-                    @if (task.FilePath != null)
-                    {
-                        <a href="@Url.Action("DownloadFileFromRepo", "Admin", new { filePath = @task.FilePath })" class="btn btn-edit">Скачать файл</a>
                     }
                 </div>
 

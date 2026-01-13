@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebApi.Infrastructure.Components;
@@ -11,9 +12,11 @@ using WebApi.Infrastructure.Components;
 namespace WebApi.Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260113141042_TestUserChange")]
+    partial class TestUserChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,10 +112,6 @@ namespace WebApi.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AnswerVariants")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("CorrectAnswer")
                         .IsRequired()
                         .HasColumnType("text");
@@ -121,10 +120,6 @@ namespace WebApi.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("FilePath")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Hint")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Text")

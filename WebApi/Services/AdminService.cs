@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using WebApi.Infrastructure.Components;
 using WebApi.Infrastructure.Models.DTO;
 using WebApi.Infrastructure.Models.Requests;
@@ -17,7 +18,8 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 Id = u.Id,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
-                IsBlocked = u.IsBlocked
+                IsBlocked = u.IsBlocked,
+                Username = u.Username
             })
             .ToListAsync();
     }
@@ -52,6 +54,11 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
         return await component.Update(userEntry);
     }
 
+    public async Task<bool> DeleteUser(int userId)
+    {
+        return await component.DeleteUser(userId);
+    }
+
     public async Task<List<ThemeDto>> GetThemes()
     {
         return await component.Themes.Select(t => new ThemeDto
@@ -74,13 +81,15 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 CorrectAnswer = t.CorrectAnswer,
                 DifficultyLevel = t.DifficultyLevel,
                 FilePath = t.FilePath,
+                AnswerVariants = JsonConvert.DeserializeObject<List<string>>(t.AnswerVariants)
             })
             .ToListAsync();
     }
 
     public async Task<TaskDto?> GetTaskById(int taskId)
     {
-        var task = await component.Tasks.FirstOrDefaultAsync(t => t.Id == taskId);
+        var task = await component.Tasks.Include(t => t.Theme)
+            .FirstOrDefaultAsync(t => t.Id == taskId);
         return task == null
             ? null
             : new TaskDto
@@ -90,7 +99,9 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 CorrectAnswer = task.CorrectAnswer,
                 DifficultyLevel = task.DifficultyLevel,
                 ThemeId = task.ThemeId,
-                FilePath = task.FilePath
+                ThemeName = task.Theme.Title,
+                FilePath = task.FilePath,
+                AnswerVariants = JsonConvert.DeserializeObject<List<string>>(task.AnswerVariants)
             };
     }
 
@@ -109,7 +120,7 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
     {
         if (!component.Themes.Any(t => t.Id == taskToAdd.ThemeId))
             throw new Exception("Тема с таким Id не найдена.");
-        
+
         var newTask = new Task
         {
             ThemeId = taskToAdd.ThemeId,
@@ -117,6 +128,7 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
             CorrectAnswer = taskToAdd.CorrectAnswer,
             DifficultyLevel = taskToAdd.DifficultyLevel,
             FilePath = taskToAdd.FilePath,
+            AnswerVariants = JsonConvert.SerializeObject(taskToAdd.AnswerVariants)
         };
 
         return await component.Insert(newTask);
@@ -163,13 +175,16 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
 
     public async Task<List<TaskDto>> GetTasks()
     {
-        return await component.Tasks.Select(t => new TaskDto
+        return await component.Tasks
+            .Select(t => new TaskDto
             {
                 Id = t.Id,
                 Text = t.Text,
                 CorrectAnswer = t.CorrectAnswer,
                 DifficultyLevel = t.DifficultyLevel,
                 FilePath = t.FilePath,
+                ThemeName = GetThemeName(t.ThemeId),
+                ThemeId = t.ThemeId
             })
             .ToListAsync();
     }
@@ -208,33 +223,28 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
         return $"Тест успешно создан. ID: {newTest.Id}";
     }
 
-    public async Task<bool> SaveFileToRepo(IFormFile file)
+    public async Task<string?> SaveFileToRepo(IFormFile file, string fileName)
     {
-        string fileName = Path.GetFileName(file.FileName);
-        
-        if (component.Tasks.Any(t => t.FilePath == fileName))
-            return false;
-        
         var path = Path.Combine(env.ContentRootPath, "FileRepository", fileName);
 
         await using var stream = new FileStream(path, FileMode.Create);
         await file.CopyToAsync(stream);
-        
-        return true;
+
+        return path;
     }
 
     public async Task<byte[]?> GetFileBytes(string fileName)
     {
         var filePath = Path.Combine(env.ContentRootPath, "FileRepository", fileName);
-        
+
         if (!File.Exists(filePath))
             return null;
 
         var fileBytes = await File.ReadAllBytesAsync(filePath);
-        
+
         return fileBytes;
     }
-    
+
     public async Task<List<ThemesStatistic>> GetThemeStatisticForUser(int userId)
     {
         var tasks = await component.Tasks
@@ -244,17 +254,17 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
             .Where(x => x.UserId == userId)
             .ToDictionaryAsync(x => x.TaskId, x => x.IsCorrect == true);
 
-        var statistic =  tasks
-            .GroupBy(t => new {t.ThemeId, t.Theme.Title})
+        var statistic = tasks
+            .GroupBy(t => new { t.ThemeId, t.Theme.Title })
             .ToDictionary(g => g.Key, g =>
             {
                 var total = g.Count();
                 var solved = g.Count(t => completedTasks.ContainsKey(t.Id));
                 var solvedCorrect = g.Count(t => completedTasks.TryGetValue(t.Id, out var cor) && cor);
-                
+
                 var solvedPercent = total == 0 ? 0.0 : (double)solved / total * 100;
                 var correctPercent = solved == 0 ? 0.0 : (double)solvedCorrect / solved * 100;
-                
+
                 return new ThemesStatistic
                 {
                     SolvedPercent = solvedPercent,
@@ -263,23 +273,28 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                     ThemeName = g.Key.Title
                 };
             });
-        
+
         return statistic.Values.ToList();
     }
 
     public async Task<List<TestStatistic>> GetTestStatisticForUser(int userId)
     {
-        var  testStatistics = await component.TestUsers
+        var testStatistics = await component.TestUsers
             .Where(u => u.UserId == userId)
             .Include(u => u.Test)
-            .Select(t => new  TestStatistic
+            .Select(t => new TestStatistic
             {
                 CompletionDate = t.CompletionDate,
                 Score = t.Score,
                 Title = t.Test == null ? "" : t.Test.Title,
             })
             .ToListAsync();
-        
+
         return testStatistics;
+    }
+
+    public string GetThemeName(int themeId)
+    {
+        return component.Themes.First(t => t.Id == themeId).Title;
     }
 }

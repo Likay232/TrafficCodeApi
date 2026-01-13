@@ -1,93 +1,97 @@
 ﻿@model WebApi.Infrastructure.Models.Requests.Login
 
-@{
-    Layout = null;
-}
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="utf-8" />
-    <title>Авторизация администратора</title>
+    <title>Авторизация</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f0f2f5;
             margin: 0;
             padding: 0;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         .login-container {
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 30px 40px;
             background: white;
-            padding: 2.5rem 3rem;
+            box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgb(0 0 0 / 0.1);
-            width: 320px;
         }
         h2 {
-            margin-bottom: 1.5rem;
             text-align: center;
+            margin-bottom: 24px;
             color: #333;
-        }
-        form div {
-            margin-bottom: 1.25rem;
         }
         label {
             display: block;
-            margin-bottom: 0.4rem;
+            margin-bottom: 8px;
             font-weight: 600;
             color: #555;
         }
-        input[type="text"],
+        input[name="Username"],
         input[type="password"] {
             width: 100%;
-            padding: 0.5rem 0.75rem;
-            font-size: 1rem;
-            border: 1.8px solid #ccc;
-            border-radius: 4px;
-            transition: border-color 0.3s ease;
-        }
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            border-color: #007bff;
-            outline: none;
+            padding: 10px 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
         }
         button {
             width: 100%;
-            padding: 0.6rem;
-            font-size: 1rem;
-            font-weight: 700;
             background-color: #007bff;
-            border: none;
-            border-radius: 5px;
             color: white;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
         button:hover {
             background-color: #0056b3;
         }
+        .links {
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        .links a {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .links a:hover {
+            color: #0056b3;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h2>Вход для администратора</h2>
-        <form method="post" asp-action="LoginAdmin" asp-controller="Auth">
-            <div>
-                <label for="Username">Логин:</label>
-                <input type="text" id="Username" name="Username" value="@Model?.UserName" required autofocus />
-            </div>
-            <div>
-                <label for="Password">Пароль:</label>
-                <input type="password" id="Password" name="Password" required />
-            </div>
-            <div>
-                <button type="submit">Войти</button>
-            </div>
+        <h2>Вход в аккаунт</h2>
+        <form method="post" asp-action="Login" asp-controller="Auth">
+            <label name="Username">Логин</label>
+            <input name="Username" id="Username" placeholder="Введите логин" required />
+            
+            <label name="Password">Пароль</label>
+            <input name="Password" type="password" id="Password" placeholder="Введите пароль" required />
+            <span asp-validation-for="Password" class="text-danger"></span>
+            
+            <button type="submit">Войти</button>
         </form>
+        <div class="links">
+            <a href="@Url.Action("Register", "Auth")">Регистрация</a>
+        </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js" crossorigin="anonymous"></script>
 </body>
 </html>

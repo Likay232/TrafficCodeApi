@@ -43,6 +43,11 @@
                    href="@Url.Action("ChangePasswordForUser", "Admin", new { userId = user.Id })">
                     Сменить пароль
                 </a>
+                
+                <a href="@Url.Action("DeleteUser", "Admin", new { userId = user.Id })" class="btn btn-danger"
+                   onclick="return confirm('Вы уверены, что хотите удалить пользователя @user.Username?');">
+                    Удалить
+                </a>
             </td>
         </tr>
     }

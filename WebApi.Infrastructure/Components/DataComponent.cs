@@ -16,6 +16,34 @@ public class DataComponent(string connectionString)
     public IQueryable<Task> Tasks => new DatabaseContext(connectionString).Tasks;
     public IQueryable<UserDevice> UserDevices => new DatabaseContext(connectionString).UserDevices;
     public IQueryable<TestUser> TestUsers => new DatabaseContext(connectionString).TestUsers;
+
+    public async Task<bool> DeleteUser(int userId)
+    {
+        try
+        {
+            await using var context = new DatabaseContext(connectionString);
+
+            var userDevice = context.UserDevices.Where(u => u.UserId == userId);
+            context.UserDevices.RemoveRange(userDevice);
+            
+            var testUser = context.TestUsers.Where(u => u.UserId == userId);
+            context.TestUsers.RemoveRange(testUser);
+            
+            var progress = context.Progresses.Where(u => u.UserId == userId);
+            context.Progresses.RemoveRange(progress);
+            
+            var user = await context.Users.FirstAsync(u => u.Id == userId);
+            context.Users.Remove(user);
+            
+            await context.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    
     public async Task<bool> Insert<T>(T entityItem) where T : class
     {
         try

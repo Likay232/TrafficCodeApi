@@ -1,6 +1,6 @@
 ﻿@model WebApi.Infrastructure.Models.DTO.TaskDto
 @{
-    ViewBag.Title = "Добавить задание к теме";
+    ViewBag.Title = "Добавление задания";
     Layout = "_MasterPage";
 }
 
@@ -78,26 +78,37 @@
     }
 </style>
 
-<form method="post" asp-action="AddTask" asp-controller="Admin" enctype="multipart/form-data" class="custom-form">
-    <h2>Добавить задание к теме ID: @Model.ThemeId</h2>
+<form method="post"
+      asp-action="AddTask"
+      asp-controller="Admin"
+      enctype="multipart/form-data"
+      class="custom-form">
+
+    <h2>Добавить задание к теме @Model.ThemeName</h2>
 
     <input type="hidden" name="ThemeId" value="@Model.ThemeId"/>
+    
+    <label for="Image">Картинка (опционально)</label>
+    <input name="Image" type="file" accept="image/*" />
 
     <label for="Text">Текст задания</label>
-    <textarea id="Text" name="Text" rows="4" required></textarea>
+    <textarea name="Text" for="Text" rows="4" required></textarea>
 
     <label for="CorrectAnswer">Верный ответ</label>
-    <input id="CorrectAnswer" name="CorrectAnswer" type="text" required />
+    <input name="CorrectAnswer" type="text" required />
+
+    @for (int i = 0; i < 4; i++)
+    {
+        <label for="AnswerVariants">Вариант ответа @(i + 1)</label>
+        <input name="AnswerVariants" type="text" />
+    }
 
     <label for="DifficultyLevel">Сложность (1–5)</label>
-    <input id="DifficultyLevel" name="DifficultyLevel" type="number" min="1" max="5" required />
+    <input name="DifficultyLevel" type="number" min="1" max="5" required />
 
-    <label for="Image">Картинка (опционально)</label>
-    <input id="Image" type="file" name="Image" accept="image/*" />
-
-    <label for="File">Файл (опционально)</label>
-    <input id="File" type="file" name="File" />
+    <label for="Hint">Комментарий</label>
+    <input name="Hint" type="text" required />
 
     <button type="submit">Добавить задание</button>
-    <a href="@Url.Action("Themes", "Admin")" class="btn-cancel">Отмена</a>
+    <a asp-action="Themes" asp-controller="Admin" class="btn-cancel">Отмена</a>
 </form>
