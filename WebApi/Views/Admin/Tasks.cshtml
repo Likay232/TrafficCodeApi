@@ -92,18 +92,37 @@
         @foreach (var task in Model)
         {
             <div class="task-item">
-                <strong>Текст:</strong> @task.Text
 
+                @if (task.FilePath != null)
+                {
+                    <img src="/files/7f5b3da51088404aa0043d97de72c007.png" alt="Изображение задания" class="task-image"/>
+                }
+                
                 <div class="task-meta">
 
+                    <strong>Текст:</strong> @task.Text
+
                     <p><strong>Правильный ответ:</strong> @task.CorrectAnswer</p>
+
                     <p><strong>Уровень сложности:</strong> @task.DifficultyLevel</p>
 
-                    @if (task.ImageData != null)
+                    @* Отображение вариантов ответа *@
+                    @if (task.AnswerVariants != null && task.AnswerVariants.Any())
                     {
-                        var base64Image = "data:image/png;base64," + Convert.ToBase64String(task.ImageData);
-                        <img src="@base64Image" alt="Изображение задания" class="task-image"/>
+                        <p><strong>Варианты ответа:</strong></p>
+                        <ul>
+                            @foreach (var variant in task.AnswerVariants)
+                            {
+                                <li>@variant</li>
+                            }
+                        </ul>
                     }
+
+                    @if (!string.IsNullOrEmpty(task.Hint))
+                    {
+                        <p><strong>Подсказка:</strong> @task.Hint</p>
+                    }
+
                 </div>
 
                 <div class="task-actions">

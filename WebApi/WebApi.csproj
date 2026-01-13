@@ -21,7 +21,7 @@
 
     <ItemGroup>
       <Folder Include="FileRepository\" />
-      <Folder Include="wwwroot\" />
+      <Folder Include="wwwroot\files\" />
     </ItemGroup>
     
 </Project>

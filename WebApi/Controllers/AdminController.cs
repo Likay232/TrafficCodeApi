@@ -153,7 +153,7 @@ public class AdminController(AdminService service) : Controller
                 var path = await service.SaveFileToRepo(model.Image, fileName); 
                 
                 if (path != null)
-                    model.FilePath = Path.GetFileName(model.Image.FileName);
+                    model.FilePath = path;
                 else
                 {
                     ModelState.AddModelError("", "Не удалось добавить задание");

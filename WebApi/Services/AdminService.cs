@@ -81,7 +81,8 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 CorrectAnswer = t.CorrectAnswer,
                 DifficultyLevel = t.DifficultyLevel,
                 FilePath = t.FilePath,
-                AnswerVariants = JsonConvert.DeserializeObject<List<string>>(t.AnswerVariants)
+                AnswerVariants = JsonConvert.DeserializeObject<List<string>>(t.AnswerVariants),
+                Hint = t.Hint
             })
             .ToListAsync();
     }
@@ -101,7 +102,8 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 ThemeId = task.ThemeId,
                 ThemeName = task.Theme.Title,
                 FilePath = task.FilePath,
-                AnswerVariants = JsonConvert.DeserializeObject<List<string>>(task.AnswerVariants)
+                AnswerVariants = JsonConvert.DeserializeObject<List<string>>(task.AnswerVariants),
+                Hint = task.Hint
             };
     }
 
@@ -128,7 +130,8 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
             CorrectAnswer = taskToAdd.CorrectAnswer,
             DifficultyLevel = taskToAdd.DifficultyLevel,
             FilePath = taskToAdd.FilePath,
-            AnswerVariants = JsonConvert.SerializeObject(taskToAdd.AnswerVariants)
+            AnswerVariants = JsonConvert.SerializeObject(taskToAdd.AnswerVariants),
+            Hint = taskToAdd.Hint
         };
 
         return await component.Insert(newTask);
@@ -184,7 +187,8 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 DifficultyLevel = t.DifficultyLevel,
                 FilePath = t.FilePath,
                 ThemeName = GetThemeName(t.ThemeId),
-                ThemeId = t.ThemeId
+                ThemeId = t.ThemeId,
+                AnswerVariants = JsonConvert.DeserializeObject<List<string>>(t.AnswerVariants)
             })
             .ToListAsync();
     }
@@ -225,17 +229,17 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
 
     public async Task<string?> SaveFileToRepo(IFormFile file, string fileName)
     {
-        var path = Path.Combine(env.ContentRootPath, "FileRepository", fileName);
+        var path = Path.Combine(env.ContentRootPath, "wwwroot/files", fileName);
 
         await using var stream = new FileStream(path, FileMode.Create);
         await file.CopyToAsync(stream);
 
-        return path;
+        return $"/files/{fileName}";
     }
 
     public async Task<byte[]?> GetFileBytes(string fileName)
     {
-        var filePath = Path.Combine(env.ContentRootPath, "FileRepository", fileName);
+        var filePath = Path.Combine(env.ContentRootPath, "wwwroot/files", fileName);
 
         if (!File.Exists(filePath))
             return null;
