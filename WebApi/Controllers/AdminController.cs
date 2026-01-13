@@ -6,7 +6,7 @@ using WebApi.Services;
 
 namespace WebApi.Controllers;
 
-[Authorize(Roles = "Admin")]
+// [Authorize(Roles = "Admin")]
 [Route("[controller]/[action]")]
 public class AdminController(AdminService service) : Controller
 {
@@ -320,6 +320,7 @@ public class AdminController(AdminService service) : Controller
         }
     }
 
+    [HttpGet]
     public async Task<ActionResult<List<ThemesStatistic>>> GetTestStatisticForUser(int userId)
     {
         try

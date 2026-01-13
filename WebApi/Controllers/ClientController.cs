@@ -212,6 +212,7 @@ public class ClientController(ClientService service) : ControllerBase
         }
     }
     
+    [HttpGet]
     public async Task<ActionResult<List<ThemesStatistic>>> GetTestStatisticForUser()
     {
         try

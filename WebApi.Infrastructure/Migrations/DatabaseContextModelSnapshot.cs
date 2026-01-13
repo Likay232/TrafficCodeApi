@@ -119,9 +119,6 @@ namespace WebApi.Infrastructure.Migrations
                     b.Property<string>("FilePath")
                         .HasColumnType("text");
 
-                    b.Property<byte[]>("ImageData")
-                        .HasColumnType("bytea");
-
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("text");
@@ -174,6 +171,34 @@ namespace WebApi.Infrastructure.Migrations
                     b.HasIndex("TestId");
 
                     b.ToTable("test_tasks", (string)null);
+                });
+
+            modelBuilder.Entity("WebApi.Infrastructure.Models.Storage.TestUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CompletionDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Score")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TestId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TestId");
+
+                    b.ToTable("test_users", (string)null);
                 });
 
             modelBuilder.Entity("WebApi.Infrastructure.Models.Storage.Theme", b =>
@@ -328,6 +353,17 @@ namespace WebApi.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Task");
+
+                    b.Navigation("Test");
+                });
+
+            modelBuilder.Entity("WebApi.Infrastructure.Models.Storage.TestUser", b =>
+                {
+                    b.HasOne("WebApi.Infrastructure.Models.Storage.Test", "Test")
+                        .WithMany()
+                        .HasForeignKey("TestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Test");
                 });

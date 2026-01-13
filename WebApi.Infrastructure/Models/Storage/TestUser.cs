@@ -1,11 +1,11 @@
 namespace WebApi.Infrastructure.Models.Storage;
 
-public class TestUser
+public class TestUser : BaseEntity
 {
     public int TestId { get; set; }
     public Test? Test { get; set; }
     public int UserId { get; set; }
     
     public string Score { get; set; } = string.Empty;
-    public DateTime CompletionTime { get; set; } = DateTime.Now;
+    public DateTime CompletionDate { get; set; } = DateTime.Now;
 }

@@ -74,7 +74,6 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 CorrectAnswer = t.CorrectAnswer,
                 DifficultyLevel = t.DifficultyLevel,
                 FilePath = t.FilePath,
-                ImageData = t.ImageData
             })
             .ToListAsync();
     }
@@ -91,7 +90,6 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 CorrectAnswer = task.CorrectAnswer,
                 DifficultyLevel = task.DifficultyLevel,
                 ThemeId = task.ThemeId,
-                ImageData = task.ImageData,
                 FilePath = task.FilePath
             };
     }
@@ -118,7 +116,6 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
             Text = taskToAdd.Text,
             CorrectAnswer = taskToAdd.CorrectAnswer,
             DifficultyLevel = taskToAdd.DifficultyLevel,
-            ImageData = taskToAdd.ImageData,
             FilePath = taskToAdd.FilePath,
         };
 
@@ -138,7 +135,6 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
         taskToEdit.Text = updatedTask.Text;
         taskToEdit.CorrectAnswer = updatedTask.CorrectAnswer;
         taskToEdit.DifficultyLevel = updatedTask.DifficultyLevel;
-        taskToEdit.ImageData = updatedTask.ImageData;
         taskToEdit.FilePath = updatedTask.FilePath;
         taskToEdit.ThemeId = updatedTask.ThemeId;
 
@@ -173,7 +169,6 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 Text = t.Text,
                 CorrectAnswer = t.CorrectAnswer,
                 DifficultyLevel = t.DifficultyLevel,
-                ImageData = t.ImageData,
                 FilePath = t.FilePath,
             })
             .ToListAsync();
@@ -279,7 +274,7 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
             .Include(u => u.Test)
             .Select(t => new  TestStatistic
             {
-                CompletionDate = t.CompletionTime,
+                CompletionDate = t.CompletionDate,
                 Score = t.Score,
                 Title = t.Test == null ? "" : t.Test.Title,
             })

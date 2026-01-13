@@ -7,7 +7,6 @@ public class Task : BaseEntity
 
     public int DifficultyLevel { get; set; }
     
-    public byte[]? ImageData { get; set; }
     public string? FilePath { get; set; }
     
     public int ThemeId { get; set; }

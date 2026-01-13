@@ -14,7 +14,7 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "CONNECTION_STRING": "Server=localhost;Port=5434;Database=trafficCodeDb;Username=postgres;Password=12345",
+        "CONNECTION_STRING": "Server=localhost;Port=5434;Database=trafficCodeDb;Username=postgres;Password=1234",
         "ADMIN_LOGIN": "admin",
         "ADMIN_PASSWORD": "123",
         "JWT_SECRET": "your-very-secret-key123456789011"

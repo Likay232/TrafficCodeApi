@@ -61,7 +61,6 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
                 CorrectAnswer = t.CorrectAnswer,
                 DifficultyLevel = t.DifficultyLevel,
                 File = t.FilePath,
-                Image = t.ImageData,
                 IsCorrect = completedTask?.IsCorrect ?? null
             };
         }).ToList();
@@ -104,7 +103,6 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
                 CorrectAnswer = "",
                 DifficultyLevel = t.Task.DifficultyLevel,
                 File = t.Task.FilePath,
-                Image = t.Task.ImageData,
             })
             .ToListAsync();
     }
@@ -129,7 +127,6 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
                 wrongTasks.Add(new WrongTask
                 {
                     Text = task != null ? task.Text : "",
-                    ImageData = task?.ImageData,
                     FilePath = task?.FilePath,
                     Answer = userAnswer.Answer,
                 });
@@ -144,7 +141,7 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
             {
                 UserId = test.UserId,
                 TestId = test.TestId,
-                CompletionTime = DateTime.Now,
+                CompletionDate = DateTime.Now,
                 Score = score
             };
             
@@ -171,7 +168,6 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
             Text = taskFromDb.Text,
             DifficultyLevel = taskFromDb.DifficultyLevel,
             File = taskFromDb.FilePath,
-            Image = taskFromDb.ImageData,
             IsCorrect = false
         };
 
@@ -196,7 +192,6 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
             Text = randomTask.Text,
             DifficultyLevel = randomTask.DifficultyLevel,
             FilePath = randomTask.FilePath,
-            ImageData = randomTask.ImageData,
         };
     }
 
@@ -287,7 +282,6 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
                     task.Text,
                     task.DifficultyLevel,
                     FilePath = task.FilePath,
-                    task.ImageData,
                     WasSolvedCorrectly = completedTasksIds.Contains(task.Id),
                 })
                 .OrderBy(t => t.WasSolvedCorrectly ? 1 : 0)
@@ -300,7 +294,6 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
                     Text = t.Text,
                     DifficultyLevel = t.DifficultyLevel,
                     File = t.FilePath,
-                    Image = t.ImageData,
                 });
 
             test.AddRange(selectedTasks);
@@ -415,7 +408,7 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
             .Include(u => u.Test)
             .Select(t => new  TestStatistic
             {
-                CompletionDate = t.CompletionTime,
+                CompletionDate = t.CompletionDate,
                 Score = t.Score,
                 Title = t.Test == null ? "" : t.Test.Title,
             })
