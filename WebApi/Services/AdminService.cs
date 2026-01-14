@@ -152,6 +152,8 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
         taskToEdit.DifficultyLevel = updatedTask.DifficultyLevel;
         taskToEdit.FilePath = updatedTask.FilePath;
         taskToEdit.ThemeId = updatedTask.ThemeId;
+        taskToEdit.Hint = updatedTask.Hint;
+        taskToEdit.AnswerVariants = JsonConvert.SerializeObject(updatedTask.AnswerVariants);
 
         return await component.Update(taskToEdit);
     }
@@ -300,5 +302,10 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
     public string GetThemeName(int themeId)
     {
         return component.Themes.First(t => t.Id == themeId).Title;
+    }
+
+    public async Task<bool> DeleteTheme(int themeId)
+    {
+        return await component.Delete<Theme>(themeId);
     }
 }

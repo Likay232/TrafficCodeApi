@@ -5,57 +5,252 @@
     Layout = "_MasterPage";
 }
 
-<h2>Темы</h2>
+<div class="page-header">
+    <h2>Темы</h2>
+    <a href="@Url.Action("AddTheme", "Admin")"
+       class="add-icon-theme"
+       title="Добавить тему">+</a>
+</div>
 
 <style>
-    .theme-item {
-        border: 1px solid #ccc;
-        margin-bottom: 8px;
+
+    .page-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .page-header h2 {
+        margin: 0;
+    }
+
+    .themes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    .theme-card {
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+    .theme-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+    }
+
+    .theme-title {
+        text-align: center;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .theme-title a {
+        text-decoration: none;
+        color: #222;
+    }
+
+    .theme-description {
+        text-align: center;
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 15px;
+    }
+    
+    .theme-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 500;
+        font-size: 15px;
+    }
+
+    .add-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        transition: all .15s ease;
+    }
+
+    .add-icon:hover {
+        background-color: #0275d8;
+        color: #fff;
+        border-color: #0275d8;
+    }
+
+    .add-icon-theme {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 22px;
+        font-weight: 600;
+        color: #333;
+        transition: all .15s ease;
+    }
+
+    .add-icon-theme:hover {
+        background-color: #0275d8;
+        color: #fff;
+        border-color: #0275d8;
+    }
+
+    .theme-section {
+        border-top: 1px solid #eee;
         padding: 10px;
-        background-color: #f9f9f9;
+        margin-top: 10px;
         position: relative;
     }
 
-    .theme-item:hover {
-        background-color: #e9e9e9;
-    }
-
-    .theme-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-    }
-
-    .btn {
-        padding: 5px 10px;
+    .theme-section.clickable {
         cursor: pointer;
-        border-radius: 3px;
-        border: none;
-        color: white;
-        background-color: #0275d8;
-        text-decoration: none;
-        display: inline-block;
-        margin-top: 8px;
     }
 
-    .btn-add-theme {
-        background-color: #5cb85c;
-        margin-bottom: 15px;
+    .theme-section.clickable:hover {
+        background-color: #f7f9fc;
     }
+
+    .section-link {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+    }
+
+    .theme-section-header {
+        position: relative;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .add-icon {
+        position: relative;
+        z-index: 3;
+        pointer-events: auto;
+    }
+
+    .theme-actions {
+        margin-top: 15px;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .theme-action {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #444;
+        transition: all .15s ease;
+        font-size: 14px;
+    }
+
+    .theme-action:hover {
+        background-color: #f0f2f5;
+        border-color: #999;
+    }
+
+    .theme-action.delete:hover {
+        background-color: #fbeaea;
+        color: #c9302c;
+        border-color: #c9302c;
+    }
+
+    .theme-action.edit:hover {
+        background-color: #eef4fb;
+        color: #0275d8;
+        border-color: #0275d8;
+    }
+
 </style>
 
-<a href="@Url.Action("AddTheme", "Admin")" class="btn btn-add-theme">Добавить тему</a>
-
-<div id="themes-container">
+<div class="themes-grid">
     @foreach (var theme in Model)
     {
-        <div class="theme-item">
-            <a class="theme-link" href="@Url.Action("Tasks", "Admin", new { themeId = theme.Id })">
-                <strong>@theme.Title</strong>
-                <p>@theme.Description</p>
-            </a>
-            <a href="@Url.Action("AddLesson", "Admin", new { themeId = theme.Id })" class="btn">Добавить материал к теме</a>
-            <a href="@Url.Action("AddTask", "Admin", new { themeId = theme.Id })" class="btn" style="margin-left:10px;">Добавить задание к теме</a>
+        <div class="theme-card">
+
+            <div class="theme-title">
+                <a href="@Url.Action("Tasks", "Admin", new { themeId = theme.Id })">
+                    @theme.Title
+                </a>
+            </div>
+
+            <div class="theme-description">
+                @theme.Description
+            </div>
+
+            <div class="theme-footer">
+                <div class="theme-section clickable">
+                    <a class="section-link"
+                       href="@Url.Action("Lessons", "Admin", new { themeId = theme.Id })"></a>
+
+                    <div class="theme-section-header">
+                        <span>Материалы</span>
+                        <a class="add-icon"
+                           title="Добавить материал"
+                           href="@Url.Action("AddLesson", "Admin", new { themeId = theme.Id })">
+                            +
+                        </a>
+                    </div>
+                </div>
+
+                <div class="theme-section clickable">
+                    <a class="section-link"
+                       href="@Url.Action("Tasks", "Admin", new { themeId = theme.Id })"></a>
+
+                    <div class="theme-section-header">
+                        <span>Задания</span>
+                        <a class="add-icon"
+                           title="Добавить задание"
+                           href="@Url.Action("AddTask", "Admin", new { themeId = theme.Id })">
+                            +
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="theme-actions">
+                <a class="theme-action edit"
+                   title="Редактировать тему"
+                   href="@Url.Action("EditTheme", "Admin", new { themeId = theme.Id })">
+                    ✏️
+                </a>
+
+                <a class="theme-action delete"
+                   title="Удалить тему"
+                   href="@Url.Action("DeleteTheme", "Admin", new { themeId = theme.Id })">
+                    🗑
+                </a>
+            </div>
+
         </div>
     }
 </div>

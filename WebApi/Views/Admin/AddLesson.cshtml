@@ -1,7 +1,7 @@
 ﻿@model WebApi.Infrastructure.Models.DTO.LessonDto
 
 @{
-    ViewBag.Title = "Добавить материал к теме";
+    ViewBag.Title = "Добавить материал";
     Layout = "_MasterPage";
 }
 
@@ -78,7 +78,7 @@
 </style>
 
 <form method="post" asp-action="AddLesson" asp-controller="Admin" class="custom-form">
-    <h2>Добавить материал к теме ID: @Model.ThemeId</h2>
+    <h2>Добавить материал к теме @Model.ThemeName</h2>
 
     <input type="hidden" name="ThemeId" value="@Model.ThemeId" />
 

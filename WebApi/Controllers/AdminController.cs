@@ -107,7 +107,7 @@ public class AdminController(AdminService service) : Controller
     [HttpGet]
     public IActionResult AddLesson(int themeId)
     {
-        var model = new LessonDto {ThemeId = themeId};
+        var model = new LessonDto {ThemeId = themeId, ThemeName = service.GetThemeName(themeId)};
         return View(model);
     }
 
@@ -215,7 +215,7 @@ public class AdminController(AdminService service) : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> EditTask([FromForm] TaskDto model, IFormFile? image, IFormFile? file)
+    public async Task<IActionResult> EditTask([FromForm] TaskDto model)
     {
         if (!ModelState.IsValid)
             return View(model);
@@ -230,7 +230,7 @@ public class AdminController(AdminService service) : Controller
                 var path = await service.SaveFileToRepo(model.Image, fileName); 
                 
                 if (path != null)
-                    model.FilePath = Path.GetFileName(model.Image.FileName);
+                    model.FilePath = path;
                 else
                 {
                     ModelState.AddModelError("", "Не удалось обновить задание.");
@@ -339,4 +339,11 @@ public class AdminController(AdminService service) : Controller
         }
     }
 
+    [HttpGet]
+    public async Task<IActionResult> DeleteTheme(int themeId)
+    {
+        await service.DeleteTheme(themeId);
+        
+        return RedirectToAction(nameof(Themes));
+    }
 }

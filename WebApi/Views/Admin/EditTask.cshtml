@@ -55,12 +55,29 @@
     .custom-form button:hover {
         background-color: #0056b3;
     }
+
+    .custom-form .task-image {
+        display: block;
+        margin: 10px auto;
+        max-width: 500px;
+        border-radius: 5px;
+    }
+
 </style>
 
 <form asp-action="EditTask" asp-controller="Admin" method="post" enctype="multipart/form-data" class="custom-form">
     <input type="hidden" name="Id" value="@Model.Id" />
     <input type="hidden" name="ThemeId" value="@Model.ThemeId" />
+    <input type="hidden" name="FilePath" value="@Model.FilePath"/>
 
+    @if (Model.FilePath != null)
+    {
+        <img src="@Model.FilePath" alt="Изображение задания" class="task-image"/>
+    }
+
+    <label for="Image">Картинка (опционально)</label>
+    <input id="Image" type="file" name="Image" accept="image/*" />
+    
     <label for="Text">Текст задания</label>
     <textarea id="Text" name="Text" rows="4" required>@Model.Text</textarea>
 
@@ -69,12 +86,15 @@
 
     <label for="DifficultyLevel">Уровень сложности</label>
     <input id="DifficultyLevel" name="DifficultyLevel" type="number" min="1" max="5" required value="@Model.DifficultyLevel" />
+    
+    @for (int i = 0; i < @Model.AnswerVariants.Count; i++)
+    {
+        <label for="AnswerVariants">Вариант ответа @(i + 1)</label>
+        <input id="AnswerVariants" name="AnswerVariants" type="text" value="@Model.AnswerVariants[i]"/>
+    }
 
-    <label for="Image">Картинка (опционально)</label>
-    <input id="Image" type="file" name="Image" accept="image/*" />
-
-    <label for="File">Файл (опционально)</label>
-    <input id="File" type="file" name="File" />
+    <label for="Hint">Комментарий</label>
+    <input id="Hint" name="Hint" type="text" required value="@Model.Hint"/>
 
     <button type="submit">Сохранить</button>
 </form>

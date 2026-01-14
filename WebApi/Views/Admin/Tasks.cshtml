@@ -6,7 +6,7 @@
 }
 
 <h2>
-    @if (Model != null && Model.Any())
+    @if (Model.Any())
     {
         @:Задания для темы @Model[0].ThemeName
     }
@@ -48,12 +48,7 @@
         max-width: 300px;
         border-radius: 5px;
     }
-
-    .task-file {
-        margin-top: 10px;
-        display: inline-block;
-    }
-
+    
     .task-actions {
         margin-top: 15px;
     }
@@ -82,7 +77,7 @@
     }
 </style>
 
-@if (Model != null && Model.Any())
+@if (Model.Any())
 {
     <div style="margin-top: 20px;">
         <a href="@Url.Action("AddTask", "Admin", new { themeId = Model[0].ThemeId })" class="btn btn-add">Добавить задание к теме</a>
@@ -95,7 +90,7 @@
 
                 @if (task.FilePath != null)
                 {
-                    <img src="/files/7f5b3da51088404aa0043d97de72c007.png" alt="Изображение задания" class="task-image"/>
+                    <img src="@task.FilePath" alt="Изображение задания" class="task-image"/>
                 }
                 
                 <div class="task-meta">
@@ -107,7 +102,7 @@
                     <p><strong>Уровень сложности:</strong> @task.DifficultyLevel</p>
 
                     @* Отображение вариантов ответа *@
-                    @if (task.AnswerVariants != null && task.AnswerVariants.Any())
+                    @if (task.AnswerVariants.Any())
                     {
                         <p><strong>Варианты ответа:</strong></p>
                         <ul>
