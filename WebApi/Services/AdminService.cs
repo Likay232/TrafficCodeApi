@@ -308,4 +308,33 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
     {
         return await component.Delete<Theme>(themeId);
     }
+
+    public async Task<bool> EditTheme(ThemeDto updatedTheme)
+    {
+        var themeToUpdate = await component.Themes.FirstOrDefaultAsync(t => t.Id == updatedTheme.Id);
+
+        if (themeToUpdate == null)
+            throw new Exception("Тема с таким Id не найдена");
+
+        themeToUpdate.Title = updatedTheme.Title;
+        themeToUpdate.Description = updatedTheme.Description;
+
+        return await component.Update(themeToUpdate);
+    }
+
+    public async Task<ThemeDto> GetThemeById(int themeId)
+    {
+        var theme = await component.Themes
+            .FirstOrDefaultAsync(t => t.Id == themeId);
+
+        if (theme == null)
+            throw new Exception("Тема с таким id не найдена");
+
+        return new ThemeDto()
+        {
+            Id = themeId,
+            Title = theme.Title,
+            Description = theme.Description,
+        };
+    }
 }

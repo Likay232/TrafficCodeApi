@@ -1,0 +1,79 @@
+@model WebApi.Infrastructure.Models.DTO.ThemeDto
+
+@{
+    ViewBag.Title = "Редактирование темы";
+    Layout = "_MasterPage";
+}
+
+<style>
+    form.custom-form {
+        max-width: 650px;
+        margin: 0 auto;
+        padding: 25px;
+        background-color: #f9f9f9;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        font-family: sans-serif;
+    }
+
+    .custom-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #444;
+    }
+
+    .custom-form input[type="text"],
+    .custom-form input[type="number"],
+    .custom-form textarea,
+    .custom-form input[type="file"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        transition: border-color 0.2s;
+    }
+
+    .custom-form input:focus,
+    .custom-form textarea:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+
+    .custom-form button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        border: none;
+        color: white;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .custom-form button:hover {
+        background-color: #0056b3;
+    }
+
+    .custom-form .task-image {
+        display: block;
+        margin: 10px auto;
+        max-width: 500px;
+        border-radius: 5px;
+    }
+
+</style>
+
+<form asp-action="EditTask" asp-controller="Admin" method="post" enctype="multipart/form-data" class="custom-form">
+    <input type="hidden" name="Id" value="@Model.Id" />
+
+    <label for="Title">Название темы</label>
+    <input id="Title" name="Title" type="text" required value="@Model.Title" />
+    
+    <label for="Description">Описание</label>
+    <textarea id="Description" name="Description" rows="4">@Model.Description</textarea>
+    
+    <button type="submit">Сохранить</button>
+</form>
+

@@ -346,4 +346,27 @@ public class AdminController(AdminService service) : Controller
         
         return RedirectToAction(nameof(Themes));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> EditTheme(int themeId)
+    {
+        var theme = await service.GetThemeById(themeId);
+        
+        return View(theme);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult> EditTheme([FromForm] ThemeDto model)
+    {
+        if (!ModelState.IsValid)
+            return View(model);
+        
+        var result = await service.EditTheme(model); 
+        
+        if (result)
+            return RedirectToAction(nameof(Themes));
+
+        ModelState.AddModelError("", "Не удалось обновить тему.");
+        return View(model);
+    }
 }
