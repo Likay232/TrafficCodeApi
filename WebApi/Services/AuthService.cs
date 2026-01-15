@@ -11,35 +11,53 @@ namespace WebApi.Services;
 
 public class AuthService(DataComponent component)
 {
-    public async Task<string?> LoginAdmin(Login request)
+    public async Task<string?> Login(Login request)
     {
+        string? role;
+        int userId;
+
         if (request is { UserName: "admin", Password: "admin123" })
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "super_secret_key_12345";
-            
-            Console.WriteLine(key);
+            role = "Admin";
+            userId = 0;
+        }
+        else
+        {
+            var user = component.Users.FirstOrDefault(u =>
+                u.Username == request.UserName && u.Password == request.Password);
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity([
-                    new Claim(ClaimTypes.Name, request.UserName),
-                    new Claim(ClaimTypes.Role, "Admin")
-                ]),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-                    SecurityAlgorithms.HmacSha256Signature)
-            };
+            if (user == null || user.IsBlocked)
+                return null;
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(token);
+            role = "Client";
+            userId = user.Id;
+            user.LastLogin = DateTime.Now;
+            await component.Update(user);
         }
 
-        return null;
-    }
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "super_secret_key_12345";
 
+        var claims = new List<Claim>
+        {
+            new (ClaimTypes.NameIdentifier, userId.ToString()),
+            new (ClaimTypes.Name, request.UserName),
+            new (ClaimTypes.Role, role)
+        };
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddHours(role == "Admin" ? 1 : 3),
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
+                SecurityAlgorithms.HmacSha256Signature)
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
+    }
+    
     public async Task<bool> Register(Register request)
     {
         var user = await component.Users.FirstOrDefaultAsync(u =>
@@ -58,36 +76,5 @@ public class AuthService(DataComponent component)
         };
 
         return await component.Insert(newUser);
-    }
-
-    public async Task<string?> Login(Login request)
-    {
-        var user = component.Users.FirstOrDefault(u =>
-            u.Username == request.UserName && u.Password == request.Password);
-        
-        if (user == null || user.IsBlocked)
-            return null;
-        
-        user.LastLogin = DateTime.Now;
-        await component.Update(user);
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "super_secret_key_12345";
-        
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity([
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, request.UserName),
-                new Claim(ClaimTypes.Role, "Client")
-            ]),
-            Expires = DateTime.UtcNow.AddHours(3),
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-                SecurityAlgorithms.HmacSha256Signature)
-        };
-
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
     }
 }

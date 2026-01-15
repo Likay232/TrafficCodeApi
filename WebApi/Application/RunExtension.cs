@@ -109,7 +109,7 @@ public static class RunExtension
 
         app.MapControllerRoute(
             name: "default",
-            pattern: "{controller=Auth}/{action=LoginAdmin}/{id?}");
+            pattern: "{controller=AuthMvc}/{action=Login}/{id?}");
         
         app.MapControllerRoute(
             name:"AdminRoute",
@@ -117,7 +117,7 @@ public static class RunExtension
         
         app.MapGet("/", context =>
         {
-            context.Response.Redirect("/Auth/LoginAdmin");
+            context.Response.Redirect("/AuthMvc/Login");
             return Task.CompletedTask;
         });
 

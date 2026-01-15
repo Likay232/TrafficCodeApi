@@ -1,0 +1,147 @@
+@model WebApi.Infrastructure.Models.Requests.Register
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8"/>
+    <title>Регистрация</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+            Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            background: #f4f7fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        form {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 420px;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            margin-bottom: 24px;
+            color: #222;
+            font-weight: 600;
+            text-align: center;
+            letter-spacing: 0.03em;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.8px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #333;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="date"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #3f83f8;
+            outline: none;
+            box-shadow: 0 0 8px rgba(63, 131, 248, 0.25);
+        }
+
+        textarea {
+            min-height: 80px;
+        }
+
+        button {
+            margin-top: 25px;
+            width: 100%;
+            background: #3f83f8;
+            color: #fff;
+            font-weight: 600;
+            padding: 14px 0;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 5px 15px rgba(63, 131, 248, 0.4);
+            user-select: none;
+        }
+
+        button:hover {
+            background: #3366d6;
+            box-shadow: 0 8px 20px rgba(51, 102, 214, 0.6);
+        }
+
+        .footer {
+            margin-top: 18px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .footer a {
+            color: #3f83f8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: #3366d6;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<form asp-controller="Auth" asp-action="Register" method="post">
+    <h2>Регистрация</h2>
+
+    <label name="Username">Имя пользователя</label>
+    <input name="Username" type="text" id="Username" required value="@Model.Username"/>
+
+    <label name="Password">Пароль</label>
+    <input name="Password" type="password" id="Password" placeholder="Введите пароль" value="@Model.Password" required/>
+
+    <label name="ConfirmPassword">Подтверждение пароля</label>
+    <input name="ConfirmPassword" type="password" id="ConfirmPassword" placeholder="Повторите пароль" value="@Model.ConfirmPassword" required/>
+
+    <label name="FirstName">Имя</label>
+    <input name="FirstName" type="text" id="FirstName" placeholder="Ваше имя" value="@Model.FirstName" required/>
+
+    <label name="LastName">Фамилия</label>
+    <input name="LastName" type="text" id="LastName" placeholder="Ваша фамилия" value="@Model.LastName" required/>
+    
+    <button type="submit">Зарегистрироваться</button>
+
+    <div class="footer">
+        Уже зарегистрированы? <a href="@Url.Action("Login", "AuthMvc")">Войти</a>
+    </div>
+</form>
+</body>
+</html>
