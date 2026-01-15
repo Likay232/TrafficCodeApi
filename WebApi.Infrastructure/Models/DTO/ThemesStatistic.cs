@@ -7,4 +7,6 @@ public class ThemesStatistic
     
     public double SolvedCorrectPercent { get; set; }
     public double SolvedPercent { get; set; }
+    
+    public int Level { get; set; }
 }

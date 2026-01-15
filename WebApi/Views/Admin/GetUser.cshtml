@@ -1,0 +1,367 @@
+@model WebApi.Infrastructure.Models.DTO.UserDto?
+
+@{
+    ViewBag.Title = "Информация о пользователе";
+    Layout = "_MasterPage";
+}
+
+@if (Model == null)
+{
+    <p>Пользователь не найден</p>
+    return;
+}
+
+<div class="user-details">
+
+    <div class="user-info-card">
+        <div class="user-info-header">
+            <div>
+                <div class="user-fullname">@Model.FirstName @Model.LastName</div>
+        
+                <div class="user-subinfo">
+                    <span class="user-username">@Model.Username</span> &bull; 
+                    <span class="last-login">Последний вход: @Model.LastLogin.ToString("dd.MM.yyyy HH:mm")</span>
+                </div>
+            </div>
+
+            <div class="status-wrapper">
+                <span id="statusBadge"
+                      class="status-badge @(Model.IsBlocked ? "blocked" : "active")">
+                    @(Model.IsBlocked ? "Заблокирован" : "Активен")
+                </span>
+
+                <button class="icon-btn"
+                        title="Изменить статус"
+                        onclick="toggleBlock(this)">
+                    @(Model.IsBlocked ? "🔓" : "🔒")
+                </button>
+            </div>
+        </div>
+
+        <div class="user-field">
+            <label>Пароль</label>
+
+            <div class="password-edit">
+                <span id="passwordText">••••</span>
+
+                <input id="passwordInput"
+                       type="password"
+                       value="@Model.Password"
+                       style="display:none;" />
+
+                <button class="icon-btn"
+                        id="togglePasswordBtn"
+                        title="Показать / скрыть пароль"
+                        onclick="togglePasswordVisibility()">
+                    <img id="passwordEyeIcon"
+                         src="~/images/view.png"
+                         alt="toggle visibility"
+                         class="eye-icon" />
+                </button>
+
+                <button id="editBtn"
+                        class="icon-btn"
+                        onclick="enablePasswordEdit()">✏️</button>
+
+                <button id="saveBtn"
+                        class="icon-btn"
+                        style="display:none;"
+                        onclick="savePassword()">✔️</button>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="section-title">Статистика по темам</h3>
+
+    <div class="stats-grid">
+        @foreach (var stat in Model.ThemesStatistics)
+        {
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="theme-name">@stat.ThemeName</span>
+                    <span class="level-badge">Уровень @stat.Level</span>
+                </div>
+
+                <div class="progress-group">
+                    <div class="progress-label">
+                        Решено заданий <span>@stat.SolvedPercent%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width:@stat.SolvedPercent%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-group">
+                    <div class="progress-label">
+                        Правильные ответы <span>@stat.SolvedCorrectPercent%</span>
+                    </div>
+                    <div class="progress-bar correct">
+                        <div class="progress-fill" style="width:@stat.SolvedCorrectPercent%"></div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<style>
+    .eye-icon {
+        width: 25px;
+        height: 25px;
+        vertical-align: middle;
+    }
+
+    .user-details {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .user-info-card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .user-info-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .user-fullname {
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .user-username {
+        font-size: 14px;
+        color: #777;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 14px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .status-badge.active {
+        background: #e6f4ea;
+        color: #2e7d32;
+    }
+
+    .status-badge.blocked {
+        background: #fdecea;
+        color: #c62828;
+    }
+
+    .user-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .user-field label {
+        font-size: 13px;
+        color: #777;
+    }
+
+    .password-edit {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .password-edit input {
+        padding: 6px 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        width: 220px;
+    }
+
+    .icon-btn {
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    .section-title {
+        margin-bottom: 15px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        padding: 16px;
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+    }
+
+    .theme-name {
+        font-weight: 600;
+    }
+
+    .level-badge {
+        font-size: 12px;
+        background: #eef4fb;
+        color: #0275d8;
+        padding: 4px 10px;
+        border-radius: 12px;
+    }
+
+    .progress-group {
+        margin-bottom: 12px;
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .progress-bar {
+        background: #eee;
+        height: 8px;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .progress-bar.correct {
+        background: #e6f4ea;
+    }
+
+    .progress-fill {
+        background: #0275d8;
+        height: 100%;
+        border-radius: 6px;
+    }
+
+    .status-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .icon-btn {
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+</style>
+
+<script>
+    const userId = @Model.Id;
+    let isBlocked = @Model.IsBlocked.ToString().ToLower();
+    let passwordVisible = false;
+    let currentPass = @Model.Password
+
+    function togglePasswordVisibility() {
+        const text = document.getElementById("passwordText");
+        const input = document.getElementById("passwordInput");
+        const icon = document.getElementById("passwordEyeIcon");
+
+        passwordVisible = !passwordVisible;
+
+        icon.src = passwordVisible
+            ? "/images/hide.png"
+            : "/images/view.png";
+
+        if (input.style.display === "none") {
+            text.textContent = passwordVisible ? currentPass : "••••";
+        } else {
+            input.type = passwordVisible ? "text" : "password";
+        }
+    }
+
+    function enablePasswordEdit() {
+        
+        if (passwordVisible) {
+            togglePasswordVisibility();
+        }
+        
+        document.getElementById("passwordText").style.display = "none";
+        document.getElementById("passwordInput").style.display = "inline-block";
+        document.getElementById("passwordInput").type = passwordVisible ? "text" : "password";
+        document.getElementById("passwordInput").value = currentPass;
+
+        document.getElementById("passwordEyeIcon").src =
+            passwordVisible ? "/images/hide.png" : "/images/view.png";
+
+        document.getElementById("editBtn").style.display = "none";
+        document.getElementById("saveBtn").style.display = "inline-block";
+    }
+
+    async function savePassword() {
+        const password = document.getElementById("passwordInput").value;
+
+        if (!password) {
+            alert("Введите пароль");
+            return;
+        }
+
+        if (!confirm("Сохранить новый пароль?")) return;
+
+        const response = await fetch('/Admin/ChangePasswordForUser', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: userId,
+                newPassword: password
+            })
+        });
+
+        if (response.ok) {
+            currentPass = password;
+            
+            document.getElementById("passwordInput").value = "";
+            document.getElementById("passwordText").style.display = "inline";
+            document.getElementById("passwordText").text = currentPass;
+            document.getElementById("passwordInput").style.display = "none";
+            document.getElementById("editBtn").style.display = "inline-block";
+            document.getElementById("saveBtn").style.display = "none";
+        } else {
+            alert("Ошибка при смене пароля");
+        }
+    }
+
+
+    async function toggleBlock(button) {
+        if (!confirm("Изменить статус пользователя?")) return;
+
+        const response = await fetch(`/Admin/SwitchBlockState?userId=${userId}`);
+
+        if (!response.ok) {
+            alert("Ошибка");
+            return;
+        }
+
+        isBlocked = !isBlocked;
+
+        const badge = document.getElementById("statusBadge");
+        badge.textContent = isBlocked ? "Заблокирован" : "Активен";
+        badge.className = "status-badge " + (isBlocked ? "blocked" : "active");
+
+        button.textContent = isBlocked ? "🔓" : "🔒";
+    }
+</script>

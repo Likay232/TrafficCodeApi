@@ -19,15 +19,30 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 IsBlocked = u.IsBlocked,
-                Username = u.Username
+                Username = u.Username,
             })
             .ToListAsync();
     }
 
-    public async Task<User?> GetUser(int userId)
+    public async Task<UserDto?> GetUser(int userId)
     {
-        return await component.Users
-            .FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await component.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null) throw new Exception("Пользователь не найден");
+        
+        var themesStatistic = await GetThemeStatisticForUser(userId);
+
+        return new UserDto()
+        {
+            Id = user.Id,
+            FirstName = user.FirstName,
+            IsBlocked = user.IsBlocked,
+            LastName = user.LastName,
+            Password = user.Password,
+            ThemesStatistics = themesStatistic,
+            Username = user.Username,
+            LastLogin = user.LastLogin
+        };
     }
 
     public async Task<bool> SwitchBlockState(int userId)
@@ -253,6 +268,8 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
 
     public async Task<List<ThemesStatistic>> GetThemeStatisticForUser(int userId)
     {
+        var progresses = await component.Progresses.ToListAsync();
+        
         var tasks = await component.Tasks
             .Include(t => t.Theme)
             .ToListAsync();
@@ -276,29 +293,14 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                     SolvedPercent = solvedPercent,
                     SolvedCorrectPercent = correctPercent,
                     ThemeId = g.Key.ThemeId,
-                    ThemeName = g.Key.Title
+                    ThemeName = g.Key.Title,
+                    Level = progresses.FirstOrDefault(p => p.ThemeId == g.Key.ThemeId)?.Level ?? 1
                 };
             });
 
         return statistic.Values.ToList();
     }
-
-    public async Task<List<TestStatistic>> GetTestStatisticForUser(int userId)
-    {
-        var testStatistics = await component.TestUsers
-            .Where(u => u.UserId == userId)
-            .Include(u => u.Test)
-            .Select(t => new TestStatistic
-            {
-                CompletionDate = t.CompletionDate,
-                Score = t.Score,
-                Title = t.Test == null ? "" : t.Test.Title,
-            })
-            .ToListAsync();
-
-        return testStatistics;
-    }
-
+    
     public string GetThemeName(int themeId)
     {
         return component.Themes.First(t => t.Id == themeId).Title;

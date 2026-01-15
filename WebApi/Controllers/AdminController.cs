@@ -29,41 +29,19 @@ public class AdminController(AdminService service) : Controller
         return RedirectToAction(nameof(Users));
     }
 
-    [HttpGet]
-    public async Task<IActionResult> ChangePasswordForUser(int userId)
-    {
-        var user = await service.GetUser(userId);
-
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        return View(user);
-    }
 
     [HttpPost]
-    public async Task<IActionResult> ChangePasswordForUser([FromForm] ChangePasswordAdmin request)
+    public async Task<IActionResult> ChangePasswordForUser([FromBody] ChangePasswordAdmin request)
     {
         try
         {
             var result = await service.ChangeUserPassword(request);
-
-            if (!result)
-            {
-                TempData["Error"] = "Ошибка при обновлении пароля";
-            }
-            else
-            {
-                TempData["Message"] = "Пароль успешно изменён";
-            }
-
-            return RedirectToAction("ChangePasswordForUser", new { userId = request.UserId });
+            
+            return StatusCode(200, result);
         }
         catch (Exception ex)
         {
-            TempData["Error"] = ex.Message;
-            return RedirectToAction("ChangePasswordForUser", new { userId = request.UserId });
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -386,5 +364,12 @@ public class AdminController(AdminService service) : Controller
         await service.UpdateLesson(updatedLesson);
         
         return RedirectToAction(nameof(Lessons), new {themeId = updatedLesson.ThemeId});
+    }
+
+    public async Task<IActionResult> GetUser(int userId)
+    {
+        var model = await service.GetUser(userId);
+        
+        return View(model);
     }
 }
