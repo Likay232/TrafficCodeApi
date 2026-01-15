@@ -1,0 +1,183 @@
+@model List<WebApi.Infrastructure.Models.DTO.LessonDto>
+
+@{
+    ViewBag.Title = "Материалы";
+    Layout = "_MasterPage";
+}
+
+<div class="page-header">
+    <h2>@ViewBag.ThemeName</h2>
+    <a href="@Url.Action("AddLesson", "Admin", new { themeId = ViewBag.ThemeId })"
+       class="add-icon-large"
+       title="Добавить материал">+</a>
+</div>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .materials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 20px;
+    }
+
+    .material-card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+    .material-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+    }
+
+    .material-theme {
+        font-size: 13px;
+        color: #777;
+        text-align: center;
+        margin-bottom: 6px;
+    }
+
+    .material-text {
+        font-size: 14px;
+        color: #333;
+        line-height: 1.5;
+        margin-bottom: 15px;
+        white-space: pre-line;
+    }
+
+    .material-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+    }
+
+    .video-link {
+        padding: 6px 12px;
+        border-radius: 6px;
+        background-color: #0275d8;
+        color: #fff;
+        text-decoration: none;
+        font-size: 13px;
+        transition: background-color .15s ease;
+    }
+
+    .video-link:hover {
+        background-color: #025aa5;
+    }
+
+    .material-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .material-action {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #444;
+        transition: all .15s ease;
+        font-size: 14px;
+    }
+
+    .material-action.edit:hover {
+        background-color: #eef4fb;
+        color: #0275d8;
+        border-color: #0275d8;
+    }
+
+    .material-action.delete:hover {
+        background-color: #fbeaea;
+        color: #c9302c;
+        border-color: #c9302c;
+    }
+
+    .add-icon-large {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 22px;
+        font-weight: 600;
+        color: #333;
+        transition: all .15s ease;
+    }
+
+    .add-icon-large:hover {
+        background-color: #0275d8;
+        color: #fff;
+        border-color: #0275d8;
+    }
+</style>
+
+<div class="materials-grid">
+    @foreach (var lesson in Model)
+    {
+        <div class="material-card">
+
+            <div class="material-theme">
+                @lesson.ThemeName
+            </div>
+
+            <div class="material-text">
+                @lesson.Text
+            </div>
+
+            <div class="material-footer">
+                @if (!string.IsNullOrWhiteSpace(lesson.Link))
+                {
+                    <a class="video-link"
+                       href="@lesson.Link"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        ▶ Перейти к видео
+                    </a>
+                }
+                else
+                {
+                    <span></span>
+                }
+
+                <div class="material-actions">
+                    <a class="material-action edit"
+                       title="Редактировать материал"
+                       href="@Url.Action("EditLesson", "Admin", new { lessonId = lesson.Id })">
+                        ✏️
+                    </a>
+
+                    <a class="material-action delete"
+                       title="Удалить материал"
+                       onclick="return confirm('Вы уверены, что хотите удалить данный теоретический материал?');"
+                       href="@Url.Action("DeleteLesson", "Admin", new { lessonId = lesson.Id, themeId = lesson.ThemeId })">
+                        🗑
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    }
+</div>

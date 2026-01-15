@@ -246,6 +246,7 @@
 
                 <a class="theme-action delete"
                    title="Удалить тему"
+                   onclick="return confirm('Вы уверены, что хотите удалить тему @theme.Title?');"
                    href="@Url.Action("DeleteTheme", "Admin", new { themeId = theme.Id })">
                     🗑
                 </a>

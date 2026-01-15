@@ -117,7 +117,7 @@ public class AdminController(AdminService service) : Controller
         try
         {
             await service.AddLessonForTheme(lessonToAdd);
-            return RedirectToAction(nameof(Themes));
+            return RedirectToAction(nameof(Lessons), new {themeId = lessonToAdd.ThemeId});
         }
         catch (Exception e)
         {
@@ -310,7 +310,7 @@ public class AdminController(AdminService service) : Controller
     }
     
     [HttpGet]
-    public async Task<ActionResult<List<ThemesStatistic>>> GetStatisticForTheme(int userId)
+    public async Task<ActionResult<List<ThemesStatistic>>> GetUserStatisticForTheme(int userId)
     {
         try
         {
@@ -323,22 +323,7 @@ public class AdminController(AdminService service) : Controller
             return StatusCode(500, exception.Message);
         }
     }
-
-    [HttpGet]
-    public async Task<ActionResult<List<ThemesStatistic>>> GetTestStatisticForUser(int userId)
-    {
-        try
-        {
-            var statistic = await service.GetTestStatisticForUser(userId);
-            
-            return StatusCode(200, statistic);
-        }
-        catch (Exception exception)
-        {
-            return StatusCode(500, exception.Message);
-        }
-    }
-
+    
     [HttpGet]
     public async Task<IActionResult> DeleteTheme(int themeId)
     {
@@ -368,5 +353,38 @@ public class AdminController(AdminService service) : Controller
 
         ModelState.AddModelError("", "Не удалось обновить тему.");
         return View(model);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult> Lessons(int themeId)
+    {
+        ViewBag.ThemeId = themeId;
+        ViewBag.ThemeName =  service.GetThemeName(themeId);
+        var lessons = await service.GetLessons(themeId);
+
+        return View(lessons);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult> DeleteLesson(int lessonId, int themeId)
+    {
+        await service.DeleteLesson(lessonId);
+        return RedirectToAction(nameof(Lessons), new { themeId });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditLesson(int lessonId)
+    {
+        var model = await service.GetLessonById(lessonId);
+        
+        return View(model);
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> EditLesson(LessonDto updatedLesson)
+    {
+        await service.UpdateLesson(updatedLesson);
+        
+        return RedirectToAction(nameof(Lessons), new {themeId = updatedLesson.ThemeId});
     }
 }

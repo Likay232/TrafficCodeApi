@@ -1,7 +1,7 @@
-﻿@model WebApi.Infrastructure.Models.DTO.LessonDto
+@model WebApi.Infrastructure.Models.DTO.LessonDto
 
 @{
-    ViewBag.Title = "Добавить материал";
+    ViewBag.Title = "Редактирование теоретического материала";
     Layout = "_MasterPage";
 }
 
@@ -75,19 +75,20 @@
     .custom-form a.btn-cancel:hover {
         background-color: #aaa;
     }
+    
 </style>
 
-<form method="post" asp-action="AddLesson" asp-controller="Admin" class="custom-form">
-    <h2>Добавить материал к теме @Model.ThemeName</h2>
-
+<form asp-action="EditLesson" asp-controller="Admin" method="post" enctype="multipart/form-data" class="custom-form">
+    <input type="hidden" name="Id" value="@Model.Id" />
     <input type="hidden" name="ThemeId" value="@Model.ThemeId" />
 
     <label for="Text">Текст</label>
-    <textarea id="Text" name="Text" rows="4" required></textarea>
+    <textarea id="Text" name="Text" rows="4" required >@Model.Text</textarea>
 
     <label for="Link">Ссылка (необязательно)</label>
-    <input type="url" id="Link" name="Link" />
-
-    <button type="submit">Добавить материал</button>
+    <input type="url" id="Link" name="Link" value="@Model.Link"/>
+    
+    <button type="submit">Подтвердить</button>
     <a href="@Url.Action("Lessons", "Admin", new {themeId = Model.ThemeId})" class="btn-cancel">Отмена</a>
 </form>
+

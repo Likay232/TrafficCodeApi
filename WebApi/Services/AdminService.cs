@@ -337,4 +337,57 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
             Description = theme.Description,
         };
     }
+
+    public async Task<List<LessonDto>> GetLessons(int themeId)
+    {
+        return await component.Lessons
+            .Include(l => l.Theme)
+            .Where(l => l.ThemeId == themeId)
+            .Select(l => new LessonDto()
+            {
+                Id = l.Id,
+                ThemeId = l.ThemeId,
+                ThemeName = l.Theme.Title,
+                Text = l.Text,
+                Link = l.Link,
+            })
+            .ToListAsync();
+    }
+
+    public async Task<bool> DeleteLesson(int lessonId)
+    {
+        var lessonToDelete = await component.Lessons.FirstOrDefaultAsync(l => l.Id == lessonId);
+
+        if (lessonToDelete is null)
+            throw new Exception("Теоретический материал с таким id не найден");
+
+        return await component.Delete<Lesson>(lessonId);
+    }
+
+    public async Task<LessonDto> GetLessonById(int lessonId)
+    {
+        var lesson = await component.Lessons.FirstOrDefaultAsync(l => l.Id == lessonId);
+
+        if (lesson == null) throw new Exception("Не найден теоретический материал с данным id.");
+
+        return new LessonDto()
+        {
+            Id = lessonId,
+            ThemeId = lesson.ThemeId,
+            Text = lesson.Text,
+            Link = lesson.Link,
+        };
+    }
+
+    public async Task<bool> UpdateLesson(LessonDto updatedLesson)
+    {
+        var lessonToUpdate = await component.Lessons.FirstOrDefaultAsync(l => l.Id == updatedLesson.Id);
+
+        if (lessonToUpdate == null) throw new Exception("Не найден теоретический материал с данным id.");
+        
+        lessonToUpdate.Text = updatedLesson.Text;
+        lessonToUpdate.Link = updatedLesson.Link;
+        
+        return await component.Update(lessonToUpdate);
+    }
 }
