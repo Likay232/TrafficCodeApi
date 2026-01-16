@@ -11,7 +11,7 @@ public class TaskDto
     
     public string Text { get; set; } = string.Empty;
     public string CorrectAnswer { get; set; } = string.Empty;
-    public List<string> AnswerVariants { get; set; } = new List<string>();
+    public List<string?> AnswerVariants { get; set; } = new List<string?>();
     public string Hint { get; set; } = string.Empty;
     
     public int DifficultyLevel { get; set; }
