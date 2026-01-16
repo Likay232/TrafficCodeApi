@@ -9,4 +9,5 @@ public class CompletedTask : BaseEntity
     public Task Task { get; set; } = null!;
     
     public bool? IsCorrect { get; set; }
+    public DateTime CompletedAt { get; set; }
 }

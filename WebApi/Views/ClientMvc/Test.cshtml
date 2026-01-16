@@ -1,0 +1,282 @@
+@using WebApi.Infrastructure.Models.Enums
+@model List<WebApi.Infrastructure.Models.DTO.TaskDto>
+
+@{
+    ViewBag.Title = "Решение теста по теме";
+    Layout = "_ClientLayout";
+
+    var testType = (TestTypes)ViewBag.TestType;
+}
+
+<div class="test-container">
+
+    @if (testType == TestTypes.Exam)
+    {
+        <div class="test-timer" id="timer">20:00</div>
+    }
+
+    <div class="test-card" id="testCard"></div>
+    <div class="test-nav" id="testNav"></div>
+</div>
+
+<style>
+    .test-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .test-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.08);
+    }
+
+    .test-question {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .test-image-wrapper {
+        width: 100%;
+        max-height: 350px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f6f7f9;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .test-image-wrapper img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .test-answers {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .answer-btn {
+        padding: 14px 16px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        background: #f4f6f9;
+        cursor: pointer;
+        font-size: 15px;
+        transition: .15s;
+    }
+
+    .answer-btn.correct {
+        background: #e6f6ea;
+        border-color: #4caf50;
+    }
+
+    .answer-btn.wrong {
+        background: #fdecea;
+        border-color: #f44336;
+    }
+
+    .test-hint {
+        margin-top: 14px;
+        background: #fff8e1;
+        padding: 12px 14px;
+        border-radius: 10px;
+        color: #856404;
+    }
+
+    .test-nav {
+        margin-top: 24px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .test-nav button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: none;
+        background: #e3e7ee;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .test-nav button.active {
+        background: #0275d8;
+        color: #fff;
+    }
+
+    .test-nav button.correct {
+        background: #4caf50;
+        color: #fff;
+    }
+
+    .test-nav button.wrong {
+        background: #f44336;
+        color: #fff;
+    }
+
+    .test-timer {
+        text-align: right;
+        font-weight: 600;
+        color: #d9534f;
+        margin-bottom: 12px;
+    }
+</style>
+
+<script>
+    const tasks = @Html.Raw(Json.Serialize(Model));
+    const testType = '@testType';
+
+    let current = 0;
+    let finished = false;
+
+    const answersState = {};
+
+    function renderTask(index) {
+        const task = tasks[index];
+        current = index;
+
+        let html = '';
+
+        if (task.filePath) {
+            html += `
+                <div class="test-image-wrapper">
+                    <img src="${task.filePath}" alt="Изображение задания">
+                </div>
+            `;
+        }
+
+        html += `
+            <div class="test-question">${task.text}</div>
+            <div class="test-answers">
+        `;
+
+        task.answerVariants
+            .filter(a => a)
+            .forEach(a => {
+                html += `<button class="answer-btn" data-answer="${a}">${a}</button>`;
+            });
+
+        html += `</div>`;
+
+        document.getElementById('testCard').innerHTML = html;
+
+        restoreState(task);
+        renderNav();
+    }
+
+    function renderNav() {
+        let nav = '';
+        for (let i = 0; i < tasks.length; i++) {
+            let cls = '';
+
+            if (answersState[tasks[i].id]) {
+                cls = answersState[tasks[i].id].isCorrect ? 'correct' : 'wrong';
+            }
+
+            if (i === current) cls = 'active';
+
+            nav += `<button class="${cls}" onclick="renderTask(${i})">${i + 1}</button>`;
+        }
+        document.getElementById('testNav').innerHTML = nav;
+    }
+
+    function restoreState(task) {
+        const state = answersState[task.id];
+        if (!state) return;
+
+        document.querySelectorAll('.answer-btn').forEach(b => {
+            if (b.innerText === task.correctAnswer)
+                b.classList.add('correct');
+            else if (b.innerText === state.selected)
+                b.classList.add('wrong');
+
+            b.disabled = true;
+        });
+
+        if (!state.isCorrect && testType !== 'Exam' && task.hint) {
+            document.getElementById('testCard')
+                .insertAdjacentHTML('beforeend',
+                    `<div class="test-hint">💡 ${task.hint}</div>`);
+        }
+    }
+
+    document.addEventListener('click', e => {
+        if (!e.target.classList.contains('answer-btn')) return;
+        answer(e.target.dataset.answer);
+    });
+
+    function answer(selected) {
+        if (finished) return;
+
+        const task = tasks[current];
+        if (answersState[task.id]) return;
+
+        const isCorrect = selected === task.correctAnswer;
+
+        answersState[task.id] = {
+            selected,
+            isCorrect
+        };
+
+        fetch('/ClientMvc/SaveAnswer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                taskId: task.id,
+                isCorrect: isCorrect
+            })
+        });
+
+        document.querySelectorAll('.answer-btn').forEach(b => {
+            if (b.innerText === task.correctAnswer)
+                b.classList.add('correct');
+            else if (b.innerText === selected)
+                b.classList.add('wrong');
+
+            b.disabled = true;
+        });
+
+        if (!isCorrect) {
+            if (testType === 'Marathon') {
+                alert('Ошибка! Марафон завершён');
+                finished = true;
+                return;
+            }
+
+            if (testType !== 'Exam' && task.hint) {
+                document.getElementById('testCard')
+                    .insertAdjacentHTML('beforeend',
+                        `<div class="test-hint">💡 ${task.hint}</div>`);
+            }
+        }
+
+        renderNav();
+    }
+
+    if (testType === 'Exam') {
+        let seconds = 20 * 60;
+        const timer = setInterval(() => {
+            seconds--;
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            document.getElementById('timer').innerText =
+                `${m}:${s.toString().padStart(2, '0')}`;
+
+            if (seconds <= 0) {
+                clearInterval(timer);
+                alert('Время вышло!');
+                finished = true;
+            }
+        }, 1000);
+    }
+
+    renderTask(current);
+</script>

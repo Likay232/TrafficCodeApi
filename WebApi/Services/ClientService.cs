@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using WebApi.Infrastructure.Components;
 using WebApi.Infrastructure.Models.DTO;
+using WebApi.Infrastructure.Models.Enums;
 using WebApi.Infrastructure.Models.Requests;
 using WebApi.Infrastructure.Models.Storage;
 using Task = System.Threading.Tasks.Task;
@@ -47,6 +49,7 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
             .ToListAsync();
 
         var tasks = await component.Tasks
+            .Include(t => t.Theme)
             .Where(t => t.ThemeId == request.ThemeId)
             .ToListAsync();
 
@@ -57,11 +60,15 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
             return new TaskForClientDto
             {
                 Id = t.Id,
+                ThemeId = t.ThemeId,
+                ThemeName = t.Theme.Title,
+                Hint = t.Hint,
                 Text = t.Text,
                 CorrectAnswer = t.CorrectAnswer,
                 DifficultyLevel = t.DifficultyLevel,
-                File = t.FilePath,
-                IsCorrect = completedTask?.IsCorrect ?? null
+                FilePath = t.FilePath,
+                IsCorrect = completedTask?.IsCorrect ?? null,
+                AnswerVariants = JsonConvert.DeserializeObject<List<string?>>(t.AnswerVariants) ?? new List<string?>()
             };
         }).ToList();
     }
@@ -105,7 +112,7 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
                 Text = t.Task.Text,
                 CorrectAnswer = "",
                 DifficultyLevel = t.Task.DifficultyLevel,
-                File = t.Task.FilePath,
+                FilePath = t.Task.FilePath,
             })
             .ToListAsync();
     }
@@ -170,7 +177,7 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
             Id = taskId,
             Text = taskFromDb.Text,
             DifficultyLevel = taskFromDb.DifficultyLevel,
-            File = taskFromDb.FilePath,
+            FilePath = taskFromDb.FilePath,
             IsCorrect = false
         };
 
@@ -244,66 +251,66 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
         return await component.Update(user);
     }
 
-    public async Task<List<TaskForClientDto>> GenerateTest(GenerateTest request)
-    {
-        var test = new List<TaskForClientDto>();
-        var random = new Random();
-
-        foreach (var themeId in request.DesiredTasksAmount.Keys)
-        {
-            var userProgress = await component.Progresses
-                .FirstOrDefaultAsync(p => p.ThemeId == themeId && p.UserId == request.UserId);
-
-            if (userProgress == null)
-            {
-                userProgress = new Progress
-                {
-                    UserId = request.UserId,
-                    ThemeId = themeId,
-                    Level = 1,
-                    AmountToLevelUp = 5
-                };
-
-                await component.Insert(userProgress);
-            }
-
-            var tasks = await component.Tasks
-                .Where(t => t.ThemeId == themeId)
-                .ToListAsync();
-            
-            var completedTasksIds = await component.CompletedTasks
-                .Where(t => t.UserId == request.UserId && t.IsCorrect == true)
-                .Select(t => t.TaskId)
-                .ToListAsync();
-
-            var desiredTaskAmount = Math.Min(request.DesiredTasksAmount[themeId], tasks.Count);
-
-            var selectedTasks = tasks
-                .Select(task => new
-                {
-                    task.Id,
-                    task.Text,
-                    task.DifficultyLevel,
-                    task.FilePath,
-                    WasSolvedCorrectly = completedTasksIds.Contains(task.Id),
-                })
-                .OrderBy(t => t.WasSolvedCorrectly ? 1 : 0)
-                .ThenBy(t => t.DifficultyLevel <= userProgress.Level ? 0 : 1)
-                .ThenBy(_ => random.Next())
-                .Take(desiredTaskAmount)
-                .Select(t => new TaskForClientDto
-                {
-                    Id = t.Id,
-                    Text = t.Text,
-                    DifficultyLevel = t.DifficultyLevel,
-                    File = t.FilePath,
-                });
-
-            test.AddRange(selectedTasks);
-        }
-
-        return test;
-    }
+    // public async Task<List<TaskForClientDto>> GenerateTest(GenerateTest request)
+    // {
+    //     var test = new List<TaskForClientDto>();
+    //     var random = new Random();
+    //
+    //     foreach (var themeId in request.DesiredTasksAmount.Keys)
+    //     {
+    //         var userProgress = await component.Progresses
+    //             .FirstOrDefaultAsync(p => p.ThemeId == themeId && p.UserId == request.UserId);
+    //
+    //         if (userProgress == null)
+    //         {
+    //             userProgress = new Progress
+    //             {
+    //                 UserId = request.UserId,
+    //                 ThemeId = themeId,
+    //                 Level = 1,
+    //                 AmountToLevelUp = 5
+    //             };
+    //
+    //             await component.Insert(userProgress);
+    //         }
+    //
+    //         var tasks = await component.Tasks
+    //             .Where(t => t.ThemeId == themeId)
+    //             .ToListAsync();
+    //         
+    //         var completedTasksIds = await component.CompletedTasks
+    //             .Where(t => t.UserId == request.UserId && t.IsCorrect == true)
+    //             .Select(t => t.TaskId)
+    //             .ToListAsync();
+    //
+    //         var desiredTaskAmount = Math.Min(request.DesiredTasksAmount[themeId], tasks.Count);
+    //
+    //         var selectedTasks = tasks
+    //             .Select(task => new
+    //             {
+    //                 task.Id,
+    //                 task.Text,
+    //                 task.DifficultyLevel,
+    //                 task.FilePath,
+    //                 WasSolvedCorrectly = completedTasksIds.Contains(task.Id),
+    //             })
+    //             .OrderBy(t => t.WasSolvedCorrectly ? 1 : 0)
+    //             .ThenBy(t => t.DifficultyLevel <= userProgress.Level ? 0 : 1)
+    //             .ThenBy(_ => random.Next())
+    //             .Take(desiredTaskAmount)
+    //             .Select(t => new TaskForClientDto
+    //             {
+    //                 Id = t.Id,
+    //                 Text = t.Text,
+    //                 DifficultyLevel = t.DifficultyLevel,
+    //                 FilePath = t.FilePath,
+    //             });
+    //
+    //         test.AddRange(selectedTasks);
+    //     }
+    //
+    //     return test;
+    // }
 
     public async Task<byte[]?> GetFileBytes(string fileName)
     {
@@ -416,5 +423,72 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
             Username = user.Username, 
             ThemesStatistics = themeStat,
         };
+    }
+
+    public async Task<List<TaskDto>> GenerateTest(TestTypes testType, int themeId)
+    {
+        switch (testType)
+        {
+            case TestTypes.Themes:
+                return await GenerateTestForTheme(themeId);
+            case TestTypes.Marathon:
+                return await GenerateTestForMarathon();
+            case TestTypes.Exam:
+                throw new NotImplementedException();
+            case TestTypes.ChallengingQuestions:
+                throw new NotImplementedException();
+            default: throw new  ArgumentOutOfRangeException(nameof(testType));
+        }
+    }
+
+    private async Task<List<TaskDto>> GenerateTestForTheme(int themeId)
+    {
+        return await component.Tasks
+            .Where(t => t.ThemeId == themeId)
+            .Select(t => new TaskDto
+            {
+                Id = t.Id,
+                ThemeId = t.ThemeId,
+                Text = t.Text,
+                CorrectAnswer = t.CorrectAnswer,
+                DifficultyLevel = t.DifficultyLevel,
+                FilePath = t.FilePath,
+                AnswerVariants = JsonConvert.DeserializeObject<List<string?>>(t.AnswerVariants) ?? new List<string?>(),
+                Hint = t.Hint
+            })
+            .ToListAsync();
+    }
+    
+    private async Task<List<TaskDto>> GenerateTestForMarathon()
+    {
+        return await component.Tasks
+            .Select(t => new TaskDto
+            {
+                Id = t.Id,
+                ThemeId = t.ThemeId,
+                Text = t.Text,
+                CorrectAnswer = t.CorrectAnswer,
+                DifficultyLevel = t.DifficultyLevel,
+                FilePath = t.FilePath,
+                AnswerVariants = JsonConvert.DeserializeObject<List<string?>>(t.AnswerVariants) ?? new List<string?>(),
+                Hint = t.Hint
+            })
+            .ToListAsync();
+    }
+
+    public async Task SaveAnswer(int userId, int taskId, bool isCorrect)
+    {
+        if (!component.Tasks.Any(t => t.Id == taskId))
+            throw new Exception($"Не найдено задание с id {taskId}");
+        
+        var completedTask = new CompletedTask()
+        {
+            UserId = userId,
+            TaskId = taskId,
+            IsCorrect = isCorrect,
+            CompletedAt = DateTime.UtcNow
+        };
+        
+        await component.Insert(completedTask);
     }
 }

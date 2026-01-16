@@ -96,7 +96,7 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 CorrectAnswer = t.CorrectAnswer,
                 DifficultyLevel = t.DifficultyLevel,
                 FilePath = t.FilePath,
-                AnswerVariants = JsonConvert.DeserializeObject<List<string>>(t.AnswerVariants),
+                AnswerVariants = JsonConvert.DeserializeObject<List<string?>>(t.AnswerVariants) ?? new List<string?>(),
                 Hint = t.Hint
             })
             .ToListAsync();

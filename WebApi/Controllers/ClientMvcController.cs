@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Infrastructure.Models.Enums;
+using WebApi.Infrastructure.Models.Requests;
 using WebApi.Services;
 
 namespace WebApi.Controllers;
@@ -38,5 +40,53 @@ public class ClientMvcController(ClientService service) : Controller
         var profileInfo = await service.GetProfileInfo(userId);
         
         return View(profileInfo);
+    }
+
+    public async Task<IActionResult> Tasks(int themeId)
+    {
+        var userIdStr = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (userIdStr == null)
+            throw new Exception("No user claim found");
+        
+        int.TryParse(userIdStr, out var userId);
+
+        var tasks = 
+            await service.GetTasksForTheme(new GetTasks() {ThemeId = themeId, UserId = userId});
+
+        return View(tasks);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Test(int themeId, TestTypes testType)
+    {
+        var test = await service.GenerateTest(testType, themeId);
+        
+        ViewBag.TestType = testType;
+        
+        return View(test);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveAnswer([FromBody] SaveAnswer req)
+    {
+        try
+        {
+            var userIdStr = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdStr == null)
+                throw new Exception("No user claim found");
+        
+            int.TryParse(userIdStr, out var userId);
+
+            await service.SaveAnswer(userId, req.TaskId, req.IsCorrect);
+
+            return StatusCode(200);
+
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, e.Message);
+        }
     }
 }

@@ -170,18 +170,18 @@ public class ClientController(ClientService service) : ControllerBase
         }
     }
     
-    [HttpPost]
-    public async Task<ActionResult<List<TaskForClientDto>>> GenerateTest(GenerateTest request)
-    {
-        try
-        {
-            return StatusCode(200, await service.GenerateTest(request));
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, e.Message);
-        }
-    }
+    // [HttpPost]
+    // public async Task<ActionResult<List<TaskForClientDto>>> GenerateTest(GenerateTest request)
+    // {
+    //     try
+    //     {
+    //         return StatusCode(200, await service.GenerateTest(request));
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         return StatusCode(500, e.Message);
+    //     }
+    // }
 
     [HttpGet]
     public async Task<ActionResult<byte[]>> GetFileBytes(string fileName)

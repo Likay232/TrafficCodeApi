@@ -1,0 +1,184 @@
+@using WebApi.Infrastructure.Models.Enums
+@model System.Collections.Generic.List<WebApi.Infrastructure.Models.DTO.TaskForClientDto>
+
+@{
+    var title = Model.Any() ? Model.First().ThemeName : "Задания для темы не найдены";
+    
+    ViewBag.Title = $"{title}";
+    Layout = "_ClientLayout";
+}
+
+<style>
+    .tasks-list {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .exam-card {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 20px 22px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        position: relative;
+    }
+
+    .exam-header {
+        position: absolute;
+        top: 14px;
+        right: 16px;
+    }
+
+    .difficulty-badge {
+        background: #eef4fb;
+        color: #0275d8;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .exam-image {
+        width: 100%;
+        height: 260px;              
+        object-fit: contain;        
+        background-color: #f4f6f9;  
+        border-radius: 10px;
+        margin-bottom: 16px;
+    }
+
+    .exam-question {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 18px;
+        color: #222;
+    }
+
+    .exam-answers {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .exam-answer {
+        background: #f4f6f9;
+        padding: 12px 14px;
+        border-radius: 10px;
+        font-size: 15px;
+        border: 1px solid #e1e5eb;
+    }
+
+    .exam-answer.correct {
+        background: #e6f6ea;
+        border-color: #4caf50;
+        color: #2e7d32;
+        font-weight: 600;
+    }
+
+    .exam-hint {
+        margin-top: 14px;
+        background: #fff8e1;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 14px;
+        color: #856404;
+    }
+
+    .exam-actions {
+        margin-top: 18px;
+        padding-top: 12px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .test-start {
+        display: flex;
+        justify-content: flex-end; /* можно center */
+        margin-bottom: 24px;
+    }
+
+    .btn-start-test {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: #fff;
+        padding: 12px 26px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.35);
+        transition: all .2s ease;
+    }
+
+    .btn-start-test:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.45);
+        color: #fff;
+    }
+
+</style>
+
+@if (Model.Any())
+{
+    <div class="test-start">
+        <a href="@Url.Action("Test", "ClientMvc", new { ThemeId = @Model.First().ThemeId, TestType = TestTypes.Themes })"
+           class="btn-start-test">
+           Пройти тест
+        </a>
+    </div>
+
+    <div class="tasks-list">
+        @foreach (var task in Model)
+        {
+            <div class="exam-card">
+
+                <div class="exam-header">
+                    <span class="difficulty-badge">
+                        Уровень @task.DifficultyLevel
+                    </span>
+                </div>
+
+                @if (!string.IsNullOrEmpty(task.FilePath))
+                {
+                    <img src="@task.FilePath"
+                         class="exam-image"
+                         alt="Изображение задания"/>
+                }
+
+                <div class="exam-question">
+                    @task.Text
+                </div>
+
+                @if (task.AnswerVariants.Any())
+                {
+                    <div class="exam-answers">
+                        @foreach (var variant in task.AnswerVariants.Where(v => v is not null))
+                        {
+                            var isCorrect = variant == task.CorrectAnswer;
+
+                            <div class="exam-answer @(isCorrect ? "correct" : "")">
+                                @variant
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(task.Hint))
+                {
+                    <div class="exam-hint">
+                        💡 @task.Hint
+                    </div>
+                }
+
+                <div class="exam-actions">
+                </div>
+
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>Для этой темы не добавлено ни одного задания</p>
+}
