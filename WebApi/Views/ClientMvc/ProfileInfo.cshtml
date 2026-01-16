@@ -1,0 +1,163 @@
+@model WebApi.Infrastructure.Models.DTO.ProfileInfo
+
+@{
+    ViewBag.Title = "Профиль";
+    Layout = "_ClientLayout";
+}
+
+<div class="user-details">
+
+    <div class="user-info-card">
+        <div class="user-info-header">
+            <div class="user-fullname">@Model.FirstName @Model.LastName</div>
+            
+            <div class="bull">&bull;</div>
+            
+            <div class="user-subinfo">
+                <span class="user-username">@Model.Username</span>
+            </div>
+        </div>
+
+    </div>
+
+    <h3 class="section-title">Статистика по темам</h3>
+
+    <div class="stats-grid">
+        @foreach (var stat in Model.ThemesStatistics)
+        {
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="theme-name">@stat.ThemeName</span>
+                    <span class="level-badge">Уровень @stat.Level</span>
+                </div>
+
+                <div class="progress-group">
+                    <div class="progress-label">
+                        Решено заданий <span>@stat.SolvedPercent%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width:@stat.SolvedPercent%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-group">
+                    <div class="progress-label">
+                        Правильные ответы <span>@stat.SolvedCorrectPercent%</span>
+                    </div>
+                    <div class="progress-bar correct">
+                        <div class="progress-fill" style="width:@stat.SolvedCorrectPercent%"></div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<style>
+    .bull{
+        margin-right: 5px;
+        margin-left: 5px;
+    }
+    
+    .user-details {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .user-info-card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .user-info-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: left;
+        align-items: center;
+        margin-right: 20px;
+    }
+
+    .user-fullname {
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .user-username {
+        font-size: 14px;
+        color: #777;
+    }
+
+    .user-field label {
+        font-size: 13px;
+        color: #777;
+    }
+    
+    .section-title {
+        margin-bottom: 15px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        padding: 16px;
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+    }
+
+    .theme-name {
+        font-weight: 600;
+    }
+
+    .level-badge {
+        font-size: 12px;
+        background: #eef4fb;
+        color: #0275d8;
+        padding: 4px 10px;
+        border-radius: 12px;
+    }
+
+    .progress-group {
+        margin-bottom: 12px;
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .progress-bar {
+        background: #eee;
+        height: 8px;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .progress-bar.correct {
+        background: #e6f4ea;
+    }
+
+    .progress-fill {
+        background: #0275d8;
+        height: 100%;
+        border-radius: 6px;
+    }
+
+</style>

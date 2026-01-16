@@ -69,11 +69,14 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
     public async Task<List<LessonDto>> GetLessonsForTheme(int themeId)
     {
         return await component.Lessons
+            .Include(l => l.Theme)
             .Where(l => l.ThemeId == themeId)
             .Select(l => new LessonDto
             {
                 Text = l.Text,
                 Link = l.Link,
+                ThemeId = l.ThemeId,
+                ThemeName = l.Theme.Title
             })
             .ToListAsync();
     }
@@ -281,7 +284,7 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
                     task.Id,
                     task.Text,
                     task.DifficultyLevel,
-                    FilePath = task.FilePath,
+                    task.FilePath,
                     WasSolvedCorrectly = completedTasksIds.Contains(task.Id),
                 })
                 .OrderBy(t => t.WasSolvedCorrectly ? 1 : 0)
@@ -363,12 +366,10 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
         return diff >= 0 ? diff + 1 : 1;
     }
 
-    public async Task<List<ThemesStatistic>> GetStatisticForThemes(string? username)
+    public async Task<List<ThemesStatistic>> GetStatisticForThemes(int userId)
     {
-        var userId = component.Users.FirstOrDefault(u => u.Username == username)?.Id;
+        var progresses = await component.Progresses.ToListAsync();
         
-        if (userId == null) throw new Exception("Пользователь с данным именем пользователя не найден.");
-
         var tasks = await component.Tasks
             .Include(t => t.Theme)
             .ToListAsync();
@@ -376,44 +377,44 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
             .Where(x => x.UserId == userId)
             .ToDictionaryAsync(x => x.TaskId, x => x.IsCorrect == true);
 
-        var statistic =  tasks
-            .GroupBy(t => new {t.ThemeId, t.Theme.Title})
+        var statistic = tasks
+            .GroupBy(t => new { t.ThemeId, t.Theme.Title })
             .ToDictionary(g => g.Key, g =>
             {
                 var total = g.Count();
                 var solved = g.Count(t => completedTasks.ContainsKey(t.Id));
                 var solvedCorrect = g.Count(t => completedTasks.TryGetValue(t.Id, out var cor) && cor);
-                
+
                 var solvedPercent = total == 0 ? 0.0 : (double)solved / total * 100;
                 var correctPercent = solved == 0 ? 0.0 : (double)solvedCorrect / solved * 100;
-                
+
                 return new ThemesStatistic
                 {
                     SolvedPercent = solvedPercent,
                     SolvedCorrectPercent = correctPercent,
                     ThemeId = g.Key.ThemeId,
-                    ThemeName = g.Key.Title
+                    ThemeName = g.Key.Title,
+                    Level = progresses.FirstOrDefault(p => p.ThemeId == g.Key.ThemeId)?.Level ?? 1
                 };
             });
-        
+
         return statistic.Values.ToList();
     }
-
-    public async Task<List<TestStatistic>> GetStatisticForTests(string? username)
+    
+    public async Task<ProfileInfo> GetProfileInfo(int userId)
     {
-        var userId = component.Users.FirstOrDefault(u => u.Username == username)?.Id;
+        var user = await component.Users.FirstOrDefaultAsync(u => u.Id == userId);
         
-        var  testStatistics = await component.TestUsers
-            .Where(u => u.UserId == userId)
-            .Include(u => u.Test)
-            .Select(t => new  TestStatistic
-            {
-                CompletionDate = t.CompletionDate,
-                Score = t.Score,
-                Title = t.Test == null ? "" : t.Test.Title,
-            })
-            .ToListAsync();
+        if (user == null) throw new Exception("Информация о пользователе не найдена");
         
-        return testStatistics;
+        var themeStat = await GetStatisticForThemes(user.Id);
+
+        return new ProfileInfo
+        {
+            LastName =  user.LastName,
+            FirstName = user.FirstName,
+            Username = user.Username, 
+            ThemesStatistics = themeStat,
+        };
     }
 }

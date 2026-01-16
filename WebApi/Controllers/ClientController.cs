@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Infrastructure.Models.DTO;
 using WebApi.Infrastructure.Models.Requests;
@@ -200,26 +201,14 @@ public class ClientController(ClientService service) : ControllerBase
     {
         try
         {
-            var username = User.FindFirst("username")?.Value;
-            
-            var statistic = await service.GetStatisticForThemes(username);
-            
-            return StatusCode(200, statistic);
-        }
-        catch (Exception exception)
-        {
-            return StatusCode(500, exception.Message);
-        }
-    }
-    
-    [HttpGet]
-    public async Task<ActionResult<List<ThemesStatistic>>> GetTestStatisticForUser()
-    {
-        try
-        {
-            var  username = User.FindFirst("username")?.Value;
-            
-            var statistic = await service.GetStatisticForTests(username);
+            var userIdStr = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdStr == null)
+                throw new Exception("No user claim found");
+        
+            int.TryParse(userIdStr, out var userId);
+
+            var statistic = await service.GetStatisticForThemes(userId);
             
             return StatusCode(200, statistic);
         }
