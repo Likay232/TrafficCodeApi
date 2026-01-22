@@ -106,4 +106,9 @@ public class ClientMvcController(ClientService service) : Controller
             return StatusCode(500, e.Message);
         }
     }
+
+    public IActionResult TestVariants()
+    {
+        return View();
+    }
 }

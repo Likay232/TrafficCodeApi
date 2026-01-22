@@ -1,0 +1,74 @@
+@{
+    ViewBag.Title = "Практика";
+    Layout = "_ClientLayout";
+}
+
+<h2 class="mb-3 text-center">Режимы прохождения тестов</h2>
+<p class="text-center text-muted mb-5">Выберите подходящий формат для подготовки и проверки знаний</p>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <!-- Режим Экзамен -->
+    <div class="col">
+        <div class="card h-100 shadow-sm border-primary">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title text-primary">Режим «Экзамен»</h5>
+                <ul class="card-text mb-3">
+                    <li>20 случайных вопросов</li>
+                    <li>Ограничение по времени: <strong>20 минут</strong></li>
+                    <li>Автоматическая оценка результата</li>
+                    <li>Пересдача при 1–2 ошибках</li>
+                </ul>
+                <div class="mb-3">
+                    <span class="badge bg-secondary me-2">Вопросов: 20</span>
+                    <span class="badge bg-secondary">Попыток: 1</span>
+                </div>
+                <a href="@Url.Action("StartTest", "ClientMvc", new { TestType = WebApi.Infrastructure.Models.Enums.TestTypes.Exam })" class="btn btn-outline-primary mt-auto">
+                    Начать экзамен
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Режим Марафон -->
+    <div class="col">
+        <div class="card h-100 shadow-sm border-success">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title text-success">Режим «Марафон»</h5>
+                <ul class="card-text mb-3">
+                    <li>Вопросы идут подряд</li>
+                    <li>Без ограничения по времени</li>
+                    <li>Прохождение до первой ошибки</li>
+                    <li>Отлично подходит для тренировки</li>
+                </ul>
+                <div class="mb-3">
+                    <span class="badge bg-secondary">Всего вопросов: ∞</span>
+                </div>
+                <a href="@Url.Action("StartTest", "ClientMvc", new { TestType = WebApi.Infrastructure.Models.Enums.TestTypes.Marathon })" class="btn btn-outline-success mt-auto">
+                    Начать марафон
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Режим Сложные вопросы -->
+    <div class="col">
+        <div class="card h-100 shadow-sm border-danger">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title text-danger">Сложные вопросы</h5>
+                <ul class="card-text mb-3">
+                    <li>Автоматический анализ ошибок</li>
+                    <li>Повтор проблемных тем</li>
+                    <li>Персональный набор вопросов</li>
+                    <li>Динамически обновляется</li>
+                </ul>
+                <div class="mb-3">
+                    <span class="badge bg-secondary me-2">Ошибок: 12</span>
+                    <span class="badge bg-secondary">Вопросов: 18</span>
+                </div>
+                <a href="@Url.Action("StartTest", "ClientMvc", new { TestType = WebApi.Infrastructure.Models.Enums.TestTypes.ChallengingQuestions })" class="btn btn-outline-danger mt-auto">
+                    Повторить сложные вопросы
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

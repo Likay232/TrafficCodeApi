@@ -2,14 +2,13 @@
 @model WebApi.Infrastructure.Models.DTO.TestForClientDto
 
 @{
-    ViewBag.Title = "Решение теста по теме";
+    ViewBag.Title = "Решение теста";
     Layout = "_ClientLayout";
 
     var testType = (TestTypes)ViewBag.TestType;
 }
 
 <div class="test-container">
-
     @if (testType == TestTypes.Exam)
     {
         <div class="test-timer" id="timer">20:00</div>
@@ -17,12 +16,13 @@
 
     <div class="test-card" id="testCard"></div>
     <div class="test-nav" id="testNav"></div>
+    <div id="extraNavContainer" style="margin-top:12px;"></div>
 </div>
+
 <div class="modal-overlay" id="resultModal" style="display:none;">
     <div class="result-modal">
         <h2 id="resultTitle"></h2>
         <p id="resultText"></p>
-
         <div class="modal-actions">
             <button onclick="closeModal()">Вернуться к вопросам</button>
             <button class="restart" onclick="restartTest()">Пройти заново</button>
@@ -30,8 +30,8 @@
     </div>
 </div>
 
-
 <style>
+
     .test-container {
         max-width: 900px;
         margin: 0 auto;
@@ -41,7 +41,7 @@
         background: #fff;
         border-radius: 14px;
         padding: 24px;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, .08);
+        box-shadow: 0 6px 18px rgba(0,0,0,.08);
     }
 
     .test-question {
@@ -82,6 +82,7 @@
         cursor: pointer;
         font-size: 15px;
         transition: .15s;
+        outline: none;
     }
 
     .answer-btn.correct {
@@ -92,6 +93,11 @@
     .answer-btn.wrong {
         background: #fdecea;
         border-color: #f44336;
+    }
+
+    .answer-btn.exam {
+        background: #e3e3e3;
+        border-color: #c0c0c0;
     }
 
     .test-hint {
@@ -134,6 +140,11 @@
         color: #fff;
     }
 
+    .test-nav button.exam {
+        background: #c0c0c0;
+        color: #fff;
+    }
+
     .test-timer {
         text-align: right;
         font-weight: 600;
@@ -144,7 +155,7 @@
     .modal-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, .45);
+        background: rgba(0,0,0,.45);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -158,14 +169,13 @@
         width: 420px;
         max-width: 90%;
         text-align: center;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, .2);
-    }
-
-    .modal h2 {
-        margin-bottom: 12px;
+        box-shadow: 0 12px 30px rgba(0,0,0,.2);
     }
 
     .modal-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
         margin-top: 20px;
     }
 
@@ -179,21 +189,24 @@
         font-weight: 600;
     }
 
-    .modal-actions {
-        display: flex;
-        gap: 12px;
-        justify-content: center;
-    }
-
     .modal-actions button.restart {
         background: #5cb85c;
     }
 
-    .test-nav button {
-        outline: none;
+    .test-nav button.correct {
+        background: #4caf50;
+        color: #fff;
     }
 
+    .test-nav button.wrong {
+        background: #f44336;
+        color: #fff;
+    }
 
+    .test-nav button.exam {
+        background: #c0c0c0;
+        color: #fff;
+    }
 </style>
 
 <script>
@@ -205,41 +218,40 @@
 
     let current = 0;
     let finished = false;
-    let examAnswers = {}; // { taskId: selectedAnswer }
+
+    let examAnswers = {};
     let extraQuestions = [];
     let extraAnswers = {};
+    const answersState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
-    if (localStorage.getItem(`${STORAGE_KEY}_finished`) === 'true') {
-        finished = true;
-    }
-
-    const answersState = JSON.parse(
-        localStorage.getItem(STORAGE_KEY) || '{}'
-    );
+    if (localStorage.getItem(`${STORAGE_KEY}_finished`) === 'true') finished = true;
 
     function renderTask(index, isExtra = false) {
         const task = isExtra ? extraQuestions[index] : tasks[index];
         current = index;
 
         let html = '';
-
-        if (task.filePath) {
-            html += `
-            <div class="test-image-wrapper">
-                <img src="${task.filePath}" alt="Изображение задания">
-            </div>
-        `;
-        }
-
-        html += `
-        <div class="test-question">${task.text}</div>
-        <div class="test-answers">
-    `;
+        if (task.filePath) html += `<div class="test-image-wrapper"><img src="${task.filePath}" alt="Изображение"></div>`;
+        html += `<div class="test-question">${task.text}</div><div class="test-answers">`;
 
         task.answerVariants.filter(a => a).forEach(a => {
-            html += `<button class="answer-btn ${testType === 'Exam' ? 'exam' : ''}" 
-                     data-answer="${a}" 
-                     data-task-id="${task.id}">${a}</button>`;
+            let cls = '';
+
+            if (finished) {
+                const selected = examAnswers[task.id] || extraAnswers[task.id];
+                if (a === task.correctAnswer) cls = 'correct';
+                else if (a === selected) cls = 'wrong';
+            } else if (testType === 'Exam') {
+                const selected = examAnswers[task.id] || extraAnswers[task.id];
+                if (selected === a) cls = 'exam';
+            } else {
+                const state = answersState[task.id];
+                if (state) cls = state.isCorrect
+                    ? (a === task.correctAnswer ? 'correct' : '')
+                    : (a === state.selected ? 'wrong' : (a === task.correctAnswer ? 'correct' : ''));
+            }
+
+            html += `<button class="answer-btn ${cls}" data-answer="${a}" data-task-id="${task.id}" data-extra="${isExtra}">${a}</button>`;
         });
 
         html += `</div>`;
@@ -251,98 +263,102 @@
     function renderNav(isExtra = false) {
         const list = isExtra ? extraQuestions : tasks;
         let nav = '';
+
         for (let i = 0; i < list.length; i++) {
-            let cls = testType === 'Exam' ? 'exam' : '';
+            let cls = '';
+            const task = list[i];
             if (i === current) cls += ' active';
+
+            if (finished) {
+                // финальная подсветка в навигации
+                const selected = examAnswers[task.id] || extraAnswers[task.id];
+                if (selected === task.correctAnswer) cls += ' correct';
+                else cls += ' wrong';
+            } else if (testType === 'Exam') {
+                const selected = examAnswers[task.id] || extraAnswers[task.id];
+                if (selected) cls += ' exam';
+            } else {
+                const state = answersState[task.id];
+                if (state) cls += state.isCorrect ? ' correct' : ' wrong';
+            }
+
             nav += `<button class="${cls}" onclick="renderTask(${i}, ${isExtra})">${i + 1}</button>`;
         }
-        document.getElementById('testNav').innerHTML = nav;
+
+        if (isExtra) {
+            document.getElementById('extraNavContainer').innerHTML = `
+        <div style="font-weight:600; margin-bottom:4px;">Дополнительные вопросы</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">${nav}</div>
+    `;
+        } else {
+            document.getElementById('testNav').innerHTML = nav;
+
+            if (extraQuestions.length > 0) renderNav(true);
+        }
     }
 
     function restoreState(task) {
         const state = answersState[task.id];
         if (!state) return;
-
         document.querySelectorAll('.answer-btn').forEach(b => {
-            if (b.innerText === task.correctAnswer)
-                b.classList.add('correct');
-            else if (b.innerText === state.selected)
-                b.classList.add('wrong');
-
+            if (b.innerText === task.correctAnswer) b.classList.add('correct');
+            else if (b.innerText === state.selected) b.classList.add('wrong');
             b.disabled = true;
         });
-
-        if (!state.isCorrect && testType !== 'Exam' && task.hint) {
-            document.getElementById('testCard')
-                .insertAdjacentHTML('beforeend',
-                    `<div class="test-hint">💡 ${task.hint}</div>`);
+        if (!state.isCorrect && task.hint) {
+            document.getElementById('testCard').insertAdjacentHTML('beforeend', `<div class="test-hint">💡 ${task.hint}</div>`);
         }
     }
 
     document.addEventListener('click', e => {
         if (!e.target.classList.contains('answer-btn')) return;
 
-        const taskId = e.target.dataset.taskId;
         const selected = e.target.dataset.answer;
-
+        const taskId = e.target.dataset.taskId;
+        const isExtra = e.target.dataset.extra === 'true';
         if (finished) return;
 
         if (testType === 'Exam') {
-            examAnswers[taskId] = selected;
-            renderNav();
+            if (isExtra) extraAnswers[taskId] = selected;
+            else examAnswers[taskId] = selected;
+
+            // Подсвечиваем выбранный ответ серым сразу
+            document.querySelectorAll('.answer-btn').forEach(b => {
+                b.classList.remove('exam'); // убираем с остальных
+                if (b.dataset.answer === selected) b.classList.add('exam');
+            });
+
+            renderNav(isExtra);
+            checkFinish();
         } else {
-            answer(e.target.dataset.answer);
+            answer(selected);
         }
     });
 
-
     function answer(selected) {
         if (finished) return;
-
         const task = tasks[current];
         if (answersState[task.id]) return;
 
         const isCorrect = selected === task.correctAnswer;
-
-        answersState[task.id] = {
-            selected,
-            isCorrect
-        };
+        answersState[task.id] = {selected, isCorrect};
         localStorage.setItem(STORAGE_KEY, JSON.stringify(answersState));
 
         fetch('/ClientMvc/SaveAnswer', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                taskId: task.id,
-                isCorrect: isCorrect
-            })
+            body: JSON.stringify({taskId: task.id, isCorrect})
         });
 
         document.querySelectorAll('.answer-btn').forEach(b => {
-            if (b.innerText === task.correctAnswer)
-                b.classList.add('correct');
-            else if (b.innerText === selected)
-                b.classList.add('wrong');
-
+            if (b.innerText === task.correctAnswer) b.classList.add('correct');
+            else if (b.innerText === selected) b.classList.add('wrong');
             b.disabled = true;
         });
 
-        if (!isCorrect) {
-            if (testType === 'Marathon') {
-                alert('Ошибка! Марафон завершён');
-                finished = true;
-                localStorage.setItem(`${STORAGE_KEY}_finished`, 'true');
-                return;
-            }
-
-            if (testType !== 'Exam' && task.hint) {
-                document.getElementById('testCard')
-                    .insertAdjacentHTML('beforeend',
-                        `<div class="test-hint">💡 ${task.hint}</div>`);
-            }
+        if (!isCorrect && task.hint) {
+            document.getElementById('testCard').insertAdjacentHTML('beforeend', `<div class="test-hint">💡 ${task.hint}</div>`);
         }
-
         renderNav();
         checkFinish();
     }
@@ -351,146 +367,134 @@
         const values = Object.values(answersState);
         const correct = values.filter(v => v.isCorrect).length;
         const wrong = values.filter(v => !v.isCorrect).length;
-
         return {correct, wrong, total: tasks.length};
     }
 
     function checkFinish() {
-        const {correct, wrong, total} = getStats();
-
-        if (testType === 'Themes') {
-            if (correct + wrong === total) {
-                finishThemes(wrong);
-            }
+        if (testType === 'Themes' || testType === 'ChallengingQuestions') {
+            const stats = getStats();
+            if (stats.correct + stats.wrong === stats.total) finishThemesAndChallengingQuestions(stats.wrong);
         }
-
         if (testType === 'Marathon') {
-            if (wrong >= 1) {
-                finishMarathon(false);
-            } else if (correct === total) {
-                finishMarathon(true);
-            }
+            const stats = getStats();
+            if (stats.wrong >= 1) finishMarathon(false);
+            else if (stats.correct === stats.total) finishMarathon(true);
         }
-
-        if (testType === 'Exam') {
-            const stats = getStatsExam();
-
-            // Если пользователь ответил на все вопросы
-            if (stats.answered === stats.total) {
-                // 1. Проверяем условия экзамена
-                const failedTheme = Object.values(stats.themeErrors).some(c => c >= 2);
-                const failedTotal = stats.totalErrors > 2;
-
-                if (failedTheme || failedTotal) {
-                    // Подготавливаем доп. вопросы по теме с ошибками
-                    extraQuestions = [];
-                    for (let themeId in stats.themeErrors) {
-                        const extra = additionalQuestions[themeId]?.slice(0, 5);
-                        if (extra) extraQuestions.push(...extra);
-                    }
-
-                    if (extraQuestions.length > 0) {
-                        // показываем доп. вопросы
-                        renderTask(0, true);
-                        return;
-                    }
-                }
-
-                finishExam();
-            }
-        }
+        if (testType === 'Exam') checkFinishExam();
     }
 
     function getStatsExam() {
-        // Собираем все выбранные ответы
-        const values = Object.entries(examAnswers); // {taskId: selected}
-        let total = tasks.length;
-        let answered = values.length;
-
-        // Ошибки по теме
+        const values = Object.entries(examAnswers);
+        const answered = values.length;
+        const total = tasks.length;
         const themeErrors = {};
         values.forEach(([taskId, selected]) => {
             const task = tasks.find(t => t.id === taskId);
             if (!task) return;
-
             if (selected !== task.CorrectAnswer) {
-                if (!themeErrors[task.ThemeId]) themeErrors[task.ThemeId] = 0;
-                themeErrors[task.ThemeId]++;
+                themeErrors[task.ThemeId] = (themeErrors[task.ThemeId] || 0) + 1;
             }
         });
-
         const totalErrors = Object.values(themeErrors).reduce((a, b) => a + b, 0);
-
         return {answered, total, themeErrors, totalErrors};
+    }
+
+    function checkFinishExam() {
+        // считаем ответы только по основным вопросам
+        const stats = getStatsExam();
+        
+        // если все основные вопросы отвечены
+        if (stats.answered === stats.total) {
+            const failedTheme = Object.values(stats.themeErrors).some(c => c >= 2);
+            const failedTotal = stats.totalErrors > 2;
+
+            // если есть ошибки и доп. вопросы ещё не загружены
+            if ((failedTheme || failedTotal) && extraQuestions.length === 0) {
+                extraQuestions = [];
+                for (let themeId in stats.themeErrors) {
+                    const extra = additionalQuestions[themeId]?.slice(0, 5);
+                    if (extra) extraQuestions.push(...extra);
+                }
+                
+                if (extraQuestions.length > 0) {
+                    // просто перерисовываем навигацию, не меняя текущий индекс
+                    renderNav(false); // основная навигация
+                    renderNav(true);  // доп. вопросы
+                    return;
+                }
+            }
+
+            // если доп. вопросы уже отвечены или не нужны — заканчиваем экзамен
+            if (extraQuestions.length > 0) {
+                // проверяем, отвечены ли все доп. вопросы
+                const allExtraAnswered = extraQuestions.every(q => extraAnswers[q.id]);
+                if (!allExtraAnswered) return; // ждем ответы на доп. вопросы
+            }
+
+            finishExam();
+        }
     }
 
     function finishExam() {
         finished = true;
 
-        // 1. Собираем ответы по темам
+        if (examTimer) clearInterval(examTimer); // остановим таймер
+
+        const allAnswers = {...examAnswers, ...extraAnswers};
         const themeErrors = {};
-        tasks.forEach(t => {
-            const selected = examAnswers[t.id];
-            if (selected !== t.CorrectAnswer) {
-                if (!themeErrors[t.ThemeId]) themeErrors[t.ThemeId] = 0;
-                themeErrors[t.ThemeId]++;
+
+        Object.entries(allAnswers).forEach(([taskId, selected]) => {
+            const task = tasks.find(t => t.id == taskId) || extraQuestions.find(t => t.id == taskId);
+            if (!task) return;
+
+            if (selected !== task.correctAnswer) {
+                themeErrors[task.themeId] = (themeErrors[task.themeId] || 0) + 1;
             }
         });
 
         const totalErrors = Object.values(themeErrors).reduce((a, b) => a + b, 0);
         const failedTheme = Object.values(themeErrors).some(c => c >= 2);
 
-        // 2. Проверяем доп. вопросы
-        let extraFailed = false;
-        if (totalErrors > 0 || failedTheme) {
-            extraQuestions = [];
-            for (let themeId in themeErrors) {
-                const extra = additionalQuestions[themeId]?.slice(0, 5);
-                if (extra) extraQuestions.push(...extra);
-            }
+        showModal((totalErrors > 2 || failedTheme) ? "Экзамен не сдан" : "Экзамен сдан", `Всего ошибок: ${totalErrors}`);
 
-            if (extraQuestions.length > 0) {
-                renderTask(0, true);
-                return;
-            }
-        }
+        // Подсвечиваем все ответы правильными/неправильными
+        document.querySelectorAll('.answer-btn').forEach(btn => {
+            const taskId = btn.dataset.taskId;
+            const selected = allAnswers[taskId];
+            const task = tasks.find(t => t.id == taskId) || extraQuestions.find(t => t.id == taskId);
+            if (!task) return;
 
-        if (totalErrors > 2 || failedTheme || extraFailed) {
-            showModal("Экзамен не сдан", `Всего ошибок: ${totalErrors}`);
-        } else {
-            showModal("Экзамен сдан", ``);
-        }
+            btn.classList.remove('exam'); // убираем серый
+            if (btn.dataset.answer === task.correctAnswer) {
+                btn.classList.add('correct');
+            } else if (btn.dataset.answer === selected) {
+                btn.classList.add('wrong');
+            }
+            btn.disabled = true;
+        });
 
         fetch('/ClientMvc/SaveExamAnswers', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(examAnswers)
+            body: JSON.stringify(allAnswers)
         });
+        
+        renderNav();
     }
 
     function finishMarathon(success) {
         finished = true;
         localStorage.setItem(`${STORAGE_KEY}_finished`, 'true');
-
-        showModal(
-            success ? 'Марафон успешно пройден' : 'Марафон окончен',
-            success
-                ? 'Вы ответили правильно на все вопросы!'
-                : 'Допущена ошибка. Марафон завершён.'
-        );
+        showModal(success ? 'Марафон успешно пройден' : 'Марафон окончен',
+            success ? 'Вы ответили правильно на все вопросы!' : 'Допущена ошибка. Марафон завершён.');
     }
 
-    function finishThemes(wrongCount) {
+    function finishThemesAndChallengingQuestions(wrongCount) {
         finished = true;
         localStorage.setItem(`${STORAGE_KEY}_finished`, 'true');
-
         const passed = wrongCount < 2;
-
-        showModal(
-            passed ? 'Экзамен сдан' : 'Экзамен не сдан',
-            `Правильных ответов: ${getStats().correct}<br>
-         Ошибок: ${wrongCount}`
-        );
+        showModal(passed ? 'Тест сдан' : 'Тест не сдан',
+            `Правильных ответов: ${getStats().correct}<br>Ошибок: ${wrongCount}`);
     }
 
     function showModal(title, text) {
@@ -510,21 +514,23 @@
         const themeId = @ViewBag.ThemeId;
         const testType = '@testType';
 
-        window.location.href =
-            `/ClientMvc/StartTest?themeId=${themeId}&testType=${testType}`;
+        window.location.href = '@Url.Action("StartTest", "ClientMvc")'
+            + `?themeId=${themeId}&testType=${testType}`;
     }
+
+    let examTimer; // сохраняем ссылку на интервал
 
     if (testType === 'Exam') {
         let seconds = 20 * 60;
-        const timer = setInterval(() => {
+        examTimer = setInterval(() => {
             seconds--;
             const m = Math.floor(seconds / 60);
             const s = seconds % 60;
             document.getElementById('timer').innerText = `${m}:${s.toString().padStart(2, '0')}`;
             if (seconds <= 0) {
-                clearInterval(timer);
+                clearInterval(examTimer);
                 finished = true;
-                showModal("Экзамен не сдан", "Время истекло");
+                finishExam(); // вызываем finishExam, чтобы подсветить ответы
             }
         }, 1000);
     }
