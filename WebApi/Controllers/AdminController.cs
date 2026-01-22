@@ -230,45 +230,45 @@ public class AdminController(AdminService service) : Controller
         }
     }
 
-    [HttpGet]
-    public async Task<IActionResult> CreateTest()
-    {
-        var tasks = await service.GetTasks();
-        ViewBag.Tasks = tasks ?? new List<TaskDto>();
-        return View(new CreateTest());
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> CreateTest([FromForm] CreateTest request, string taskIdsStr)
-    {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(taskIdsStr))
-            {
-                ModelState.AddModelError("", "Не выбрано ни одного задания.");
-                var tasks = await service.GetTasks();
-                ViewBag.Tasks = tasks;
-                return View(request);
-            }
-
-            request.TaskIds = taskIdsStr
-                .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(id => int.TryParse(id, out var parsedId) ? parsedId : (int?)null)
-                .Where(id => id.HasValue)
-                .Select(id => id!.Value)
-                .ToList();
-
-            await service.CreateTest(request);
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception e)
-        {
-            ModelState.AddModelError("", $"Ошибка при создании теста: {e.Message}");
-            var tasks = await service.GetTasks();
-            ViewBag.Tasks = tasks;  
-            return View(request);
-        }
-    }
+    // [HttpGet]
+    // public async Task<IActionResult> CreateTest()
+    // {
+    //     var tasks = await service.GetTasks();
+    //     ViewBag.Tasks = tasks ?? new List<TaskDto>();
+    //     return View(new CreateTest());
+    // }
+    //
+    // [HttpPost]
+    // public async Task<IActionResult> CreateTest([FromForm] CreateTest request, string taskIdsStr)
+    // {
+    //     try
+    //     {
+    //         if (string.IsNullOrWhiteSpace(taskIdsStr))
+    //         {
+    //             ModelState.AddModelError("", "Не выбрано ни одного задания.");
+    //             var tasks = await service.GetTasks();
+    //             ViewBag.Tasks = tasks;
+    //             return View(request);
+    //         }
+    //
+    //         request.TaskIds = taskIdsStr
+    //             .Split(',', StringSplitOptions.RemoveEmptyEntries)
+    //             .Select(id => int.TryParse(id, out var parsedId) ? parsedId : (int?)null)
+    //             .Where(id => id.HasValue)
+    //             .Select(id => id!.Value)
+    //             .ToList();
+    //
+    //         await service.CreateTest(request);
+    //         return RedirectToAction(nameof(Index));
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         ModelState.AddModelError("", $"Ошибка при создании теста: {e.Message}");
+    //         var tasks = await service.GetTasks();
+    //         ViewBag.Tasks = tasks;  
+    //         return View(request);
+    //     }
+    // }
 
     [HttpGet]
     public async Task<IActionResult> DownloadFileFromRepo(string filePath)

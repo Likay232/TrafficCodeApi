@@ -58,13 +58,23 @@ public class ClientMvcController(ClientService service) : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Test(int themeId, TestTypes testType)
+    public async Task<IActionResult> Test(int themeId, TestTypes testType, Guid testId)
     {
         var test = await service.GenerateTest(testType, themeId);
         
         ViewBag.TestType = testType;
+        ViewBag.TestId = testId;
+        ViewBag.ThemeId = themeId;
         
         return View(test);
+    }
+
+    [HttpGet]
+    public IActionResult StartTest(int themeId, TestTypes testType)
+    {
+        var testId = Guid.NewGuid();
+        
+        return RedirectToAction(nameof(Test), new { themeId, testType, testId });
     }
 
     [HttpPost]

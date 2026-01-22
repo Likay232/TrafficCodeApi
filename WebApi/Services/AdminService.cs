@@ -117,7 +117,7 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 ThemeId = task.ThemeId,
                 ThemeName = task.Theme.Title,
                 FilePath = task.FilePath,
-                AnswerVariants = JsonConvert.DeserializeObject<List<string>>(task.AnswerVariants),
+                AnswerVariants = JsonConvert.DeserializeObject<List<string?>>(task.AnswerVariants) ?? new List<string?>(),
                 Hint = task.Hint
             };
     }
@@ -205,7 +205,7 @@ public class AdminService(DataComponent component, IWebHostEnvironment env)
                 FilePath = t.FilePath,
                 ThemeName = GetThemeName(t.ThemeId),
                 ThemeId = t.ThemeId,
-                AnswerVariants = JsonConvert.DeserializeObject<List<string>>(t.AnswerVariants)
+                AnswerVariants = JsonConvert.DeserializeObject<List<string?>>(t.AnswerVariants) ?? new List<string?>()
             })
             .ToListAsync();
     }

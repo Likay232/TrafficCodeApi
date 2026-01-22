@@ -122,7 +122,7 @@
 @if (Model.Any())
 {
     <div class="test-start">
-        <a href="@Url.Action("Test", "ClientMvc", new { ThemeId = @Model.First().ThemeId, TestType = TestTypes.Themes })"
+        <a href="@Url.Action("StartTest", "ClientMvc", new { ThemeId = @Model.First().ThemeId, TestType = TestTypes.Themes })"
            class="btn-start-test">
            Пройти тест
         </a>

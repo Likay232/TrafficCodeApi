@@ -380,8 +380,13 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
         var tasks = await component.Tasks
             .Include(t => t.Theme)
             .ToListAsync();
+        
         var completedTasks = await component.CompletedTasks
             .Where(x => x.UserId == userId)
+            .GroupBy(x => x.TaskId)
+            .Select(g => g
+                .OrderByDescending(x => x.CompletedAt)
+                .First())
             .ToDictionaryAsync(x => x.TaskId, x => x.IsCorrect == true);
 
         var statistic = tasks

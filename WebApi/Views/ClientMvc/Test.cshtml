@@ -18,6 +18,18 @@
     <div class="test-card" id="testCard"></div>
     <div class="test-nav" id="testNav"></div>
 </div>
+<div class="modal-overlay" id="resultModal" style="display:none;">
+    <div class="result-modal">
+        <h2 id="resultTitle"></h2>
+        <p id="resultText"></p>
+
+        <div class="modal-actions">
+            <button onclick="closeModal()">Вернуться к вопросам</button>
+            <button class="restart" onclick="restartTest()">Пройти заново</button>
+        </div>
+    </div>
+</div>
+
 
 <style>
     .test-container {
@@ -128,16 +140,78 @@
         color: #d9534f;
         margin-bottom: 12px;
     }
+
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+    }
+
+    .result-modal {
+        background: #fff;
+        border-radius: 16px;
+        padding: 28px;
+        width: 420px;
+        max-width: 90%;
+        text-align: center;
+        box-shadow: 0 12px 30px rgba(0,0,0,.2);
+    }
+
+    .modal h2 {
+        margin-bottom: 12px;
+    }
+
+    .modal-actions {
+        margin-top: 20px;
+    }
+
+    .modal-actions button {
+        padding: 10px 18px;
+        border-radius: 8px;
+        border: none;
+        background: #0275d8;
+        color: #fff;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .modal-actions button.restart {
+        background: #5cb85c;
+    }
+
+    .test-nav button {
+        outline: none;
+    }
+
+
 </style>
 
 <script>
     const tasks = @Html.Raw(Json.Serialize(Model));
     const testType = '@testType';
+    const testId = '@ViewBag.TestId';
+    const STORAGE_KEY = `test_${testId}`;
 
     let current = 0;
     let finished = false;
 
-    const answersState = {};
+    if (localStorage.getItem(`${STORAGE_KEY}_finished`) === 'true') {
+        finished = true;
+    }
+
+    const answersState = JSON.parse(
+        localStorage.getItem(STORAGE_KEY) || '{}'
+    );
 
     function renderTask(index) {
         const task = tasks[index];
@@ -225,6 +299,7 @@
             selected,
             isCorrect
         };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(answersState));
 
         fetch('/ClientMvc/SaveAnswer', {
             method: 'POST',
@@ -248,6 +323,7 @@
             if (testType === 'Marathon') {
                 alert('Ошибка! Марафон завершён');
                 finished = true;
+                localStorage.setItem(`${STORAGE_KEY}_finished`, 'true');
                 return;
             }
 
@@ -259,7 +335,83 @@
         }
 
         renderNav();
+        checkFinish();
     }
+
+    function getStats() {
+        const values = Object.values(answersState);
+        const correct = values.filter(v => v.isCorrect).length;
+        const wrong = values.filter(v => !v.isCorrect).length;
+
+        return { correct, wrong, total: tasks.length };
+    }
+
+    function checkFinish() {
+        const { correct, wrong, total } = getStats();
+        
+        console.log(testType);
+        
+        if (testType === 'Exam' || testType === 'Themes') {
+            if (correct + wrong === total) {
+                finishExam(wrong);
+            }
+        }
+        
+        if (testType === 'Marathon') {
+            if (wrong >= 1) {
+                finishMarathon(false);
+            } else if (correct === total) {
+                finishMarathon(true);
+            }
+        }
+    }
+
+    function finishExam(wrongCount) {
+        finished = true;
+        localStorage.setItem(`${STORAGE_KEY}_finished`, 'true');
+
+        const passed = wrongCount < 2;
+
+        showModal(
+            passed ? 'Экзамен сдан' : 'Экзамен не сдан',
+            `Правильных ответов: ${getStats().correct}<br>
+         Ошибок: ${wrongCount}`
+        );
+    }
+
+    function finishMarathon(success) {
+        finished = true;
+        localStorage.setItem(`${STORAGE_KEY}_finished`, 'true');
+
+        showModal(
+            success ? 'Марафон успешно пройден' : 'Марафон окончен',
+            success
+                ? 'Вы ответили правильно на все вопросы!'
+                : 'Допущена ошибка. Марафон завершён.'
+        );
+    }
+
+    function showModal(title, text) {
+        document.getElementById('resultTitle').innerText = title;
+        document.getElementById('resultText').innerHTML = text;
+        document.getElementById('resultModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('resultModal').style.display = 'none';
+    }
+
+    function restartTest() {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(`${STORAGE_KEY}_finished`);
+
+        const themeId = @ViewBag.ThemeId;
+        const testType = '@testType';
+
+        window.location.href =
+            `/ClientMvc/StartTest?themeId=${themeId}&testType=${testType}`;
+    }
+
 
     if (testType === 'Exam') {
         let seconds = 20 * 60;
@@ -272,8 +424,9 @@
 
             if (seconds <= 0) {
                 clearInterval(timer);
-                alert('Время вышло!');
                 finished = true;
+                localStorage.setItem(`${STORAGE_KEY}_finished`, 'true');
+                finishExam(getStats().wrong + 1);
             }
         }, 1000);
     }
