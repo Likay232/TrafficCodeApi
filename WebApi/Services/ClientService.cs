@@ -402,8 +402,8 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
 
                 return new ThemesStatistic
                 {
-                    SolvedPercent = solvedPercent,
-                    SolvedCorrectPercent = correctPercent,
+                    SolvedPercent = Math.Round(solvedPercent, 0),
+                    SolvedCorrectPercent = Math.Round(correctPercent, 0),
                     ThemeId = g.Key.ThemeId,
                     ThemeName = g.Key.Title,
                     Level = progresses.FirstOrDefault(p => p.ThemeId == g.Key.ThemeId)?.Level ?? 1

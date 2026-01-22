@@ -238,11 +238,17 @@
             let cls = '';
 
             if (finished) {
-                const selected = examAnswers[task.id] || extraAnswers[task.id];
+                const selected = isExtra
+                    ? extraAnswers[task.id]
+                    : examAnswers[task.id];
+
                 if (a === task.correctAnswer) cls = 'correct';
                 else if (a === selected) cls = 'wrong';
             } else if (testType === 'Exam') {
-                const selected = examAnswers[task.id] || extraAnswers[task.id];
+                const selected = isExtra
+                    ? extraAnswers[task.id]
+                    : examAnswers[task.id];
+
                 if (selected === a) cls = 'exam';
             } else {
                 const state = answersState[task.id];
@@ -288,7 +294,7 @@
         if (isExtra) {
             document.getElementById('extraNavContainer').innerHTML = `
         <div style="font-weight:600; margin-bottom:4px;">Дополнительные вопросы</div>
-        <div style="display:flex; flex-wrap:wrap; gap:8px;">${nav}</div>
+        <div class="test-nav">${nav}</div>
     `;
         } else {
             document.getElementById('testNav').innerHTML = nav;
@@ -389,10 +395,10 @@
         const total = tasks.length;
         const themeErrors = {};
         values.forEach(([taskId, selected]) => {
-            const task = tasks.find(t => t.id === taskId);
+            const task = tasks.find(t => t.id == taskId);
             if (!task) return;
-            if (selected !== task.CorrectAnswer) {
-                themeErrors[task.ThemeId] = (themeErrors[task.ThemeId] || 0) + 1;
+            if (selected !== task.correctAnswer) {
+                themeErrors[task.themeId] = (themeErrors[task.themeId] || 0) + 1;
             }
         });
         const totalErrors = Object.values(themeErrors).reduce((a, b) => a + b, 0);
@@ -402,17 +408,22 @@
     function checkFinishExam() {
         // считаем ответы только по основным вопросам
         const stats = getStatsExam();
+        console.log(stats)
         
         // если все основные вопросы отвечены
         if (stats.answered === stats.total) {
-            const failedTheme = Object.values(stats.themeErrors).some(c => c >= 2);
+            const failedTheme = Object.values(stats.themeErrors).some(c => c >= 1);
             const failedTotal = stats.totalErrors > 2;
 
             // если есть ошибки и доп. вопросы ещё не загружены
+            console.log(failedTheme);
+            console.log(failedTotal);
+            console.log(extraQuestions);
             if ((failedTheme || failedTotal) && extraQuestions.length === 0) {
                 extraQuestions = [];
                 for (let themeId in stats.themeErrors) {
                     const extra = additionalQuestions[themeId]?.slice(0, 5);
+                    console.log(extra);
                     if (extra) extraQuestions.push(...extra);
                 }
                 
