@@ -430,7 +430,7 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
         };
     }
 
-    public async Task<List<TaskDto>> GenerateTest(TestTypes testType, int themeId)
+    public async Task<TestForClientDto> GenerateTest(TestTypes testType, int themeId, int userId)
     {
         switch (testType)
         {
@@ -439,16 +439,16 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
             case TestTypes.Marathon:
                 return await GenerateTestForMarathon();
             case TestTypes.Exam:
-                throw new NotImplementedException();
+                return await GenerateTestForExam();
             case TestTypes.ChallengingQuestions:
-                throw new NotImplementedException();
+                return await GenerateTestForChallengingQuestions(userId);
             default: throw new  ArgumentOutOfRangeException(nameof(testType));
         }
     }
 
-    private async Task<List<TaskDto>> GenerateTestForTheme(int themeId)
+    private async Task<TestForClientDto> GenerateTestForTheme(int themeId)
     {
-        return await component.Tasks
+        var tasks =  await component.Tasks
             .Where(t => t.ThemeId == themeId)
             .Select(t => new TaskDto
             {
@@ -462,11 +462,18 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
                 Hint = t.Hint
             })
             .ToListAsync();
+
+        return new TestForClientDto()
+        {
+            Tasks = tasks
+        };
     }
     
-    private async Task<List<TaskDto>> GenerateTestForMarathon()
+    private async Task<TestForClientDto> GenerateTestForMarathon()
     {
-        return await component.Tasks
+        var tasks = await component.Tasks
+            .OrderBy(t => EF.Functions.Random())
+            .Take(800)
             .Select(t => new TaskDto
             {
                 Id = t.Id,
@@ -479,8 +486,90 @@ public class ClientService(DataComponent component, IWebHostEnvironment env)
                 Hint = t.Hint
             })
             .ToListAsync();
+
+        return new TestForClientDto()
+        {
+            Tasks = tasks
+        };
     }
 
+    private async Task<TestForClientDto> GenerateTestForExam()
+    {
+        var themeIds = await component.Themes
+            .OrderBy(t => EF.Functions.Random())
+            .Select(t => t.Id)
+            .Take(4)
+            .ToListAsync();
+
+        var test = new TestForClientDto();
+
+        foreach (var themeId in themeIds)
+        {
+            var tasks = await component.Tasks
+                .Where(t => t.ThemeId == themeId)
+                .OrderBy(t => EF.Functions.Random())
+                .Take(10)
+                .Select(t => new TaskDto
+                {
+                    Id = t.Id,
+                    ThemeId = t.ThemeId,
+                    Text = t.Text,
+                    CorrectAnswer = t.CorrectAnswer,
+                    DifficultyLevel = t.DifficultyLevel,
+                    FilePath = t.FilePath,
+                    AnswerVariants =
+                        JsonConvert.DeserializeObject<List<string?>>(t.AnswerVariants)
+                        ?? new List<string?>(),
+                    Hint = t.Hint
+                })
+                .ToListAsync();
+
+            var tasksForTest = tasks.Take(5).ToList();
+            var additionalQuestionsForTheme = tasks.TakeLast(5).ToList();
+            
+            test.Tasks.AddRange(tasksForTest);
+            test.AdditionalQuestions[themeId] = additionalQuestionsForTheme;
+        }
+        
+        return test;
+    }
+
+    private async Task<TestForClientDto> GenerateTestForChallengingQuestions(int userId)
+    {
+        var mostChallengingQuestions = await component.CompletedTasks
+            .Where(ct => ct.UserId == userId && ct.IsCorrect == false)
+            .GroupBy(ct => ct.TaskId)
+            .Select(g => new
+            {
+                TaskId = g.Key,
+                WrongCount = g.Count()
+            })
+            .OrderByDescending(g => g.WrongCount)
+            .Take(20)
+            .Select(g => g.TaskId)
+            .ToListAsync();
+        
+        var tasks = await component.Tasks
+            .Where(t => mostChallengingQuestions.Contains(t.Id))
+            .Select(t => new TaskDto()
+            {
+                Id = t.Id,
+                ThemeId = t.ThemeId,
+                Text = t.Text,
+                CorrectAnswer = t.CorrectAnswer,
+                DifficultyLevel = t.DifficultyLevel,
+                FilePath = t.FilePath,
+                AnswerVariants = JsonConvert.DeserializeObject<List<string?>>(t.AnswerVariants) ?? new List<string?>(),
+                Hint = t.Hint
+            })
+            .ToListAsync();
+        
+        return new TestForClientDto()
+        {
+            Tasks = tasks
+        };
+    }
+    
     public async Task SaveAnswer(int userId, int taskId, bool isCorrect)
     {
         if (!component.Tasks.Any(t => t.Id == taskId))

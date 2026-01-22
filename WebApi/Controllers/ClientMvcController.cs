@@ -60,7 +60,14 @@ public class ClientMvcController(ClientService service) : Controller
     [HttpGet]
     public async Task<IActionResult> Test(int themeId, TestTypes testType, Guid testId)
     {
-        var test = await service.GenerateTest(testType, themeId);
+        var userIdStr = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (userIdStr == null)
+            throw new Exception("No user claim found");
+        
+        int.TryParse(userIdStr, out var userId);
+
+        var test = await service.GenerateTest(testType, themeId, userId);
         
         ViewBag.TestType = testType;
         ViewBag.TestId = testId;

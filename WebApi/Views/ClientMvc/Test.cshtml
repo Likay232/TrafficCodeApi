@@ -1,5 +1,5 @@
 @using WebApi.Infrastructure.Models.Enums
-@model List<WebApi.Infrastructure.Models.DTO.TaskDto>
+@model WebApi.Infrastructure.Models.DTO.TestForClientDto
 
 @{
     ViewBag.Title = "Решение теста по теме";
@@ -197,7 +197,8 @@
 </style>
 
 <script>
-    const tasks = @Html.Raw(Json.Serialize(Model));
+    const tasks = @Html.Raw(Json.Serialize(Model.Tasks));
+    const additionalQuestions = @Html.Raw(Json.Serialize(Model.AdditionalQuestions));
     const testType = '@testType';
     const testId = '@ViewBag.TestId';
     const STORAGE_KEY = `test_${testId}`;
