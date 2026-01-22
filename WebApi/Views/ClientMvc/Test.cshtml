@@ -41,7 +41,7 @@
         background: #fff;
         border-radius: 14px;
         padding: 24px;
-        box-shadow: 0 6px 18px rgba(0,0,0,.08);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, .08);
     }
 
     .test-question {
@@ -144,7 +144,7 @@
     .modal-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,.45);
+        background: rgba(0, 0, 0, .45);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -158,7 +158,7 @@
         width: 420px;
         max-width: 90%;
         text-align: center;
-        box-shadow: 0 12px 30px rgba(0,0,0,.2);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, .2);
     }
 
     .modal h2 {
@@ -205,6 +205,9 @@
 
     let current = 0;
     let finished = false;
+    let examAnswers = {}; // { taskId: selectedAnswer }
+    let extraQuestions = [];
+    let extraAnswers = {};
 
     if (localStorage.getItem(`${STORAGE_KEY}_finished`) === 'true') {
         finished = true;
@@ -214,51 +217,44 @@
         localStorage.getItem(STORAGE_KEY) || '{}'
     );
 
-    function renderTask(index) {
-        const task = tasks[index];
+    function renderTask(index, isExtra = false) {
+        const task = isExtra ? extraQuestions[index] : tasks[index];
         current = index;
 
         let html = '';
 
         if (task.filePath) {
             html += `
-                <div class="test-image-wrapper">
-                    <img src="${task.filePath}" alt="Изображение задания">
-                </div>
-            `;
+            <div class="test-image-wrapper">
+                <img src="${task.filePath}" alt="Изображение задания">
+            </div>
+        `;
         }
 
         html += `
-            <div class="test-question">${task.text}</div>
-            <div class="test-answers">
-        `;
+        <div class="test-question">${task.text}</div>
+        <div class="test-answers">
+    `;
 
-        task.answerVariants
-            .filter(a => a)
-            .forEach(a => {
-                html += `<button class="answer-btn" data-answer="${a}">${a}</button>`;
-            });
+        task.answerVariants.filter(a => a).forEach(a => {
+            html += `<button class="answer-btn ${testType === 'Exam' ? 'exam' : ''}" 
+                     data-answer="${a}" 
+                     data-task-id="${task.id}">${a}</button>`;
+        });
 
         html += `</div>`;
-
         document.getElementById('testCard').innerHTML = html;
 
-        restoreState(task);
-        renderNav();
+        renderNav(isExtra);
     }
 
-    function renderNav() {
+    function renderNav(isExtra = false) {
+        const list = isExtra ? extraQuestions : tasks;
         let nav = '';
-        for (let i = 0; i < tasks.length; i++) {
-            let cls = '';
-
-            if (answersState[tasks[i].id]) {
-                cls = answersState[tasks[i].id].isCorrect ? 'correct' : 'wrong';
-            }
-
-            if (i === current) cls = 'active';
-
-            nav += `<button class="${cls}" onclick="renderTask(${i})">${i + 1}</button>`;
+        for (let i = 0; i < list.length; i++) {
+            let cls = testType === 'Exam' ? 'exam' : '';
+            if (i === current) cls += ' active';
+            nav += `<button class="${cls}" onclick="renderTask(${i}, ${isExtra})">${i + 1}</button>`;
         }
         document.getElementById('testNav').innerHTML = nav;
     }
@@ -285,8 +281,20 @@
 
     document.addEventListener('click', e => {
         if (!e.target.classList.contains('answer-btn')) return;
-        answer(e.target.dataset.answer);
+
+        const taskId = e.target.dataset.taskId;
+        const selected = e.target.dataset.answer;
+
+        if (finished) return;
+
+        if (testType === 'Exam') {
+            examAnswers[taskId] = selected;
+            renderNav();
+        } else {
+            answer(e.target.dataset.answer);
+        }
     });
+
 
     function answer(selected) {
         if (finished) return;
@@ -304,7 +312,7 @@
 
         fetch('/ClientMvc/SaveAnswer', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 taskId: task.id,
                 isCorrect: isCorrect
@@ -344,20 +352,18 @@
         const correct = values.filter(v => v.isCorrect).length;
         const wrong = values.filter(v => !v.isCorrect).length;
 
-        return { correct, wrong, total: tasks.length };
+        return {correct, wrong, total: tasks.length};
     }
 
     function checkFinish() {
-        const { correct, wrong, total } = getStats();
-        
-        console.log(testType);
-        
-        if (testType === 'Exam' || testType === 'Themes') {
+        const {correct, wrong, total} = getStats();
+
+        if (testType === 'Themes') {
             if (correct + wrong === total) {
-                finishExam(wrong);
+                finishThemes(wrong);
             }
         }
-        
+
         if (testType === 'Marathon') {
             if (wrong >= 1) {
                 finishMarathon(false);
@@ -365,19 +371,101 @@
                 finishMarathon(true);
             }
         }
+
+        if (testType === 'Exam') {
+            const stats = getStatsExam();
+
+            // Если пользователь ответил на все вопросы
+            if (stats.answered === stats.total) {
+                // 1. Проверяем условия экзамена
+                const failedTheme = Object.values(stats.themeErrors).some(c => c >= 2);
+                const failedTotal = stats.totalErrors > 2;
+
+                if (failedTheme || failedTotal) {
+                    // Подготавливаем доп. вопросы по теме с ошибками
+                    extraQuestions = [];
+                    for (let themeId in stats.themeErrors) {
+                        const extra = additionalQuestions[themeId]?.slice(0, 5);
+                        if (extra) extraQuestions.push(...extra);
+                    }
+
+                    if (extraQuestions.length > 0) {
+                        // показываем доп. вопросы
+                        renderTask(0, true);
+                        return;
+                    }
+                }
+
+                finishExam();
+            }
+        }
     }
 
-    function finishExam(wrongCount) {
+    function getStatsExam() {
+        // Собираем все выбранные ответы
+        const values = Object.entries(examAnswers); // {taskId: selected}
+        let total = tasks.length;
+        let answered = values.length;
+
+        // Ошибки по теме
+        const themeErrors = {};
+        values.forEach(([taskId, selected]) => {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            if (selected !== task.CorrectAnswer) {
+                if (!themeErrors[task.ThemeId]) themeErrors[task.ThemeId] = 0;
+                themeErrors[task.ThemeId]++;
+            }
+        });
+
+        const totalErrors = Object.values(themeErrors).reduce((a, b) => a + b, 0);
+
+        return {answered, total, themeErrors, totalErrors};
+    }
+
+    function finishExam() {
         finished = true;
-        localStorage.setItem(`${STORAGE_KEY}_finished`, 'true');
 
-        const passed = wrongCount < 2;
+        // 1. Собираем ответы по темам
+        const themeErrors = {};
+        tasks.forEach(t => {
+            const selected = examAnswers[t.id];
+            if (selected !== t.CorrectAnswer) {
+                if (!themeErrors[t.ThemeId]) themeErrors[t.ThemeId] = 0;
+                themeErrors[t.ThemeId]++;
+            }
+        });
 
-        showModal(
-            passed ? 'Экзамен сдан' : 'Экзамен не сдан',
-            `Правильных ответов: ${getStats().correct}<br>
-         Ошибок: ${wrongCount}`
-        );
+        const totalErrors = Object.values(themeErrors).reduce((a, b) => a + b, 0);
+        const failedTheme = Object.values(themeErrors).some(c => c >= 2);
+
+        // 2. Проверяем доп. вопросы
+        let extraFailed = false;
+        if (totalErrors > 0 || failedTheme) {
+            extraQuestions = [];
+            for (let themeId in themeErrors) {
+                const extra = additionalQuestions[themeId]?.slice(0, 5);
+                if (extra) extraQuestions.push(...extra);
+            }
+
+            if (extraQuestions.length > 0) {
+                renderTask(0, true);
+                return;
+            }
+        }
+
+        if (totalErrors > 2 || failedTheme || extraFailed) {
+            showModal("Экзамен не сдан", `Всего ошибок: ${totalErrors}`);
+        } else {
+            showModal("Экзамен сдан", ``);
+        }
+
+        fetch('/ClientMvc/SaveExamAnswers', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(examAnswers)
+        });
     }
 
     function finishMarathon(success) {
@@ -389,6 +477,19 @@
             success
                 ? 'Вы ответили правильно на все вопросы!'
                 : 'Допущена ошибка. Марафон завершён.'
+        );
+    }
+
+    function finishThemes(wrongCount) {
+        finished = true;
+        localStorage.setItem(`${STORAGE_KEY}_finished`, 'true');
+
+        const passed = wrongCount < 2;
+
+        showModal(
+            passed ? 'Экзамен сдан' : 'Экзамен не сдан',
+            `Правильных ответов: ${getStats().correct}<br>
+         Ошибок: ${wrongCount}`
         );
     }
 
@@ -413,21 +514,17 @@
             `/ClientMvc/StartTest?themeId=${themeId}&testType=${testType}`;
     }
 
-
     if (testType === 'Exam') {
         let seconds = 20 * 60;
         const timer = setInterval(() => {
             seconds--;
             const m = Math.floor(seconds / 60);
             const s = seconds % 60;
-            document.getElementById('timer').innerText =
-                `${m}:${s.toString().padStart(2, '0')}`;
-
+            document.getElementById('timer').innerText = `${m}:${s.toString().padStart(2, '0')}`;
             if (seconds <= 0) {
                 clearInterval(timer);
                 finished = true;
-                localStorage.setItem(`${STORAGE_KEY}_finished`, 'true');
-                finishExam(getStats().wrong + 1);
+                showModal("Экзамен не сдан", "Время истекло");
             }
         }, 1000);
     }
