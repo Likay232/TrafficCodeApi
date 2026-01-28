@@ -1,7 +1,7 @@
 ﻿using System.Windows.Input;
 using MauiApp.Commands;
 using MauiApp.Models;
-using MauiApp.Services;
+using MauiApp.Repositories;
 
 namespace MauiApp.ViewModels;
 
@@ -13,11 +13,10 @@ public class RegisterViewModel : ViewModelBase<RegisterModel>
         get => _errorMessage;
         set
         {
-            if (_errorMessage != value)
-            {
-                _errorMessage = value;
-                OnPropertyChanged();
-            }
+            if (_errorMessage == value) return;
+            
+            _errorMessage = value;
+            OnPropertyChanged();
         }
     }
 
@@ -26,12 +25,11 @@ public class RegisterViewModel : ViewModelBase<RegisterModel>
         get => Model.Username;
         set
         {
-            if (Username != value)
-            {
-                Model.Username = value ?? "";
-                OnPropertyChanged();
-                ((RelayCommand)RegisterCommand).RaiseCanExecuteChanged();
-            }
+            if (Username == value) return;
+            
+            Model.Username = value ?? "";
+            OnPropertyChanged();
+            ((RelayCommand)RegisterCommand).RaiseCanExecuteChanged();
         }
     }
 
@@ -40,12 +38,11 @@ public class RegisterViewModel : ViewModelBase<RegisterModel>
         get => Model.Password;
         set
         {
-            if (Password != value)
-            {
-                Model.Password = value ?? "";
-                OnPropertyChanged();
-                ((RelayCommand)RegisterCommand).RaiseCanExecuteChanged();
-            }
+            if (Password == value) return;
+            
+            Model.Password = value ?? "";
+            OnPropertyChanged();
+            ((RelayCommand)RegisterCommand).RaiseCanExecuteChanged();
         }
     }
     
@@ -54,12 +51,11 @@ public class RegisterViewModel : ViewModelBase<RegisterModel>
         get => Model.ConfirmPassword;
         set
         {
-            if (ConfirmPassword != value)
-            {
-                Model.ConfirmPassword = value ?? "";
-                OnPropertyChanged();
-                ((RelayCommand)RegisterCommand).RaiseCanExecuteChanged();
-            }
+            if (ConfirmPassword == value) return;
+            
+            Model.ConfirmPassword = value ?? "";
+            OnPropertyChanged();
+            ((RelayCommand)RegisterCommand).RaiseCanExecuteChanged();
         }
     }
 
@@ -68,12 +64,11 @@ public class RegisterViewModel : ViewModelBase<RegisterModel>
         get => Model.FirstName;
         set
         {
-            if (FirstName != value)
-            {
-                Model.FirstName = value ?? "";
-                OnPropertyChanged();
-                ((RelayCommand)RegisterCommand).RaiseCanExecuteChanged();
-            }
+            if (FirstName == value) return;
+            
+            Model.FirstName = value ?? "";
+            OnPropertyChanged();
+            ((RelayCommand)RegisterCommand).RaiseCanExecuteChanged();
         }
     }
     
@@ -82,20 +77,19 @@ public class RegisterViewModel : ViewModelBase<RegisterModel>
         get => Model.LastName;
         set
         {
-            if (LastName != value)
-            {
-                Model.LastName = value ?? "";
-                OnPropertyChanged();
-                ((RelayCommand)RegisterCommand).RaiseCanExecuteChanged();
-            }
+            if (LastName == value) return;
+            
+            Model.LastName = value ?? "";
+            OnPropertyChanged();
+            ((RelayCommand)RegisterCommand).RaiseCanExecuteChanged();
         }
     }
 
     public ICommand RegisterCommand { get; set; }
 
-    public RegisterViewModel(ApiService service)
+    public RegisterViewModel(AppRepository repository)
     {
-        _apiService = service;
+        AppRepository = repository;
 
         Model = new RegisterModel();
 
@@ -105,15 +99,16 @@ public class RegisterViewModel : ViewModelBase<RegisterModel>
     private bool CanExecuteRegister(object obj)
     {
         if (obj is not RegisterModel regModel) return false;
+        
         return !string.IsNullOrWhiteSpace(regModel.Username)
                && !string.IsNullOrWhiteSpace(regModel.Password)
                && !string.IsNullOrWhiteSpace(regModel.ConfirmPassword)
                && !string.IsNullOrWhiteSpace(regModel.FirstName)
                && !string.IsNullOrWhiteSpace(regModel.LastName)
-               && !regModel.Password.Contains(" ")
-               && !regModel.Username.Contains(" ")
-               && !regModel.FirstName.Contains(" ")
-               && !regModel.LastName.Contains(" ");
+               && !regModel.Password.Contains(' ')
+               && !regModel.Username.Contains(' ')
+               && !regModel.FirstName.Contains(' ')
+               && !regModel.LastName.Contains(' ');
     }
 
     private async void ExecuteRegister(object obj)
@@ -156,7 +151,7 @@ public class RegisterViewModel : ViewModelBase<RegisterModel>
             return false;
         }
 
-        return await _apiService.RegisterUser(regModel);
+        return await AppRepository.Register(regModel);
     }
 
 }

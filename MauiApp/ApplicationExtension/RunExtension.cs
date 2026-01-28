@@ -1,4 +1,5 @@
-﻿using MauiApp.Services;
+﻿using MauiApp.Repositories;
+using MauiApp.Services;
 using MauiApp.ViewModels;
 using MauiApp.Views;
 
@@ -6,10 +7,13 @@ namespace MauiApp.ApplicationExtension;
 
 public static class RunExtension
 {
-    public static MauiAppBuilder RegisterSerivces(this MauiAppBuilder builder)
+    public static MauiAppBuilder RegisterServices(this MauiAppBuilder builder)
     {
         builder.Services.AddSingleton<ApiService>();
+        builder.Services.AddSingleton<LocalDbService>();
         builder.Services.AddSingleton<SharedObjectStorageService>();
+        builder.Services.AddTransient<AppRepository>();
+
         
         return builder;
     }
@@ -25,7 +29,6 @@ public static class RunExtension
         builder.Services.AddTransient<CheckedTestViewModel>();
         builder.Services.AddTransient<TaskViewModel>();
         builder.Services.AddTransient<RegisterViewModel>();
-        builder.Services.AddTransient<ChangePassViewModel>();
         builder.Services.AddTransient<GenerateTestViewModel>();
         
         return builder;
@@ -42,7 +45,6 @@ public static class RunExtension
         builder.Services.AddTransient<CheckedTestView>();
         builder.Services.AddTransient<TaskView>();
         builder.Services.AddTransient<RegisterView>();
-        builder.Services.AddTransient<ChangePassView>();
         builder.Services.AddTransient<GenerateTestView>();
         
         return builder;

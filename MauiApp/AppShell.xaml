@@ -38,10 +38,6 @@
         <ShellContent Title="Тесты" ContentTemplate="{DataTemplate pages:TestsView}" />
     </FlyoutItem>
     
-    <FlyoutItem Title="Сменить пароль" Route="ChangePassView">
-        <ShellContent Title="Сменить пароль" ContentTemplate="{DataTemplate pages:ChangePassView}" />
-    </FlyoutItem>
-
     <MenuItem Text="Выйти"
               Clicked="OnLogoutClicked" />
 

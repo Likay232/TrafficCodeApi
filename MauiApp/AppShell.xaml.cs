@@ -20,7 +20,6 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(CheckedTestView), typeof(CheckedTestView));
         Routing.RegisterRoute(nameof(TaskView), typeof(TaskView));
         Routing.RegisterRoute(nameof(RegisterView), typeof(RegisterView));
-        Routing.RegisterRoute(nameof(ChangePassView), typeof(ChangePassView));
         Routing.RegisterRoute(nameof(GenerateTestView), typeof(GenerateTestView));
 
         if (Preferences.ContainsKey("username"))

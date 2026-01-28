@@ -21,25 +21,16 @@ public class ApiService
         var token = SecureStorage.GetAsync("auth_token").Result;
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        client.BaseAddress = new Uri("http://192.168.55.107:5000/");
+        client.BaseAddress = new Uri("http://192.168.1.124:5000/");
         return client;
     }
 
     public async Task<string?> Login(AuthModel authModel)
     {
-        string? token;
-        try
-        {
-            var response = await GetClient().PostAsJsonAsync("/Auth/LoginClient", authModel, _jsonSerializerOptions);
-            response.EnsureSuccessStatusCode();
-            
-            token = await response.Content.ReadFromJsonAsync<string>(_jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine(e);
-            return null;
-        }
+        var response = await GetClient().PostAsJsonAsync("/Auth/LoginClient", authModel, _jsonSerializerOptions);
+        response.EnsureSuccessStatusCode();
+
+        var token = await response.Content.ReadFromJsonAsync<string>(_jsonSerializerOptions);
 
         return token;
     }
@@ -196,36 +187,12 @@ public class ApiService
 
     public async Task<bool> RegisterUser(RegisterModel request)
     {
-        try
-        {
-            var response = await GetClient().PostAsJsonAsync("/Auth/Register", request, _jsonSerializerOptions);
-            response.EnsureSuccessStatusCode();
-            
-            return await response.Content.ReadFromJsonAsync<bool>(_jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine($"[RegisterUser] {e.Message}");
-            return false;
-        }
-    }
+        var response = await GetClient().PostAsJsonAsync("/Auth/Register", request, _jsonSerializerOptions);
+        response.EnsureSuccessStatusCode();
 
-    public async Task<bool> ChangePassword(ChangePassRequest request)
-    {
-        try
-        {
-            var response = await GetClient().PostAsJsonAsync("/Client/ChangePassword", request, _jsonSerializerOptions);
-            response.EnsureSuccessStatusCode();
-            
-            return await response.Content.ReadFromJsonAsync<bool>(_jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine($"[ChangePassword] {e.Message}");
-            return false;
-        }
+        return await response.Content.ReadFromJsonAsync<bool>(_jsonSerializerOptions);
     }
-
+    
     public async Task<List<TaskForTest>?> GenerateTest(GenerateTest request)
     {
         try
@@ -235,9 +202,8 @@ public class ApiService
     
             return await response.Content.ReadFromJsonAsync<List<TaskForTest>>(_jsonSerializerOptions);
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Debug.WriteLine($"[GenerateTest] {e.Message}");
             return null;
         }
     }

@@ -1,10 +1,9 @@
 ﻿using System.Diagnostics;
-using System.Security.Claims;
 using System.Windows.Input;
 using MauiApp.Commands;
 using MauiApp.Models;
+using MauiApp.Repositories;
 using MauiApp.Services;
-using MauiApp.Views;
 
 namespace MauiApp.ViewModels;
 
@@ -16,11 +15,10 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         get => _errorMessage;
         set
         {
-            if (_errorMessage != value)
-            {
-                _errorMessage = value;
-                OnPropertyChanged();
-            }
+            if (_errorMessage == value) return;
+            
+            _errorMessage = value;
+            OnPropertyChanged();
         }
     }
     
@@ -30,12 +28,11 @@ public class AuthViewModel : ViewModelBase<AuthModel>
 
         set
         {
-            if (Username != value)
-            {
-                Model.Username = value;
-                OnPropertyChanged();
-                ((RelayCommand)LoginCommand).RaiseCanExecuteChanged();
-            }
+            if (Username == value) return;
+            
+            Model.Username = value;
+            OnPropertyChanged();
+            ((RelayCommand)LoginCommand).RaiseCanExecuteChanged();
         }
     }
 
@@ -44,20 +41,19 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         get => Model.Password;
         set
         {
-            if (Password != value)
-            {
-                Model.Password = value;
-                OnPropertyChanged();
-                ((RelayCommand)LoginCommand).RaiseCanExecuteChanged();
-            }
+            if (Password == value) return;
+            
+            Model.Password = value;
+            OnPropertyChanged();
+            ((RelayCommand)LoginCommand).RaiseCanExecuteChanged();
         }
     }
 
     public ICommand LoginCommand { get; set; }
 
-    public AuthViewModel(ApiService service)
+    public AuthViewModel(AppRepository repository)
     {
-        _apiService = service;
+        AppRepository = repository;
 
         Model = new AuthModel();
         
@@ -98,7 +94,7 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         
     private async Task<bool> AuthenticateUser(AuthModel authModel)
     {
-        var token = await _apiService.Login(authModel);
+        var token = await AppRepository.Login(authModel);
 
         if (token == null) return false;
         
