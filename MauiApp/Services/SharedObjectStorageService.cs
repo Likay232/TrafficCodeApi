@@ -1,4 +1,4 @@
-﻿using MauiApp.Models;
+﻿using MauiApp.Infrastructure.Models.DTO;
 
 namespace MauiApp.Services;
 

@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 using MauiApp.Commands;
-using MauiApp.Models;
+using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Repositories;
 
 namespace MauiApp.ViewModels;

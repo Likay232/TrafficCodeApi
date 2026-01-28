@@ -3,7 +3,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModel="clr-namespace:MauiApp.ViewModels"
-             xmlns:models="clr-namespace:MauiApp.Models"
+             xmlns:models="clr-namespace:MauiApp.Infrastructure.Models;assembly=MauiApp.Infrastructure"
+             xmlns:dto="clr-namespace:MauiApp.Infrastructure.Models.DTO;assembly=MauiApp.Infrastructure"
              x:Class="MauiApp.Views.LessonsView"
              x:DataType="viewModel:LessonsViewModel"
              Title="Материалы">
@@ -13,7 +14,7 @@
                             BackgroundColor="White"
                             IsVisible="{Binding HasItems}">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Lesson">
+                    <DataTemplate x:DataType="dto:Lesson">
                         <Frame Padding="15"
                                Margin="10"
                                BackgroundColor="White"

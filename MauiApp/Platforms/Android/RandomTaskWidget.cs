@@ -5,8 +5,7 @@ using Android.Content;
 using Android.Graphics;
 using Android.Views;
 using Android.Widget;
-using MauiApp.Models;
-using Microsoft.Maui.Controls.PlatformConfiguration;
+using MauiApp.Infrastructure.Models.DTO;
 
 namespace MauiApp;
 

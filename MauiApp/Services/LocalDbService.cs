@@ -1,9 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using MauiApp.Models;
-using MauiApp.Models.Storage;
-using MauiApp.Models.Сomponents;
+using MauiApp.Infrastructure.Models.DTO;
+using MauiApp.Infrastructure.Models.Storage;
+using MauiApp.Infrastructure.Models.Сomponents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 

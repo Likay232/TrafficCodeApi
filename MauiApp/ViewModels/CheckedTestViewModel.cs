@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using MauiApp.Models;
+﻿using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Services;
 
 namespace MauiApp.ViewModels;

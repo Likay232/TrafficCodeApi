@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Windows.Input;
 using MauiApp.Commands;
-using MauiApp.Models;
+using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Services;
 using MauiApp.Views;
 

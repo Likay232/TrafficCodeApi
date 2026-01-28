@@ -1,18 +1,41 @@
-﻿using MauiApp.Repositories;
+﻿using MauiApp.Infrastructure.Models.Сomponents;
+using MauiApp.Repositories;
 using MauiApp.Services;
 using MauiApp.ViewModels;
 using MauiApp.Views;
+using Microsoft.EntityFrameworkCore;
 
 namespace MauiApp.ApplicationExtension;
 
 public static class RunExtension
 {
+    public static Microsoft.Maui.Hosting.MauiApp MigrateLocalDatabase(this Microsoft.Maui.Hosting.MauiApp app)
+    {
+        using var scope = app.Services.CreateScope();
+
+        try
+        {
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var pending = context.Database.GetPendingMigrations();
+            
+            context.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+        }
+
+        return app;
+    }
+
     public static MauiAppBuilder RegisterServices(this MauiAppBuilder builder)
     {
         builder.Services.AddSingleton<ApiService>();
         builder.Services.AddSingleton<LocalDbService>();
         builder.Services.AddSingleton<SharedObjectStorageService>();
         builder.Services.AddTransient<AppRepository>();
+        builder.Services.AddTransient<DataComponent>();
+        builder.Services.AddDbContext<AppDbContext>();
 
         
         return builder;

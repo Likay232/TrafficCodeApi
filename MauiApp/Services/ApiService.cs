@@ -1,8 +1,8 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
-using MauiApp.Models;
 using System.Diagnostics;
 using System.Net.Http.Headers;
+using MauiApp.Infrastructure.Models.DTO;
 
 namespace MauiApp.Services;
 
@@ -27,7 +27,7 @@ public class ApiService
 
     public async Task<string?> Login(AuthModel authModel)
     {
-        var response = await GetClient().PostAsJsonAsync("/Auth/LoginClient", authModel, _jsonSerializerOptions);
+        var response = await GetClient().PostAsJsonAsync("/Auth/Login", authModel, _jsonSerializerOptions);
         response.EnsureSuccessStatusCode();
 
         var token = await response.Content.ReadFromJsonAsync<string>(_jsonSerializerOptions);

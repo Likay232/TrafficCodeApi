@@ -2,7 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiApp", "MauiApp\MauiApp.csproj", "{FDD38480-392D-4754-AC37-4AE043EF5544}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "TestProject\TestProject.csproj", "{6E9D9CA0-ECFA-4957-962D-063AFB58C2F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiApp.Infrastructure", "MauiApp.Infrastructure\MauiApp.Infrastructure.csproj", "{D8D898B6-72BA-4784-BB3A-B075E20E854C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiApp.Migrator", "MauiApp.Migrator\MauiApp.Migrator.csproj", "{1F952813-B81B-48D7-ACE5-4ABC3B2AA533}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,9 +16,13 @@ Global
 		{FDD38480-392D-4754-AC37-4AE043EF5544}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDD38480-392D-4754-AC37-4AE043EF5544}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDD38480-392D-4754-AC37-4AE043EF5544}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6E9D9CA0-ECFA-4957-962D-063AFB58C2F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6E9D9CA0-ECFA-4957-962D-063AFB58C2F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6E9D9CA0-ECFA-4957-962D-063AFB58C2F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6E9D9CA0-ECFA-4957-962D-063AFB58C2F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8D898B6-72BA-4784-BB3A-B075E20E854C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8D898B6-72BA-4784-BB3A-B075E20E854C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8D898B6-72BA-4784-BB3A-B075E20E854C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8D898B6-72BA-4784-BB3A-B075E20E854C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F952813-B81B-48D7-ACE5-4ABC3B2AA533}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F952813-B81B-48D7-ACE5-4ABC3B2AA533}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F952813-B81B-48D7-ACE5-4ABC3B2AA533}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F952813-B81B-48D7-ACE5-4ABC3B2AA533}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

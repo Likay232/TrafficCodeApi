@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MauiApp.Models;
-using MauiApp.Services;
+﻿using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.ViewModels;
 
 namespace MauiApp.Views;
