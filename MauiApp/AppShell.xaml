@@ -30,6 +30,10 @@
         </Grid>
     </Shell.FlyoutHeader>
 
+    <FlyoutItem Title="Профиль" Route="ProfileView">
+        <ShellContent Title="Профиль" ContentTemplate="{DataTemplate pages:ProfileView}" />
+    </FlyoutItem>
+    
     <FlyoutItem Title="Темы" Route="ThemesView">
         <ShellContent Title="Темы" ContentTemplate="{DataTemplate pages:ThemesView}" />
     </FlyoutItem>

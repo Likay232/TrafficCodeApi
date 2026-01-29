@@ -210,6 +210,22 @@ public class ApiService
             return null;
         }
     }
+    
+    public async Task<ProfileInfo?> GetProfileInfo(int userId)
+    {
+        try
+        {
+            var response = await GetClient().GetAsync($"/Client/GetProfileInfo?userId={userId}");
+            response.EnsureSuccessStatusCode();
+    
+            return await response.Content.ReadFromJsonAsync<ProfileInfo>(_jsonSerializerOptions);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
 
     public static string? GetAbsoluteFilePath(string? filePath)
     {
