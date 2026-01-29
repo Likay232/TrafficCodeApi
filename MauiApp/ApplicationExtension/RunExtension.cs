@@ -1,6 +1,6 @@
-﻿using MauiApp.Infrastructure.Models.Сomponents;
+﻿using MauiApp.Infrastructure.Models.Repositories;
+using MauiApp.Infrastructure.Models.Сomponents;
 using MauiApp.Infrastructure.Services;
-using MauiApp.Repositories;
 using MauiApp.Services;
 using MauiApp.ViewModels;
 using MauiApp.Views;

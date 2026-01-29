@@ -1,8 +1,7 @@
 using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Infrastructure.Services;
-using MauiApp.Services;
 
-namespace MauiApp.Repositories;
+namespace MauiApp.Infrastructure.Models.Repositories;
 
 public class AppRepository(ApiService apiService, LocalDbService localDbService)
 {

@@ -1,6 +1,6 @@
 ﻿using MauiApp.Infrastructure.Models.DTO;
 
-namespace MauiApp.Services;
+namespace MauiApp.Infrastructure.Services;
 
 public class SharedObjectStorageService
 {

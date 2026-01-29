@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace MauiApp.Converters;
+namespace MauiApp.Infrastructure.Models.Converters;
 
 public class PercentToProgressConverter : IValueConverter
 {

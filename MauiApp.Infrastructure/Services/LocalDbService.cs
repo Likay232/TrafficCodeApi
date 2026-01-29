@@ -7,7 +7,7 @@ using MauiApp.Infrastructure.Models.Сomponents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
-namespace MauiApp.Services;
+namespace MauiApp.Infrastructure.Services;
 
 public class LocalDbService(DataComponent component)
 {

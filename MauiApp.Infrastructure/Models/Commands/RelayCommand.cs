@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace MauiApp.Commands;
+namespace MauiApp.Infrastructure.Models.Commands;
 
 public class RelayCommand(Action<object> execute, Predicate<object>? canExecute = null) : ICommand
 {

@@ -71,3 +71,5 @@
 //     public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
 //
 // }
+
+namespace MauiApp.Infrastructure.Models.Commands;

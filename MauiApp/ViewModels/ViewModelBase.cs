@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using MauiApp.Infrastructure.Models.Repositories;
 using MauiApp.Infrastructure.Services;
-using MauiApp.Repositories;
 
 namespace MauiApp.ViewModels;
 

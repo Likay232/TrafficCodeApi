@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Windows.Input;
-using MauiApp.Commands;
+using MauiApp.Infrastructure.Models.Commands;
 using MauiApp.Infrastructure.Models.DTO;
-using MauiApp.Repositories;
+using MauiApp.Infrastructure.Models.Repositories;
 using MauiApp.Services;
 
 namespace MauiApp.ViewModels;
