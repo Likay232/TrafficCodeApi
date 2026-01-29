@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using MauiApp.Commands;
 using MauiApp.Infrastructure.Models.DTO;
+using MauiApp.Infrastructure.Services;
 using MauiApp.Services;
 using MauiApp.Views;
 
@@ -16,7 +17,7 @@ public class GenerateTestViewModel : ViewModelBase<GenerateTest>
 
     public GenerateTestViewModel(ApiService service, SharedObjectStorageService storage)
     {
-        _apiService = service;
+        ApiService = service;
         _storage = storage;
         
         Model = new GenerateTest();
@@ -26,7 +27,7 @@ public class GenerateTestViewModel : ViewModelBase<GenerateTest>
 
     public async void LoadThemesAsync()
     {
-        var result = await _apiService.GetThemesAsync();
+        var result = await ApiService.GetThemesAsync();
         var themes = result ?? new List<Theme>();
 
         ThemeTaskCounts.Clear();
@@ -58,7 +59,7 @@ public class GenerateTestViewModel : ViewModelBase<GenerateTest>
             UserId = Preferences.Default.Get("user_id", 0)
         };
 
-        var generatedTasks = await _apiService.GenerateTest(generateRequest);
+        var generatedTasks = await ApiService.GenerateTest(generateRequest);
 
         if (generatedTasks is { Count: > 0 })
         {

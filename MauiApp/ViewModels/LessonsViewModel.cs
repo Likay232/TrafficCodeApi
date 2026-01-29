@@ -1,5 +1,5 @@
 ﻿using MauiApp.Infrastructure.Models.DTO;
-using MauiApp.Services;
+using MauiApp.Infrastructure.Services;
 
 namespace MauiApp.ViewModels;
 
@@ -12,15 +12,17 @@ public class LessonsViewModel : ViewModelBase<List<Lesson>>
 
     public LessonsViewModel(ApiService service)
     {
-        _apiService = service;
+        ApiService = service;
     }
 
     public async void LoadLessonsAsync()
     {
-        var result = await _apiService.GetLessonsForThemeAsync(ThemeId);
+        var result = await ApiService.GetLessonsForThemeAsync(ThemeId);
         
         Model = result ?? new List<Lesson>();
         
         OnPropertyChanged(nameof(Model));
+        OnPropertyChanged(nameof(HasItems));
+        OnPropertyChanged(nameof(IsEmpty));
     }
 }

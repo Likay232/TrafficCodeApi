@@ -1,10 +1,8 @@
-﻿using MauiApp.Services;
-using MauiApp.ViewModels;
-using MauiApp.Views;
+﻿using MauiApp.Views;
 
 namespace MauiApp;
 
-public partial class AppShell : Shell
+public partial class AppShell
 {
     public AppShell()
     {
@@ -18,7 +16,6 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(TestsView), typeof(TestsView));
         Routing.RegisterRoute(nameof(TestView), typeof(TestView));
         Routing.RegisterRoute(nameof(CheckedTestView), typeof(CheckedTestView));
-        Routing.RegisterRoute(nameof(TaskView), typeof(TaskView));
         Routing.RegisterRoute(nameof(RegisterView), typeof(RegisterView));
         Routing.RegisterRoute(nameof(GenerateTestView), typeof(GenerateTestView));
 
@@ -33,17 +30,16 @@ public partial class AppShell : Shell
         Preferences.Default.Clear();
         SecureStorage.RemoveAll();
 
-        await Shell.Current.GoToAsync(nameof(AuthView));
-        ;
+        await Current.GoToAsync(nameof(AuthView));
     }
 
     private void OnNavigating(object? sender, ShellNavigatingEventArgs e)
     {
         var userName = Preferences.Get("username", null);
 
-        var isAllowedTarget = e.Target?.Location?.OriginalString?.Contains("AuthView") == true ||
-                              e.Target?.Location?.OriginalString?.Contains("RegisterView") == true || 
-                              e.Current.Location.OriginalString.Contains("RegisterView")== true;
+        var isAllowedTarget = e.Target?.Location?.OriginalString.Contains("AuthView") == true ||
+                              e.Target?.Location?.OriginalString.Contains("RegisterView") == true || 
+                              e.Current.Location.OriginalString.Contains("RegisterView");
 
         if (isAllowedTarget || userName != null)
             return;

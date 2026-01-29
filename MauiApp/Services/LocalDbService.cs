@@ -29,7 +29,6 @@ public class LocalDbService(DataComponent component)
         {
             new (ClaimTypes.NameIdentifier, user.Id.ToString()),
             new (ClaimTypes.Name, login.Username ?? "")
-            
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor

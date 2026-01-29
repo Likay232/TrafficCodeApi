@@ -1,9 +1,6 @@
-﻿using System.Diagnostics;
-
-namespace MauiApp.Services;
+﻿namespace MauiApp.Services;
 
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 public static class TokenParseService
 {

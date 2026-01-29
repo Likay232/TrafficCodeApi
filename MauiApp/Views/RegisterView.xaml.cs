@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MauiApp.ViewModels;
+﻿using MauiApp.ViewModels;
 
 namespace MauiApp.Views;
 
-public partial class RegisterView : ContentPage
+public partial class RegisterView
 {
     public RegisterView(RegisterViewModel viewModel)
     {
@@ -22,7 +17,7 @@ public partial class RegisterView : ContentPage
 
         Shell.SetBackButtonBehavior(this, new BackButtonBehavior { IsVisible = false });
     }
-
+    
     private async void LoginButton_OnClicked(object? sender, EventArgs e)
     {
         if (Application.Current == null) return;

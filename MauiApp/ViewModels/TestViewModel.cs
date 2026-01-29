@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using MauiApp.Commands;
 using MauiApp.Infrastructure.Models.DTO;
+using MauiApp.Infrastructure.Services;
 using MauiApp.Services;
 using MauiApp.Views;
 
@@ -69,8 +70,6 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
 
         SaveAnswerCommand = new RelayCommand(ExecuteSaveAnswer, CanExecuteSaveAnswer);
         CheckTestCommand = new RelayCommand(ExecuteCheckTest, CanExecuteCheckTest);
-        
-        DownloadFileCommand = new DownloadFileCommand(service);
     }
 
     public async void LoadTestAsync()

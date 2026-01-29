@@ -3,7 +3,7 @@ using MauiApp.ViewModels;
 
 namespace MauiApp.Views;
 
-public partial class ThemesView : ContentPage
+public partial class ThemesView
 {
     public ThemesView(ThemesViewModel viewModel)
     {
@@ -11,13 +11,13 @@ public partial class ThemesView : ContentPage
 
         BindingContext = viewModel;
     }
-    private async void SelectableItemsView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void SelectableItemsView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.CurrentSelection != null && e.CurrentSelection.Count == 1)
+        if (e.CurrentSelection is { Count: 1 })
         {
             if (e.CurrentSelection[0] is Theme selectedItem)
             {
-                MainThread.BeginInvokeOnMainThread(async () =>
+                MainThread.BeginInvokeOnMainThread(async void() =>
                 {
                     await Shell.Current.GoToAsync($"{nameof(TasksView)}?themeId={selectedItem.Id}");
                 });
@@ -32,7 +32,9 @@ public partial class ThemesView : ContentPage
     {
         if (e.Parameter is Theme theme)
         {
-            await Shell.Current.GoToAsync($"{nameof(TasksView)}?themeId={theme.Id}");
+            await Shell.Current.GoToAsync(
+                $"{nameof(TasksView)}?themeId={theme.Id}", animate:false
+            );
         }
     }
     
@@ -46,9 +48,17 @@ public partial class ThemesView : ContentPage
 
     private async void OnMaterialsClicked(object? sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is Theme theme)
+        if (sender is Button { CommandParameter: Theme theme })
         {
-            await Shell.Current.GoToAsync($"{nameof(LessonsView)}?themeId={theme.Id}");
+            await Shell.Current.GoToAsync($"{nameof(LessonsView)}?themeId={theme.Id}", animate:false);
+        }
+    }
+
+    private async void OnTasksClicked(object? sender, EventArgs e)
+    {
+        if (sender is Button { CommandParameter: Theme theme })
+        {
+            await Shell.Current.GoToAsync($"{nameof(TasksView)}?themeId={theme.Id}", animate:false);
         }
     }
 }

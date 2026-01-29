@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MauiApp.ViewModels;
+﻿using MauiApp.ViewModels;
 
 namespace MauiApp.Views;
 
 [QueryProperty(nameof(ThemeId), "themeId")]
-public partial class LessonsView : ContentPage
+public partial class LessonsView
 { 
     public int ThemeId
     {

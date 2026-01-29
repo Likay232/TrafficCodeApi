@@ -1,4 +1,5 @@
 ﻿using MauiApp.Infrastructure.Models.DTO;
+using MauiApp.Infrastructure.Services;
 using MauiApp.Services;
 
 namespace MauiApp.ViewModels;
@@ -9,20 +10,20 @@ public class TestsViewModel : ViewModelBase<List<Test>>
 
     public TestsViewModel(ApiService service, SharedObjectStorageService storage)
     {
-        _apiService = service;
+        ApiService = service;
         _storage = storage;
     }
 
     public async void LoadTests()
     {
-        var result = await _apiService.GetTestsAsync();
+        var result = await ApiService.GetTestsAsync();
         Model = result ?? new List<Test>();
         OnPropertyChanged(nameof(Model));
     }
 
     public async Task<bool> GetTestById(int testId)
     {
-        var test = await _apiService.GetTestAsync(testId);
+        var test = await ApiService.GetTestAsync(testId);
 
         if (test == null) return false;
     

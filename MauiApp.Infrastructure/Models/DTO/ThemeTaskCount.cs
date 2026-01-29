@@ -6,7 +6,7 @@ public class ThemeTaskCount : INotifyPropertyChanged
 {
     public int ThemeId { get; set; }
     
-    public string ThemeTitle { get; set; }
+    public string ThemeTitle { get; set; } = string.Empty;
 
     private int _taskCount;
     public int TaskCount

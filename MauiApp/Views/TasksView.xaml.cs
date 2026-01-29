@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MauiApp.Infrastructure.Models.DTO;
-using MauiApp.Services;
-using MauiApp.ViewModels;
+﻿using MauiApp.ViewModels;
 
 namespace MauiApp.Views;
 
 [QueryProperty(nameof(ThemeId), "themeId")]
-public partial class TasksView : ContentPage
+public partial class TasksView
 {
     public int ThemeId
     {
@@ -18,7 +11,6 @@ public partial class TasksView : ContentPage
         set
         {
             ((TasksViewModel)BindingContext).ThemeId = value;
-            ((TasksViewModel)BindingContext).LoadTasksAsync();
         }
     }
 
@@ -26,13 +18,31 @@ public partial class TasksView : ContentPage
     {
         InitializeComponent();
         BindingContext = viewModel;
-    }
 
-    private async void OnTaskTapped(object? sender, TappedEventArgs e)
-    {
-        if (e.Parameter is TaskForTest taskForTest)
+        Loaded += async (_, _) =>
         {
-            await Shell.Current.GoToAsync($"{nameof(TaskView)}?taskId={taskForTest.Id}");
-        }
+            await Dispatcher.DispatchAsync(async () =>
+            {
+                await Task.Yield();
+                if (BindingContext is TasksViewModel vm)
+                    await vm.LoadTasksAsync();
+            });
+        };
+    }
+    
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // // Этот трюк позволяет сначала отрисовать UI, а потом начать асинхронную загрузку
+        // Dispatcher.Dispatch(async () =>
+        // {
+        //     await Task.Delay(1000);
+        //     await Task.Yield(); // даём UI возможность отрисоваться
+        //     if (BindingContext is TasksViewModel vm)
+        //     {
+        //         await vm.LoadTasksAsync(); // теперь начинается загрузка
+        //     }
+        // });
     }
 }

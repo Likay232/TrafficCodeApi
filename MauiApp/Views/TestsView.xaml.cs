@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MauiApp.Infrastructure.Models.DTO;
+﻿using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.ViewModels;
 
 namespace MauiApp.Views;
 
-public partial class TestsView : ContentPage
+public partial class TestsView
 {
     public TestsView(TestsViewModel viewModel)
     {
@@ -16,20 +11,7 @@ public partial class TestsView : ContentPage
         
         BindingContext = viewModel;
     }
-
-    private async void SelectableItemsView_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (e.CurrentSelection != null && e.CurrentSelection.Count == 1)
-        {
-            if (e.CurrentSelection[0] is Test selectedItem)
-            {
-                await Shell.Current.GoToAsync($"{nameof(TestView)}?testId={selectedItem.Id})");
-            }
-            
-            ((CollectionView)sender).SelectedItem = null;
-        }
-    }
-
+    
     protected override void OnAppearing()
     {
         base.OnAppearing();

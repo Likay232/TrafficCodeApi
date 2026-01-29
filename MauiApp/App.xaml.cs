@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
+using MauiApp.Infrastructure.Services;
 using MauiApp.Services;
-using MauiApp.ViewModels;
 using MauiApp.Views;
 
 namespace MauiApp;
@@ -9,12 +9,14 @@ namespace MauiApp;
     using Android.Content;
 #endif
 
-public partial class App : Application
+public partial class App
 {
     public App(AuthView authView)
     {
         InitializeComponent();
 
+        Current!.UserAppTheme = AppTheme.Light;
+        
         var token = SecureStorage.GetAsync("auth_token").Result;
         
         if (string.IsNullOrEmpty(token) || TokenParseService.IsExpired())

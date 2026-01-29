@@ -79,7 +79,7 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         {
             ErrorMessage = null;
             
-            MainThread.BeginInvokeOnMainThread(async () =>
+            MainThread.BeginInvokeOnMainThread(async void () =>
             {
                 if (Application.Current != null) Application.Current.MainPage = new AppShell();
 

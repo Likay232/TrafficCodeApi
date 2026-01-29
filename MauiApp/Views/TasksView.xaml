@@ -3,90 +3,105 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:MauiApp.ViewModels"
-             xmlns:models="clr-namespace:MauiApp.Infrastructure.Models;assembly=MauiApp.Infrastructure"
              xmlns:dto="clr-namespace:MauiApp.Infrastructure.Models.DTO;assembly=MauiApp.Infrastructure"
              x:Class="MauiApp.Views.TasksView"
              x:DataType="viewModels:TasksViewModel"
              Title="Задачи">
 
-    <ScrollView>
-        <CollectionView ItemsSource="{Binding Model}"
-                        BackgroundColor="White"
-                        Margin="10">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="dto:TaskForTest">
-                    <Frame Padding="15"
-                           Margin="10,5"
-                           BackgroundColor="#FAFAFA"
-                           BorderColor="#DDD"
-                           CornerRadius="10"
-                           HasShadow="True">
-                        
-                        <Frame.Triggers>
-                            <DataTrigger TargetType="Frame"
-                                         Binding="{Binding IsCorrect}"
-                                         Value="true">
-                                <Setter Property="BackgroundColor" Value="LightGreen"/>
-                            </DataTrigger>
-                            
-                            <DataTrigger TargetType="Frame"
-                                         Binding="{Binding IsCorrect}"
-                                         Value="false">
-                                <Setter Property="BackgroundColor" Value="LightCoral"/>
-                            </DataTrigger>
-                            
-                            <DataTrigger TargetType="Frame"
-                                         Binding="{Binding IsCorrect}"
-                                         Value="{Null}">
-                                <Setter Property="BackgroundColor" Value="White"/>
-                            </DataTrigger>
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding BackCommand}" />
+    </Shell.BackButtonBehavior>
 
-                        </Frame.Triggers>
-                        
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnTaskTapped" CommandParameter="{Binding .}" />
-                        </Frame.GestureRecognizers>
-                        
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Задача"
-                                   FontSize="20"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center" 
-                                   />
+    <Grid>
 
-                            <Label Text="{Binding Text}"
-                                   FontSize="16"
-                                   TextColor="#333" 
-                                   />
+        <ScrollView>
+            <CollectionView ItemsSource="{Binding Model}"
+                            Margin="10"
+                            BackgroundColor="White">
 
-                            <Image Source="{Binding Image, Converter={StaticResource BytesToImageConverter}}"
-                                   HeightRequest="150"
-                                   Aspect="AspectFit"
-                                   IsVisible="{Binding Image, Converter={StaticResource NullToBoolConverter}}" 
-                                   />
-                            
-                            <Button x:DataType="dto:TaskForTest"
-                                    Text="{Binding File}"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DownloadFileCommand}"
-                                    CommandParameter="{Binding .}"
-                                    TextColor="White"
-                                    BackgroundColor="#007ACC"
-                                    FontSize="16"
-                                    CornerRadius="10"
-                                    Padding="12,6"
-                                    HorizontalOptions="FillAndExpand"
-                                    Margin="0,10,0,0"
-                                    IsVisible="{Binding File, Converter={StaticResource NullToBoolConverter}}" />
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dto:TaskForTest">
+                        <Frame Padding="15"
+                               Margin="10,6"
+                               CornerRadius="12"
+                               BorderColor="#DDD"
+                               BackgroundColor="#FAFAFA"
+                               HasShadow="True">
 
-                            <Label Text="{Binding DifficultyLevel, StringFormat='Сложность: {0}'}"
-                                   FontSize="14"
-                                   TextColor="#666"
-                                   HorizontalOptions="End" 
-                                   />
-                        </VerticalStackLayout>
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-    </ScrollView>
+                            <VerticalStackLayout Spacing="12">
+
+                                <Image Source="{Binding ImageUrl}"
+                                       HeightRequest="180"
+                                       Aspect="AspectFit"
+                                       IsVisible="{Binding ImageUrl, Converter={StaticResource NullToBoolConverter}}" />
+
+                                <Label Text="{Binding Text}"
+                                       FontSize="17"
+                                       FontAttributes="Bold"
+                                       TextColor="#333" />
+
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="Варианты ответов:"
+                                           FontSize="14"
+                                           TextColor="#666" />
+
+                                    <CollectionView ItemsSource="{Binding AnswerVariantsWithFlag}"
+                                                    SelectionMode="None">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="dto:AnswerVariant">
+                                                <Frame Padding="10"
+                                                       CornerRadius="8"
+                                                       BorderColor="#CCC"
+                                                       BackgroundColor="#FFFFFF">
+                                                    <Frame.Triggers>
+                                                        <DataTrigger TargetType="Frame"
+                                                                     Binding="{Binding IsCorrect}"
+                                                                     Value="True">
+                                                            <Setter Property="BackgroundColor" Value="LightGreen" />
+                                                            <Setter Property="BorderColor" Value="Green" />
+                                                        </DataTrigger>
+                                                    </Frame.Triggers>
+                                                    <Label Text="{Binding Text}"
+                                                           FontSize="15"
+                                                           TextColor="#222" />
+                                                </Frame>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </VerticalStackLayout>
+
+                                <Frame Padding="10"
+                                       CornerRadius="8"
+                                       BackgroundColor="#FFF8DC"
+                                       BorderColor="#E0C97F">
+                                    <Label Text="{Binding Hint, StringFormat='{0}'}"
+                                           FontSize="14"
+                                           TextColor="#555"
+                                           FontAttributes="Italic" />
+                                </Frame>
+
+                                <Label Text="{Binding DifficultyLevel, StringFormat='Сложность: {0}'}"
+                                       FontSize="13"
+                                       TextColor="#888"
+                                       HorizontalOptions="End" />
+
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+
+        <Grid IsVisible="{Binding IsLoading}"
+              BackgroundColor="#88000000"
+              InputTransparent="False">
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                               Color="White"
+                               WidthRequest="50"
+                               HeightRequest="50"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+        </Grid>
+
+    </Grid>
 </ContentPage>

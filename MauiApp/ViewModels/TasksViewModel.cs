@@ -1,33 +1,39 @@
-﻿using System.Diagnostics;
-using System.Windows.Input;
-using MauiApp.Commands;
+﻿using System.Collections.ObjectModel;
 using MauiApp.Infrastructure.Models.DTO;
-using MauiApp.Services;
+using MauiApp.Infrastructure.Services;
 
 namespace MauiApp.ViewModels;
 
-public class TasksViewModel : ViewModelBase<List<TaskForTest>>
+public class TasksViewModel : ViewModelBase<ObservableCollection<TaskForTest>>
 {
     public int ThemeId { get; set; }
-
-    public ICommand DownloadFileCommand { get; set; }
-
+    
     public TasksViewModel(ApiService service)
     {
-        _apiService = service;
-
-        DownloadFileCommand = new DownloadFileCommand(service);
+        ApiService = service;
     }
 
-    public async void LoadTasksAsync()
+    public async Task LoadTasksAsync()
     {
+        IsLoading = true;
+
         var userId = Preferences.Default.Get("user_id", 0);
         
-        var result = await _apiService.GetTasksForThemeAsync(ThemeId, userId);
-        Model = result ?? new List<TaskForTest>();
+        var result = await ApiService.GetTasksForThemeAsync(ThemeId, userId);
+
+        if (result is null)
+        {
+            IsLoading = false;
+            return;
+        }
         
-        Model = Model.OrderBy(t => t.DifficultyLevel).ToList();
+        Model.Clear();
+
+        foreach (var task in result)
+        {
+            Model.Add(task);
+        }
         
-        OnPropertyChanged(nameof(Model));
+        IsLoading = false;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MauiApp.Infrastructure.Models.Сomponents;
+using MauiApp.Infrastructure.Services;
 using MauiApp.Repositories;
 using MauiApp.Services;
 using MauiApp.ViewModels;
@@ -16,7 +17,6 @@ public static class RunExtension
         try
         {
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            var pending = context.Database.GetPendingMigrations();
             
             context.Database.Migrate();
         }
@@ -66,7 +66,6 @@ public static class RunExtension
         builder.Services.AddTransient<TestView>();
         builder.Services.AddTransient<ThemesView>();
         builder.Services.AddTransient<CheckedTestView>();
-        builder.Services.AddTransient<TaskView>();
         builder.Services.AddTransient<RegisterView>();
         builder.Services.AddTransient<GenerateTestView>();
         

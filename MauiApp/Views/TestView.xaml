@@ -36,23 +36,12 @@
                                LineBreakMode="WordWrap" />
                     </ScrollView>
                     
-                    <Image Source="{Binding CurrentTask.Image, Converter={StaticResource BytesToImageConverter}}"
+                    <Image Source="{Binding CurrentTask.ImageUrl}"
                            HeightRequest="180"
                            Aspect="AspectFit"
                            HorizontalOptions="Center"
-                           IsVisible="{Binding CurrentTask.Image, Converter={StaticResource NullToBoolConverter}}" />
-                    
-                    <Button Text="{Binding CurrentTask.File}"
-                            Command="{Binding DownloadFileCommand}"
-                            CommandParameter="{Binding CurrentTask}"
-                            TextColor="White"
-                            BackgroundColor="#007ACC"
-                            FontSize="16"
-                            CornerRadius="10"
-                            Padding="14,8"
-                            HorizontalOptions="FillAndExpand"
-                            IsVisible="{Binding CurrentTask.File, Converter={StaticResource NullToBoolConverter}}" />
-                </StackLayout>
+                           IsVisible="{Binding CurrentTask.ImageUrl}" />
+                    </StackLayout>
             </Frame>
 
             <StackLayout Grid.Row="1" Spacing="10">

@@ -2,7 +2,7 @@
 
 namespace MauiApp.Views;
 
-public partial class AuthView : ContentPage
+public partial class AuthView
 {
     private readonly RegisterView _rV;
     

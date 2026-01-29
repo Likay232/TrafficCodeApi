@@ -16,6 +16,7 @@ public class MainApplication : MauiApplication
     public override void OnCreate()
     {
         base.OnCreate();
+        Console.WriteLine("MainApplication.OnCreate()");
         //FirebasePushNotificationManager.Initialize(this, true);
     }
 

@@ -1,5 +1,5 @@
 ﻿using MauiApp.Infrastructure.Models.DTO;
-using MauiApp.Services;
+using MauiApp.Infrastructure.Services;
 
 namespace MauiApp.ViewModels;
 
@@ -7,12 +7,12 @@ public class ThemesViewModel : ViewModelBase<List<Theme>>
 {
     public ThemesViewModel(ApiService service)
     {
-        _apiService = service;
+        ApiService = service;
     }
     
     public async void LoadThemesAsync()
     {
-        var result = await _apiService.GetThemesAsync();
+        var result = await ApiService.GetThemesAsync();
 
         Model = result ?? new List<Theme>();
 

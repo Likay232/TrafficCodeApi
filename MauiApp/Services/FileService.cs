@@ -58,7 +58,7 @@ public static class FileService
 #if ANDROID
     private static Uri? FindFileInDownloadsAsync(Context context, string fileName)
     {
-        var projection = new string[] { MediaStore.MediaColumns.Id, MediaStore.MediaColumns.DisplayName };
+        var projection = new [] { MediaStore.MediaColumns.Id, MediaStore.MediaColumns.DisplayName };
         string selection = MediaStore.MediaColumns.DisplayName + "=?";
         string[] selectionArgs = [fileName];
 
@@ -81,7 +81,7 @@ public static class FileService
 
     private static string? GetMimeType(string fileName)
     {
-        var extension = Path.GetExtension(fileName)?.TrimStart('.')?.ToLowerInvariant();
+        var extension = Path.GetExtension(fileName).TrimStart('.').ToLowerInvariant();
         return MimeTypeMap.Singleton?.GetMimeTypeFromExtension(extension);
     }
 #endif

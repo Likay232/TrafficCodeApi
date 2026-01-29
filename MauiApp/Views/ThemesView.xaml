@@ -3,10 +3,11 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModel="clr-namespace:MauiApp.ViewModels"
-             xmlns:models="clr-namespace:MauiApp.Infrastructure.Models;assembly=MauiApp.Infrastructure"
              xmlns:dto="clr-namespace:MauiApp.Infrastructure.Models.DTO;assembly=MauiApp.Infrastructure"
              x:Class="MauiApp.Views.ThemesView"
-             x:DataType="viewModel:ThemesViewModel">
+             x:DataType="viewModel:ThemesViewModel"
+             BackgroundColor="White">
+
     <ContentPage.Content>
         <CollectionView ItemsSource="{Binding Model}"
                         SelectionMode="Single"
@@ -26,25 +27,42 @@
                             <TapGestureRecognizer Tapped="OnThemeTapped" CommandParameter="{Binding .}" />
                         </Frame.GestureRecognizers>
                         
-                        <StackLayout Spacing="10">
+                        <VerticalStackLayout Spacing="15" HorizontalOptions="FillAndExpand">
+                            <!-- Заголовок -->
                             <Label Text="{Binding Title}" 
                                    FontSize="20" 
                                    HorizontalOptions="Center" />
+
                             <Label Text="{Binding Description}" 
                                    FontSize="14"
                                    TextColor="#666"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center"
                                    Margin="0,0,0,10" />
 
-                            <Button Text="Материалы"
-                                    FontSize="12"
-                                    Padding="4,2"
-                                    CornerRadius="5"
-                                    BackgroundColor="#EEF"
-                                    TextColor="#3366BB"
-                                    HorizontalOptions="End"
-                                    Clicked="OnMaterialsClicked"
-                                    CommandParameter="{Binding .}" />
-                        </StackLayout>
+                            <HorizontalStackLayout Spacing="15" HorizontalOptions="Center" WidthRequest="250">
+
+                                <Button Text="Задания"
+                                        FontSize="14"
+                                        Padding="10,6"
+                                        CornerRadius="8"
+                                        BackgroundColor="#E6F4EA"   
+                                        TextColor="#2E7D32"         
+                                        WidthRequest="120"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="OnTasksClicked" />
+
+                                <Button Text="Материалы"
+                                        FontSize="14"
+                                        Padding="10,6"
+                                        CornerRadius="8"
+                                        BackgroundColor="#E3F2FD"   
+                                        TextColor="#1565C0"         
+                                        WidthRequest="120"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="OnMaterialsClicked" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
                     </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

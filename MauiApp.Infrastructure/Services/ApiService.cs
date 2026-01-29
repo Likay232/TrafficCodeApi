@@ -1,13 +1,16 @@
-﻿using System.Net.Http.Json;
-using System.Text.Json;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using MauiApp.Infrastructure.Models.DTO;
+using Microsoft.Maui.Storage;
 
-namespace MauiApp.Services;
+namespace MauiApp.Infrastructure.Services;
 
 public class ApiService
 {
+    private static readonly string ServerAddress = $"http://192.168.1.124:5000/";
+
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -15,13 +18,13 @@ public class ApiService
 
     private HttpClient GetClient()
     {
-        HttpClient client = new HttpClient();
+        var client = new HttpClient();
         client.DefaultRequestHeaders.Add("Accept", "application/json");
 
         var token = SecureStorage.GetAsync("auth_token").Result;
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        client.BaseAddress = new Uri("http://192.168.1.124:5000/");
+        client.BaseAddress = new Uri(ServerAddress);
         return client;
     }
 
@@ -29,7 +32,7 @@ public class ApiService
     {
         var response = await GetClient().PostAsJsonAsync("/Auth/Login", authModel, _jsonSerializerOptions);
         response.EnsureSuccessStatusCode();
-
+        
         var token = await response.Content.ReadFromJsonAsync<string>(_jsonSerializerOptions);
 
         return token;
@@ -206,6 +209,11 @@ public class ApiService
         {
             return null;
         }
+    }
+
+    public static string? GetAbsoluteFilePath(string? filePath)
+    {
+        return filePath is null ? null : $"{ServerAddress}{filePath}";
     }
 
     public async Task<byte[]?> GetFileBytes(string fileName)
