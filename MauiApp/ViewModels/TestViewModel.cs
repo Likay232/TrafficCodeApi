@@ -2,14 +2,18 @@
 using System.Windows.Input;
 using MauiApp.Infrastructure.Models.Commands;
 using MauiApp.Infrastructure.Models.DTO;
+using MauiApp.Infrastructure.Models.Enums;
 using MauiApp.Infrastructure.Services;
-using MauiApp.Services;
 using MauiApp.Views;
 
 namespace MauiApp.ViewModels;
 
-public class TestViewModel : ViewModelBase<List<TaskForTest>>
+public class TestViewModel : ViewModelBase<Test>
 {
+    public TestTypes TestType { get; set; }
+    public int ThemeId { get; set; }
+    public bool IsExam => TestType == TestTypes.Exam;
+
     private int _currentIndex;
 
     private int CurrentIndex
@@ -20,157 +24,138 @@ public class TestViewModel : ViewModelBase<List<TaskForTest>>
             _currentIndex = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(CurrentTask));
-            OnPropertyChanged(nameof(CurrentAnswer));
 
             ((RelayCommand)NextTaskCommand).RaiseCanExecuteChanged();
             ((RelayCommand)PreviousTaskCommand).RaiseCanExecuteChanged();
         }
     }
 
-    public TaskForTest? CurrentTask => Model.Count > CurrentIndex ? Model[CurrentIndex] : null;
+    private AnswerVariant? _selectedAnswerVariant;
 
-    public UserAnswer CurrentAnswer
+    public AnswerVariant? SelectedAnswerVariant
     {
-        get
+        get => _selectedAnswerVariant;
+        set
         {
-            var taskId = CurrentTask?.Id ?? 0;
-            if (taskId == 0)
-                return new UserAnswer();
-
-            var answer = _answers.FirstOrDefault(a => a.TaskId == taskId);
-            if (answer == null)
+            if (SetProperty(ref _selectedAnswerVariant, value) && CurrentTask != null)
             {
-                answer = new UserAnswer { TaskId = taskId, Answer = "" };
-                _answers.Add(answer);
-            }
+                foreach (var v in CurrentTask.AnswerVariantsWithFlag)
+                    v.IsSelected = v == value;
 
-            return answer;
+                SaveSelectedAnswer();
+            }
         }
     }
 
+    public TaskForTest? CurrentTask =>
+        Model.Tasks.Count > CurrentIndex ? Model.Tasks[CurrentIndex] : null;
 
     private readonly List<UserAnswer> _answers = new();
-    private new readonly ApiService _apiService;
-    private readonly SharedObjectStorageService _result;
 
     public ICommand NextTaskCommand { get; }
     public ICommand PreviousTaskCommand { get; }
-    public ICommand SaveAnswerCommand { get; }
-    public ICommand CheckTestCommand { get; }
-    public ICommand DownloadFileCommand { get; }
+    public ICommand SelectAnswerCommand { get; }
 
-    public TestViewModel(ApiService service, SharedObjectStorageService result)
+    public TestViewModel(ApiService service)
     {
-        _apiService = service;
-        _result = result;
-        Model = new List<TaskForTest>();
+        ApiService = service;
 
         NextTaskCommand = new RelayCommand(_ => NextTask(), _ => CanNext());
         PreviousTaskCommand = new RelayCommand(_ => PreviousTask(), _ => CanPrevious());
-
-        SaveAnswerCommand = new RelayCommand(ExecuteSaveAnswer, CanExecuteSaveAnswer);
-        CheckTestCommand = new RelayCommand(ExecuteCheckTest, CanExecuteCheckTest);
+        SelectAnswerCommand = new RelayCommand(ExecuteSelectAnswer, _ => CanExecuteSelectAnswer());
     }
 
     public async void LoadTestAsync()
     {
-        try
-        {
-            Model = _result.CurrentTest ?? new List<TaskForTest>();
-            CurrentIndex = 0;
+        var userId = Preferences.Default.Get("user_id", 0);
+        var result = await ApiService.GenerateTest(TestType, userId,ThemeId);
+        
+        Model = result ?? new Test();
 
-            foreach (var task in Model)
+        foreach (var task in Model.Tasks)
+        {
+            task.BuildVariants();
+
+            if (_answers.Any(a => a.TaskId == task.Id))
+                continue;
+
+            _answers.Add(new UserAnswer
             {
-                if (_answers.Any(a => a.TaskId == task.Id))
-                    continue;
-
-                _answers.Add(new UserAnswer
-                {
-                    Answer = "",
-                    TaskId = task.Id
-                });
-            }
-
-            OnPropertyChanged(nameof(Model));
-            OnPropertyChanged(nameof(CurrentTask));
-            OnPropertyChanged(nameof(CurrentAnswer));
+                TaskId = task.Id,
+                Answer = null
+            });
         }
-        catch (Exception e)
-        {
-            Debug.WriteLine(e.Message);
-        }
+
+        CurrentIndex = 0;
+
+        OnPropertyChanged(nameof(Model));
+        OnPropertyChanged(nameof(CurrentTask));
     }
 
     private void NextTask()
     {
-        if (CanNext())
-        {
-            CurrentIndex++;
+        if (!CanNext()) return;
 
-            OnPropertyChanged(nameof(CurrentTask));
-        }
+        CurrentIndex++;
+        RestoreSelectedAnswer();
     }
 
-    private bool CanNext() => CurrentIndex < Model.Count - 1;
+    private bool CanNext() => CurrentIndex < Model.Tasks.Count - 1;
 
     private void PreviousTask()
     {
-        if (CanPrevious())
-        {
-            CurrentIndex--;
+        if (!CanPrevious()) return;
 
-            OnPropertyChanged(nameof(CurrentTask));
-        }
+        CurrentIndex--;
+        RestoreSelectedAnswer();
     }
 
     private bool CanPrevious() => CurrentIndex > 0;
 
-    private void ExecuteSaveAnswer(object obj)
+    private void SaveSelectedAnswer()
     {
-        if (obj is not string answerText || CurrentTask == null)
+        if (CurrentTask == null || SelectedAnswerVariant == null)
             return;
 
-        var answer = _answers.FirstOrDefault(a => a.TaskId == CurrentTask.Id);
-        if (answer != null)
-        {
-            answer.Answer = answerText;
-        }
-        else
-        {
-            _answers.Add(new UserAnswer { TaskId = CurrentTask.Id, Answer = answerText });
-        }
-
-        OnPropertyChanged(nameof(CurrentAnswer));
+        var answer = _answers.First(a => a.TaskId == CurrentTask.Id);
+        answer.Answer = SelectedAnswerVariant.Text;
     }
 
-    private bool CanExecuteSaveAnswer(object obj)
+    private void RestoreSelectedAnswer()
     {
-        return obj is string s && !string.IsNullOrWhiteSpace(s);
-    }
+        if (CurrentTask == null)
+            return;
 
-    private async void ExecuteCheckTest(object obj)
+        var saved = _answers.FirstOrDefault(a => a.TaskId == CurrentTask.Id);
+        if (saved == null)
+            return;
+    
+        SelectedAnswerVariant =
+            CurrentTask.AnswerVariantsWithFlag
+                .FirstOrDefault(v => v.Text == saved.Answer);
+    }
+    
+    private async void ExecuteSelectAnswer(object obj)
     {
-        try
-        {
-            var testForCheck = new TestForCheck
-            {
-                UserId = Preferences.Get("user_id", 0),
-                Answers = _answers,
-            };
+        if (obj is not AnswerVariant answer)
+            return;
+        
+        var userId = Preferences.Get("user_id", 0);
+        var taskId =  CurrentTask!.Id;
+        var isCorrect = answer.IsCorrect;
+        
+        SelectedAnswerVariant = answer;
 
-            var checkedTest = await _apiService.CheckTestAsync(testForCheck);
-            _result.CurrentResult = checkedTest;
-
-            if (checkedTest != null)
-            {
-                await Shell.Current.GoToAsync(nameof(CheckedTestView));
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine(e.Message);
-        }
+        if (!IsExam) await ApiService.SaveAnswer(userId, taskId, isCorrect);
     }
-
-    private bool CanExecuteCheckTest(object obj) => true;
+    private bool CanExecuteSelectAnswer()
+    {
+        if (IsExam || CurrentTask is null) return true;
+        
+        var task = _answers.FirstOrDefault(a => a.TaskId == CurrentTask.Id);
+        
+        if (task is null) return true;
+        
+        return task.Answer is null;
+    }
 }

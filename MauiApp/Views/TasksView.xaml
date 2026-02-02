@@ -12,9 +12,10 @@
         <BackButtonBehavior Command="{Binding BackCommand}" />
     </Shell.BackButtonBehavior>
 
-    <Grid>
+    <Grid RowDefinitions="*,Auto">
 
-        <ScrollView>
+        <!-- Контент -->
+        <ScrollView Grid.Row="0">
             <CollectionView ItemsSource="{Binding Model}"
                             Margin="10"
                             BackgroundColor="White">
@@ -74,7 +75,7 @@
                                        CornerRadius="8"
                                        BackgroundColor="#FFF8DC"
                                        BorderColor="#E0C97F">
-                                    <Label Text="{Binding Hint, StringFormat='{0}'}"
+                                    <Label Text="{Binding Hint}"
                                            FontSize="14"
                                            TextColor="#555"
                                            FontAttributes="Italic" />
@@ -92,7 +93,15 @@
             </CollectionView>
         </ScrollView>
 
-        <Grid IsVisible="{Binding IsLoading}"
+        <Button Grid.Row="1"
+                Text="Пройти тест"
+                Margin="10"
+                HeightRequest="50"
+                CornerRadius="10"
+                Clicked="GenerateTestClicked" />
+
+        <Grid Grid.RowSpan="2"
+              IsVisible="{Binding IsLoading}"
               BackgroundColor="#88000000"
               InputTransparent="False">
             <ActivityIndicator IsRunning="{Binding IsLoading}"

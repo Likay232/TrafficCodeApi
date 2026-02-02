@@ -70,6 +70,7 @@ public static class RunExtension
         builder.Services.AddTransient<RegisterView>();
         builder.Services.AddTransient<GenerateTestView>();
         builder.Services.AddTransient<ProfileView>();
+        builder.Services.AddTransient<PracticeView>();
         
         return builder;
     }

@@ -19,6 +19,7 @@ public partial class AppShell
         Routing.RegisterRoute(nameof(RegisterView), typeof(RegisterView));
         Routing.RegisterRoute(nameof(GenerateTestView), typeof(GenerateTestView));
         Routing.RegisterRoute(nameof(ProfileView), typeof(ProfileView));
+        Routing.RegisterRoute(nameof(PracticeView), typeof(PracticeView));
 
         if (Preferences.ContainsKey("username"))
         {

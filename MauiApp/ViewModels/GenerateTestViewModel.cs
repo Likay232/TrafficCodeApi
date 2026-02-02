@@ -59,13 +59,13 @@ public class GenerateTestViewModel : ViewModelBase<GenerateTest>
             UserId = Preferences.Default.Get("user_id", 0)
         };
 
-        var generatedTasks = await ApiService.GenerateTest(generateRequest);
-
-        if (generatedTasks is { Count: > 0 })
-        {
-            _storage.CurrentTest = generatedTasks;
-
-            await Shell.Current.GoToAsync(nameof(TestView));
-        }
+        // var generatedTasks = await ApiService.GenerateTest(generateRequest);
+        //
+        // if (generatedTasks is { Count: > 0 })
+        // {
+        //     _storage.CurrentTest = generatedTasks;
+        //
+        //     await Shell.Current.GoToAsync(nameof(TestView));
+        // }
     }
 }

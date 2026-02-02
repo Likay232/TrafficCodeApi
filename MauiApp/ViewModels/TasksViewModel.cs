@@ -31,6 +31,7 @@ public class TasksViewModel : ViewModelBase<ObservableCollection<TaskForTest>>
 
         foreach (var task in result)
         {
+            task.BuildVariants();
             Model.Add(task);
         }
         

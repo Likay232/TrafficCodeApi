@@ -1,29 +1,42 @@
-﻿using MauiApp.ViewModels;
+﻿using MauiApp.Infrastructure.Models.Enums;
+using MauiApp.ViewModels;
 
 namespace MauiApp.Views;
 
+[QueryProperty(nameof(TestType), "testType")]
+[QueryProperty(nameof(ThemeId), "themeId")]
 public partial class TestView
 {
+    public string TestType
+    {
+        set
+        {
+            if (Enum.TryParse<TestTypes>(value, out var result))
+                ((TestViewModel)BindingContext).TestType = result;
+        }
+    }
+
+    public int ThemeId
+    {
+        get => ((TestViewModel)BindingContext).ThemeId;
+        set
+        {
+            ((TestViewModel)BindingContext).ThemeId = value;
+            ((TestViewModel)BindingContext).LoadTestAsync();
+        }
+    }
+
+    
     public TestView(TestViewModel viewModel)
     {
         InitializeComponent();
         
         BindingContext = viewModel;
     }
-
-    private void Entry_Completed(object sender, EventArgs e)
-    {
-        if (BindingContext is TestViewModel vm && sender is Entry entry)
-        {
-            vm.SaveAnswerCommand.Execute(entry.Text);
-        }
-    }
-
+    
     protected override void OnAppearing()
     {
         base.OnAppearing();
         
-        if (BindingContext is TestViewModel vm)
-            vm.LoadTestAsync();
     }
 }

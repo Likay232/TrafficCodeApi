@@ -1,9 +1,13 @@
 ﻿using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using MauiApp.Infrastructure.Models.DTO;
+using MauiApp.Infrastructure.Models.Enums;
 using Microsoft.Maui.Storage;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace MauiApp.Infrastructure.Services;
 
@@ -196,16 +200,21 @@ public class ApiService
         return await response.Content.ReadFromJsonAsync<bool>(_jsonSerializerOptions);
     }
     
-    public async Task<List<TaskForTest>?> GenerateTest(GenerateTest request)
+    public async Task<Test?> GenerateTest(TestTypes testType, int userId, int? themeId = null)
     {
         try
         {
-            var response = await GetClient().PostAsJsonAsync("/Client/GenerateTest", request, _jsonSerializerOptions);
+            var response = await GetClient()
+                .GetAsync($"/Client/GenerateTest?testType={testType}&themeId={themeId}&userId={userId}");
             response.EnsureSuccessStatusCode();
-    
-            return await response.Content.ReadFromJsonAsync<List<TaskForTest>>(_jsonSerializerOptions);
+
+            var temp = await response.Content.ReadAsStringAsync();
+
+            var result = JsonConvert.DeserializeObject<Test>(temp);
+            
+            return result;
         }
-        catch (Exception)
+        catch (Exception e)
         {
             return null;
         }
@@ -225,7 +234,22 @@ public class ApiService
             return null;
         }
     }
-
+    
+    public async Task<bool> SaveAnswer(int userId, int taskId, bool isCorrect)
+    {
+        try
+        {
+            var response = 
+                await GetClient().PostAsync($"/Client/SaveAnswer?userId={userId}&taskId={taskId}&isCorrect={isCorrect}", null);
+            response.EnsureSuccessStatusCode();
+    
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
 
     public static string? GetAbsoluteFilePath(string? filePath)
     {

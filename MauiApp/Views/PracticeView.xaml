@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp.Views.PracticeView"
+             Title="Практика"
+             BackgroundColor="#F5F6F8">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="20">
+
+            <Label Text="Режимы прохождения тестов"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+            <Label Text="Выберите подходящий формат для подготовки и проверки знаний"
+                   FontSize="14"
+                   TextColor="#777"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,0,0,10" />
+
+            <Frame BackgroundColor="White"
+                   CornerRadius="14"
+                   Padding="16"
+                   HasShadow="True"
+                   BorderColor="#1976D2">
+
+                <VerticalStackLayout Spacing="12">
+
+                    <Label Text="Режим «Экзамен»"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#1976D2" />
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="• 20 случайных вопросов" />
+                        <Label Text="• Ограничение по времени: 20 минут" />
+                        <Label Text="• Автоматическая оценка результата" />
+                        <Label Text="• Пересдача при 1–2 ошибках" />
+                    </VerticalStackLayout>
+
+                    <HorizontalStackLayout Spacing="8">
+                        <Frame Padding="6,2" CornerRadius="10" BackgroundColor="#EEE">
+                            <Label Text="Вопросов: 20" FontSize="12" />
+                        </Frame>
+                    </HorizontalStackLayout>
+
+                    <Button Text="Начать экзамен"
+                            BackgroundColor="Transparent"
+                            BorderColor="#1976D2"
+                            BorderWidth="1"
+                            TextColor="#1976D2"
+                            CornerRadius="10" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   CornerRadius="14"
+                   Padding="16"
+                   HasShadow="True"
+                   BorderColor="#2E7D32">
+
+                <VerticalStackLayout Spacing="12">
+
+                    <Label Text="Режим «Марафон»"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#2E7D32" />
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="• Вопросы идут подряд" />
+                        <Label Text="• Без ограничения по времени" />
+                        <Label Text="• Прохождение до первой ошибки" />
+                        <Label Text="• Отлично подходит для тренировки" />
+                    </VerticalStackLayout>
+
+                    <HorizontalStackLayout>
+                        <Frame Padding="6,2" CornerRadius="10" BackgroundColor="#EEE">
+                            <Label Text="Всего вопросов: 800" FontSize="12" />
+                        </Frame>
+                    </HorizontalStackLayout>
+
+                    <Button Text="Начать марафон"
+                            BackgroundColor="Transparent"
+                            BorderColor="#2E7D32"
+                            BorderWidth="1"
+                            TextColor="#2E7D32"
+                            CornerRadius="10" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="White"
+                   CornerRadius="14"
+                   Padding="16"
+                   HasShadow="True"
+                   BorderColor="#C62828">
+
+                <VerticalStackLayout Spacing="12">
+
+                    <Label Text="Сложные вопросы"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#C62828" />
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="• Автоматический анализ ошибок" />
+                        <Label Text="• Повтор проблемных тем" />
+                        <Label Text="• Персональный набор вопросов" />
+                        <Label Text="• Динамически обновляется" />
+                    </VerticalStackLayout>
+
+                    <HorizontalStackLayout Spacing="8">
+                        <Frame Padding="6,2" CornerRadius="10" BackgroundColor="#EEE">
+                            <Label Text="Вопросов: 20" FontSize="12" />
+                        </Frame>
+                    </HorizontalStackLayout>
+
+                    <Button Text="Повторить сложные вопросы"
+                            BackgroundColor="Transparent"
+                            BorderColor="#C62828"
+                            BorderWidth="1"
+                            TextColor="#C62828"
+                            CornerRadius="10" />
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

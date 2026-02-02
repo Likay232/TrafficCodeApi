@@ -38,8 +38,8 @@
         <ShellContent Title="Темы" ContentTemplate="{DataTemplate pages:ThemesView}" />
     </FlyoutItem>
 
-    <FlyoutItem Title="Тесты" Route="TestsView">
-        <ShellContent Title="Тесты" ContentTemplate="{DataTemplate pages:TestsView}" />
+    <FlyoutItem Title="Практика" Route="PracticeView">
+        <ShellContent Title="Практика" ContentTemplate="{DataTemplate pages:PracticeView}" />
     </FlyoutItem>
     
     <MenuItem Text="Выйти"

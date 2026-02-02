@@ -29,8 +29,8 @@ public partial class TestsView
     {
         if (e.Parameter is Test test)
         {
-            if (await ((TestsViewModel)BindingContext).GetTestById(test.Id))
-                await Shell.Current.GoToAsync($"{nameof(TestView)}");
+            // if (await ((TestsViewModel)BindingContext).GetTestById(test.Id))
+            //     await Shell.Current.GoToAsync($"{nameof(TestView)}");
         }
     }
 }

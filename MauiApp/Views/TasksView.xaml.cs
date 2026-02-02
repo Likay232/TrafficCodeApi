@@ -1,4 +1,5 @@
-﻿using MauiApp.ViewModels;
+﻿using MauiApp.Infrastructure.Models.Enums;
+using MauiApp.ViewModels;
 
 namespace MauiApp.Views;
 
@@ -44,5 +45,13 @@ public partial class TasksView
         //         await vm.LoadTasksAsync(); // теперь начинается загрузка
         //     }
         // });
+    }
+
+    private async void GenerateTestClicked(object? sender, EventArgs e)
+    {
+        if (sender is Button)
+        {
+            await Shell.Current.GoToAsync($"{nameof(TestView)}?testType={TestTypes.Themes}&themeId={ThemeId}", animate:false);
+        }
     }
 }

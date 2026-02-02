@@ -1,6 +1,7 @@
 ﻿namespace MauiApp.Infrastructure.Models.DTO;
 
-public class Test : BaseModel
+public class Test
 {
-    public string Title { get; set; } = string.Empty;
+    public List<TaskForTest> Tasks { get; set; } = new();
+    public Dictionary<int, List<TaskForTest>> AdditionalQuestions { get; set; } = new();
 }

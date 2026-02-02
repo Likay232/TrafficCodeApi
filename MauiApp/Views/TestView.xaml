@@ -1,82 +1,233 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModel="clr-namespace:MauiApp.ViewModels"
+             xmlns:dto="clr-namespace:MauiApp.Infrastructure.Models.DTO;assembly=MauiApp.Infrastructure"
              x:Class="MauiApp.Views.TestView"
              x:DataType="viewModel:TestViewModel"
              Title="Тест">
 
-    <ContentPage.Content>
-        <Grid Padding="20" RowSpacing="15">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+    <Grid Padding="10">
 
-            <Frame Grid.Row="0"
-                   BackgroundColor="White"
-                   CornerRadius="15"
-                   Padding="25"
-                   HasShadow="True"
-                   HorizontalOptions="FillAndExpand"
-                   VerticalOptions="FillAndExpand">
-                <StackLayout Spacing="20" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-                    
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ScrollView Grid.Row="0">
+            <Frame Padding="15"
+                   Margin="10,6"
+                   CornerRadius="12"
+                   BorderColor="#DDD"
+                   BackgroundColor="#FAFAFA"
+                   HasShadow="True">
+
+                <VerticalStackLayout Spacing="12">
+
                     <Label Text="{Binding CurrentTask.DifficultyLevel, StringFormat='Сложность: {0}'}"
-                           FontSize="18"
+                           FontSize="14"
                            FontAttributes="Bold"
-                           TextColor="#D9534F" 
-                           HorizontalTextAlignment="Center" />
-                    
-                    <ScrollView VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Margin="0,0,0,10">
-                        <Label Text="{Binding CurrentTask.Text, FallbackValue='Задание недоступно'}"
-                               FontSize="16"
-                               HorizontalTextAlignment="Center"
-                               LineBreakMode="WordWrap" />
-                    </ScrollView>
-                    
-                    <Image Source="{Binding CurrentTask.ImageUrl}"
-                           HeightRequest="180"
-                           Aspect="AspectFit"
+                           TextColor="#D9534F"
+                           HorizontalOptions="Center" />
+
+                    <ContentView IsVisible="{Binding CurrentTask.ImageUrl, Converter={StaticResource NullToBoolConverter}}">
+                        <Image Source="{Binding CurrentTask.ImageUrl}"
+                               Aspect="AspectFit"
+                               HorizontalOptions="Center"
+                               HeightRequest="180" />
+                    </ContentView>
+
+                    <Label Text="{Binding CurrentTask.Text}"
+                           FontSize="17"
+                           FontAttributes="Bold"
+                           TextColor="#333"
                            HorizontalOptions="Center"
-                           IsVisible="{Binding CurrentTask.ImageUrl}" />
-                    </StackLayout>
+                           HorizontalTextAlignment="Center" />
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Выберите ответ:"
+                               FontSize="14"
+                               TextColor="#666" />
+
+                        <CollectionView ItemsSource="{Binding CurrentTask.AnswerVariantsWithFlag}"
+                                        SelectionMode="None">
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="dto:AnswerVariant">
+                                    <Frame Padding="12"
+                                           Margin="0,4"
+                                           CornerRadius="8"
+                                           BorderColor="#CCC"
+                                           BackgroundColor="#FFFFFF">
+
+                                        <Frame.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                                Path=BindingContext.SelectAnswerCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Frame.GestureRecognizers>
+
+                                        <Frame.Triggers>
+
+                                            <MultiTrigger TargetType="Frame">
+                                                <MultiTrigger.Conditions>
+                                                    <BindingCondition Binding="{Binding IsSelected}"
+                                                                      Value="True" />
+                                                    <BindingCondition
+                                                        Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                                        Path=BindingContext.IsExam}"
+                                                        Value="True" />
+                                                </MultiTrigger.Conditions>
+
+                                                <Setter Property="BackgroundColor"
+                                                        Value="#D9EDF7" />
+                                                <Setter Property="BorderColor"
+                                                        Value="#5BC0DE" />
+                                            </MultiTrigger>
+
+                                            <MultiTrigger TargetType="Frame">
+                                                <MultiTrigger.Conditions>
+                                                    <BindingCondition Binding="{Binding IsCorrect}"
+                                                                      Value="True" />
+
+                                                    <BindingCondition Binding="{Binding IsSelected}"
+                                                                      Value="True" />
+
+                                                    <BindingCondition
+                                                        Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                                        Path=BindingContext.IsExam}"
+                                                        Value="False" />
+                                                </MultiTrigger.Conditions>
+
+                                                <Setter Property="BackgroundColor"
+                                                        Value="#DFF0D8" />
+                                                <Setter Property="BorderColor"
+                                                        Value="#3C763D" />
+                                            </MultiTrigger>
+
+                                            <MultiTrigger TargetType="Frame">
+                                                <MultiTrigger.Conditions>
+                                                    <BindingCondition Binding="{Binding IsCorrect}"
+                                                                      Value="True" />
+
+                                                    <BindingCondition
+                                                        Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                                        Path=BindingContext.SelectedAnswerVariant, 
+                                                        Converter={StaticResource NullToBoolConverter}}"
+                                                        Value="True" />
+                                                </MultiTrigger.Conditions>
+
+                                                <Setter Property="BackgroundColor"
+                                                        Value="#DFF0D8" />
+                                                <Setter Property="BorderColor"
+                                                        Value="#3C763D" />
+                                            </MultiTrigger>
+
+                                            <MultiTrigger TargetType="Frame">
+                                                <MultiTrigger.Conditions>
+                                                    <BindingCondition Binding="{Binding IsSelected}"
+                                                                      Value="True" />
+
+                                                    <BindingCondition Binding="{Binding IsCorrect}"
+                                                                      Value="False" />
+
+                                                    <BindingCondition
+                                                        Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                                        Path=BindingContext.IsExam}"
+                                                        Value="False" />
+                                                </MultiTrigger.Conditions>
+
+                                                <Setter Property="BackgroundColor"
+                                                        Value="#F2DEDE" />
+                                                <Setter Property="BorderColor"
+                                                        Value="#A94442" />
+                                            </MultiTrigger>
+
+                                        </Frame.Triggers>
+
+                                        <Label Text="{Binding Text}"
+                                               FontSize="15"
+                                               TextColor="#222" />
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding Text}"
+                               FontSize="15"
+                               TextColor="#222" />
+
+                        <Frame Padding="10"
+                               CornerRadius="8"
+                               BackgroundColor="#FFF8DC"
+                               BorderColor="#E0C97F"
+                               IsVisible="False">
+
+                            <Frame.Triggers>
+
+                                <MultiTrigger TargetType="Frame">
+                                    <MultiTrigger.Conditions>
+                                        <BindingCondition Binding="{Binding SelectedAnswerVariant, 
+                                                          Converter={StaticResource NullToBoolConverter}}"
+                                                          Value="True" />
+                                        
+                                        <BindingCondition Binding="{Binding SelectedAnswerVariant.IsCorrect}"
+                                                          Value="False" />
+                                        
+                                        <BindingCondition
+                                            Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                                        Path=BindingContext.IsExam}"
+                                            Value="False" />
+                                    </MultiTrigger.Conditions>
+
+                                    <Setter Property="IsVisible"
+                                            Value="True" />
+                                </MultiTrigger>
+                            </Frame.Triggers>
+
+
+                            <Label Text="{Binding CurrentTask.Hint}"
+                                   FontSize="14"
+                                   TextColor="#555"
+                                   FontAttributes="Italic" />
+                        </Frame>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
             </Frame>
+        </ScrollView>
 
-            <StackLayout Grid.Row="1" Spacing="10">
-                <Frame Padding="0" HasShadow="False" BackgroundColor="White" CornerRadius="10">
-                    <Entry Text="{Binding CurrentAnswer.Answer, Mode=TwoWay}"
-                           Placeholder="Введите ответ"
-                           FontSize="16"
-                           BackgroundColor="Transparent"
-                           Margin="12,8"
-                           Completed="Entry_Completed" />
-                </Frame>
+        <StackLayout Grid.Row="1"
+                     Orientation="Horizontal"
+                     HorizontalOptions="Center"
+                     Spacing="40"
+                     Margin="0,10">
 
-                <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="40">
-                    <Button Text="Назад"
-                            Command="{Binding PreviousTaskCommand}"
-                            CommandParameter="{Binding Model}"
-                            WidthRequest="120" />
+            <Button Text="Назад"
+                    Command="{Binding PreviousTaskCommand}"
+                    WidthRequest="120" />
 
-                    <Button Text="Вперёд"
-                            Command="{Binding NextTaskCommand}"
-                            CommandParameter="{Binding Model}"
-                            WidthRequest="120" />
-                </StackLayout>
-            </StackLayout>
+            <Button Text="Вперёд"
+                    Command="{Binding NextTaskCommand}"
+                    WidthRequest="120" />
+        </StackLayout>
 
-            <Button Grid.Row="2"
-                    Text="Завершить тест"
-                    Command="{Binding CheckTestCommand}"
-                    BackgroundColor="#007ACC"
-                    TextColor="White"
-                    FontSize="18"
-                    CornerRadius="10"
-                    Padding="14,8"
-                    HorizontalOptions="FillAndExpand"
-                    Margin="0,15,0,0" />
-        </Grid>
-    </ContentPage.Content>
+        <Button Grid.Row="2"
+                Text="Завершить экзамен"
+                IsVisible="{Binding IsExam}"
+                Command="{Binding EndExamCommand}"
+                BackgroundColor="#007ACC"
+                TextColor="White"
+                FontSize="18"
+                CornerRadius="10"
+                Padding="14,8"
+                HorizontalOptions="FillAndExpand"
+                Margin="0,15,0,0" />
+
+    </Grid>
 </ContentPage>
