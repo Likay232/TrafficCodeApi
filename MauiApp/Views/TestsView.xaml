@@ -34,17 +34,6 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-
-        <Button Text="Сгенерировать тест"
-                Clicked="OnGenerateTestClicked"
-                BackgroundColor="#007ACC"
-                TextColor="White"
-                FontSize="16"
-                CornerRadius="10"
-                Padding="12,6"
-                HorizontalOptions="Center"
-                VerticalOptions="End"
-                Margin="0,20" />
-    </Grid>
+</Grid>
 
 </ContentPage>

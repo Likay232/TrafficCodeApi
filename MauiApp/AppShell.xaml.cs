@@ -17,7 +17,6 @@ public partial class AppShell
         Routing.RegisterRoute(nameof(TestView), typeof(TestView));
         Routing.RegisterRoute(nameof(CheckedTestView), typeof(CheckedTestView));
         Routing.RegisterRoute(nameof(RegisterView), typeof(RegisterView));
-        Routing.RegisterRoute(nameof(GenerateTestView), typeof(GenerateTestView));
         Routing.RegisterRoute(nameof(ProfileView), typeof(ProfileView));
         Routing.RegisterRoute(nameof(PracticeView), typeof(PracticeView));
 

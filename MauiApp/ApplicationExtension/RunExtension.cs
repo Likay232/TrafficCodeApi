@@ -52,7 +52,6 @@ public static class RunExtension
         builder.Services.AddTransient<CheckedTestViewModel>();
         builder.Services.AddTransient<TaskViewModel>();
         builder.Services.AddTransient<RegisterViewModel>();
-        builder.Services.AddTransient<GenerateTestViewModel>();
         builder.Services.AddTransient<ProfileViewModel>();
         
         return builder;
@@ -68,7 +67,6 @@ public static class RunExtension
         builder.Services.AddTransient<ThemesView>();
         builder.Services.AddTransient<CheckedTestView>();
         builder.Services.AddTransient<RegisterView>();
-        builder.Services.AddTransient<GenerateTestView>();
         builder.Services.AddTransient<ProfileView>();
         builder.Services.AddTransient<PracticeView>();
         

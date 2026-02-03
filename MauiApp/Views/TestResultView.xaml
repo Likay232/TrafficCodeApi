@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp.Views.TestResultView"
+             Title="Результат теста"
+             BackgroundColor="#FAFAFA">
+
+    <ContentPage.Content>
+        <VerticalStackLayout
+            Padding="20"
+            Spacing="30"
+            VerticalOptions="Center"
+            HorizontalOptions="Center">
+
+            <Label Text="{Binding Text}"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center">
+                <Label.Triggers>
+                    <DataTrigger TargetType="Label"
+                                 Binding="{Binding Passed}"
+                                 Value="True">
+                        <Setter Property="TextColor" Value="Green" />
+                    </DataTrigger>
+                    <DataTrigger TargetType="Label"
+                                 Binding="{Binding Passed}"
+                                 Value="False">
+                        <Setter Property="TextColor" Value="Red" />
+                    </DataTrigger>
+                </Label.Triggers>
+            </Label>
+
+            <Frame Padding="15"
+                   CornerRadius="12"
+                   BackgroundColor="#FFF8DC"
+                   BorderColor="#E0C97F"
+                   HorizontalOptions="Center">
+
+                <Label Text="{Binding Mistakes, StringFormat='Количество ошибок: {0}'}"
+                       FontSize="18"
+                       TextColor="#333"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
+            </Frame>
+
+            <Button Text="Закрыть"
+                    BackgroundColor="#007ACC"
+                    TextColor="White"
+                    FontSize="18"
+                    CornerRadius="10"
+                    Padding="12"
+                    HorizontalOptions="FillAndExpand"
+                    Clicked="OnCloseClicked"/>
+        </VerticalStackLayout>
+    </ContentPage.Content>
+</ContentPage>

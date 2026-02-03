@@ -19,12 +19,7 @@ public partial class TestsView
         if (BindingContext is TestsViewModel vm)
             vm.LoadTests();
     }
-
-    private async void OnGenerateTestClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync(nameof(GenerateTestView));
-    }
-
+    
     private async void OnTestTapped(object? sender, TappedEventArgs e)
     {
         if (e.Parameter is Test test)

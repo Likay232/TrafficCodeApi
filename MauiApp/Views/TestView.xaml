@@ -32,7 +32,8 @@
                            TextColor="#D9534F"
                            HorizontalOptions="Center" />
 
-                    <ContentView IsVisible="{Binding CurrentTask.ImageUrl, Converter={StaticResource NullToBoolConverter}}">
+                    <ContentView
+                        IsVisible="{Binding CurrentTask.ImageUrl, Converter={StaticResource NullToBoolConverter}}">
                         <Image Source="{Binding CurrentTask.ImageUrl}"
                                Aspect="AspectFit"
                                HorizontalOptions="Center"
@@ -172,13 +173,14 @@
 
                                 <MultiTrigger TargetType="Frame">
                                     <MultiTrigger.Conditions>
-                                        <BindingCondition Binding="{Binding SelectedAnswerVariant, 
+                                        <BindingCondition
+                                            Binding="{Binding SelectedAnswerVariant, 
                                                           Converter={StaticResource NullToBoolConverter}}"
-                                                          Value="True" />
-                                        
+                                            Value="True" />
+
                                         <BindingCondition Binding="{Binding SelectedAnswerVariant.IsCorrect}"
                                                           Value="False" />
-                                        
+
                                         <BindingCondition
                                             Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
                                                         Path=BindingContext.IsExam}"
@@ -217,17 +219,96 @@
                     WidthRequest="120" />
         </StackLayout>
 
-        <Button Grid.Row="2"
-                Text="Завершить экзамен"
-                IsVisible="{Binding IsExam}"
-                Command="{Binding EndExamCommand}"
-                BackgroundColor="#007ACC"
-                TextColor="White"
-                FontSize="18"
-                CornerRadius="10"
-                Padding="14,8"
-                HorizontalOptions="FillAndExpand"
-                Margin="0,15,0,0" />
+        <ScrollView Grid.Row="2"
+                    Orientation="Horizontal"
+                    Margin="0,10">
 
+            <CollectionView x:Name="QuestionNav"
+                            ItemsSource="{Binding TaskNavigation}"
+                            SelectionMode="None"
+                            ItemsLayout="HorizontalList">
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dto:TaskNavigationItem">
+
+                        <Frame WidthRequest="40"
+                               HeightRequest="40"
+                               Margin="4"
+                               Padding="0"
+                               CornerRadius="6"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center">
+
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                    Path=BindingContext.GoToTaskCommand}"
+                                    CommandParameter="{Binding}" />
+                            </Frame.GestureRecognizers>
+
+                            <Label Text="{Binding DisplayIndex}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
+
+                            <Frame.Triggers>
+
+                                <DataTrigger TargetType="Frame"
+                                             Binding="{Binding IsCurrent}"
+                                             Value="True">
+                                    <Setter Property="BorderColor" Value="#007ACC" />
+                                </DataTrigger>
+
+                                <MultiTrigger TargetType="Frame">
+                                    <MultiTrigger.Conditions>
+                                        <BindingCondition Binding="{Binding IsAnswered}"
+                                                          Value="True" />
+                                        <BindingCondition
+                                            Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                            Path=BindingContext.IsExam}"
+                                            Value="True" />
+                                    </MultiTrigger.Conditions>
+
+                                    <Setter Property="BackgroundColor"
+                                            Value="#D9EDF7" />
+                                </MultiTrigger>
+
+                                <MultiTrigger TargetType="Frame">
+                                    <MultiTrigger.Conditions>
+                                        <BindingCondition Binding="{Binding IsCorrect}"
+                                                          Value="True" />
+                                        <BindingCondition
+                                            Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                  Path=BindingContext.IsExam}"
+                                            Value="False" />
+                                    </MultiTrigger.Conditions>
+
+                                    <Setter Property="BackgroundColor"
+                                            Value="#DFF0D8" />
+                                </MultiTrigger>
+
+                                <MultiTrigger TargetType="Frame">
+                                    <MultiTrigger.Conditions>
+                                        <BindingCondition Binding="{Binding IsCorrect}"
+                                                          Value="False" />
+                                        <BindingCondition
+                                            Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                  Path=BindingContext.IsExam}"
+                                            Value="False" />
+                                    </MultiTrigger.Conditions>
+
+                                    <Setter Property="BackgroundColor"
+                                            Value="#F2DEDE" />
+                                </MultiTrigger>
+
+                            </Frame.Triggers>
+
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+        </ScrollView>
     </Grid>
 </ContentPage>

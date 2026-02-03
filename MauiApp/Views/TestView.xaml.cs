@@ -25,7 +25,6 @@ public partial class TestView
             ((TestViewModel)BindingContext).LoadTestAsync();
         }
     }
-
     
     public TestView(TestViewModel viewModel)
     {
@@ -34,9 +33,19 @@ public partial class TestView
         BindingContext = viewModel;
     }
     
-    protected override void OnAppearing()
+    protected override void OnBindingContextChanged()
     {
-        base.OnAppearing();
-        
+        base.OnBindingContextChanged();
+
+        if (BindingContext is TestViewModel vm)
+        {
+            vm.ScrollToCurrentRequested = () =>
+            {
+                if (vm.TaskNavigation.Count > vm.CurrentIndex)
+                    QuestionNav.ScrollTo(vm.CurrentIndex,
+                        position: ScrollToPosition.Center,
+                        animate: true);
+            };
+        }
     }
 }

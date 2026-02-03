@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using MauiApp.Infrastructure.Models.Commands;
 using MauiApp.Infrastructure.Models.DTO;
@@ -10,13 +10,15 @@ namespace MauiApp.ViewModels;
 
 public class TestViewModel : ViewModelBase<Test>
 {
+    public ObservableCollection<TaskNavigationItem> TaskNavigation { get; private set; } = new();
     public TestTypes TestType { get; set; }
     public int ThemeId { get; set; }
     public bool IsExam => TestType == TestTypes.Exam;
+    private bool IsFinished { get; set; }
 
     private int _currentIndex;
 
-    private int CurrentIndex
+    public int CurrentIndex
     {
         get => _currentIndex;
         set
@@ -27,6 +29,10 @@ public class TestViewModel : ViewModelBase<Test>
 
             ((RelayCommand)NextTaskCommand).RaiseCanExecuteChanged();
             ((RelayCommand)PreviousTaskCommand).RaiseCanExecuteChanged();
+            
+            UpdateNavigationState();
+            OnPropertyChanged(nameof(TaskNavigation));
+            ScrollToCurrentRequested?.Invoke();
         }
     }
 
@@ -55,7 +61,10 @@ public class TestViewModel : ViewModelBase<Test>
     public ICommand NextTaskCommand { get; }
     public ICommand PreviousTaskCommand { get; }
     public ICommand SelectAnswerCommand { get; }
-
+    public ICommand GoToTaskCommand { get; }
+    
+    public Action? ScrollToCurrentRequested;
+    
     public TestViewModel(ApiService service)
     {
         ApiService = service;
@@ -63,7 +72,10 @@ public class TestViewModel : ViewModelBase<Test>
         NextTaskCommand = new RelayCommand(_ => NextTask(), _ => CanNext());
         PreviousTaskCommand = new RelayCommand(_ => PreviousTask(), _ => CanPrevious());
         SelectAnswerCommand = new RelayCommand(ExecuteSelectAnswer, _ => CanExecuteSelectAnswer());
+        GoToTaskCommand = new RelayCommand(GoToTask, _ => CanGoToTask());
     }
+    
+    
 
     public async void LoadTestAsync()
     {
@@ -87,9 +99,65 @@ public class TestViewModel : ViewModelBase<Test>
         }
 
         CurrentIndex = 0;
+        
+        TaskNavigation.Clear();
+
+        for (int i = 0; i < Model.Tasks.Count; i++)
+        {
+            TaskNavigation.Add(new TaskNavigationItem()
+            {
+                Index = i,
+                Task = Model.Tasks[i]
+            });
+        }
+
+        UpdateNavigationState();
+
+        OnPropertyChanged(nameof(TaskNavigation));
 
         OnPropertyChanged(nameof(Model));
         OnPropertyChanged(nameof(CurrentTask));
+    }
+    
+    private void UpdateNavigationState()
+    {
+        foreach (var item in TaskNavigation)
+        {
+            item.IsCurrent = item.Index == CurrentIndex;
+
+            var answer = _answers.FirstOrDefault(a => a.TaskId == item.Task.Id);
+
+            if (answer?.Answer == null)
+            {
+                item.IsAnswered = false;
+                item.IsCorrect = null;
+                continue;
+            }
+
+            item.IsAnswered = true;
+
+            if (!IsExam)
+            {
+                var selected = item.Task.AnswerVariantsWithFlag
+                    .FirstOrDefault(v => v.Text == answer.Answer);
+
+                item.IsCorrect = selected?.IsCorrect;
+            }
+        }
+    }
+    
+    private void GoToTask(object obj)
+    {
+        if (obj is not TaskNavigationItem item)
+            return;
+
+        CurrentIndex = item.Index;
+        RestoreSelectedAnswer();
+    }
+    
+    private bool CanGoToTask()
+    {
+        return true;
     }
 
     private void NextTask()
@@ -147,10 +215,35 @@ public class TestViewModel : ViewModelBase<Test>
         SelectedAnswerVariant = answer;
 
         if (!IsExam) await ApiService.SaveAnswer(userId, taskId, isCorrect);
+
+        UpdateNavigationState();
+        
+        if (_answers.All(a => a.Answer is not null))
+        {
+            IsFinished = true;
+            
+            int mistakesCount = 0;
+            foreach (var a in _answers)
+            {
+                var task = Model.Tasks.FirstOrDefault(t => t.Id == a.TaskId);
+
+                var selectedVariant = task?.AnswerVariantsWithFlag.FirstOrDefault(v => v.Text == a.Answer);
+                if (selectedVariant is { IsCorrect: false })
+                    mistakesCount++;
+            }
+
+            var passed = mistakesCount <= 2;
+
+            var resultPage = new TestResultView(passed, mistakesCount);
+
+            await Shell.Current.Navigation.PushModalAsync(resultPage, animated:false);
+        }
+            
     }
     private bool CanExecuteSelectAnswer()
     {
-        if (IsExam || CurrentTask is null) return true;
+        if (IsExam) return true;
+        if (CurrentTask is null || IsFinished) return  false;
         
         var task = _answers.FirstOrDefault(a => a.TaskId == CurrentTask.Id);
         
