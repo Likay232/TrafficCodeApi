@@ -25,6 +25,14 @@
                    HasShadow="True">
 
                 <VerticalStackLayout Spacing="12">
+                    
+                    <Label Text="{Binding RemainingTimeDisplay}"
+                           IsVisible="{Binding IsExam}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#D9534F"
+                           HorizontalOptions="Center"
+                           Margin="0,10,0,10"/>
 
                     <Label Text="{Binding CurrentTask.DifficultyLevel, StringFormat='Сложность: {0}'}"
                            FontSize="14"
@@ -118,6 +126,11 @@
                                                         Path=BindingContext.SelectedAnswerVariant, 
                                                         Converter={StaticResource NullToBoolConverter}}"
                                                         Value="True" />
+                                                    
+                                                    <BindingCondition
+                                                        Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
+                                                        Path=BindingContext.IsExam}"
+                                                        Value="False" />
                                                 </MultiTrigger.Conditions>
 
                                                 <Setter Property="BackgroundColor"
@@ -167,31 +180,7 @@
                                CornerRadius="8"
                                BackgroundColor="#FFF8DC"
                                BorderColor="#E0C97F"
-                               IsVisible="False">
-
-                            <Frame.Triggers>
-
-                                <MultiTrigger TargetType="Frame">
-                                    <MultiTrigger.Conditions>
-                                        <BindingCondition
-                                            Binding="{Binding SelectedAnswerVariant, 
-                                                          Converter={StaticResource NullToBoolConverter}}"
-                                            Value="True" />
-
-                                        <BindingCondition Binding="{Binding SelectedAnswerVariant.IsCorrect}"
-                                                          Value="False" />
-
-                                        <BindingCondition
-                                            Binding="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}},
-                                                        Path=BindingContext.IsExam}"
-                                            Value="False" />
-                                    </MultiTrigger.Conditions>
-
-                                    <Setter Property="IsVisible"
-                                            Value="True" />
-                                </MultiTrigger>
-                            </Frame.Triggers>
-
+                               IsVisible="{Binding ShouldShowHint}">
 
                             <Label Text="{Binding CurrentTask.Hint}"
                                    FontSize="14"

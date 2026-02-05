@@ -5,5 +5,6 @@ public enum TestTypes
     Themes,
     Marathon,
     ChallengingQuestions,
-    Exam
+    Exam,
+    Finished
 }

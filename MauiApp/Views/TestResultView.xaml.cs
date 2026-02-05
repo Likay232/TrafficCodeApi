@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using MauiApp.Infrastructure.Models.Enums;
 using Microsoft.Maui.Controls;
 
 namespace MauiApp.Views;
@@ -16,7 +17,7 @@ public partial class TestResultView : ContentPage, INotifyPropertyChanged
             if (_passed != value)
             {
                 _passed = value;
-                OnPropertyChanged(nameof(Passed));
+                OnPropertyChanged();
                 OnPropertyChanged(nameof(Text));
             }
         }
@@ -30,18 +31,35 @@ public partial class TestResultView : ContentPage, INotifyPropertyChanged
             if (_mistakes != value)
             {
                 _mistakes = value;
-                OnPropertyChanged(nameof(Mistakes));
+                OnPropertyChanged();
             }
         }
     }
+    
+    private TestTypes TestType { get; set; }
 
-    public string Text => Passed ? "Экзамен сдан" : "Экзамен не сдан";
+    public string Text
+    {
+        get
+        {
+            switch (TestType)
+            {
+                case TestTypes.Marathon:
+                    return Passed ? "Марафон пройден" : "Марафон провален";
+                case TestTypes.Exam:
+                    return Passed ? "Экзамен сдан" : "Экзамен не сдан";
+                default:
+                    return Passed ? "Тест сдан" : "Тест не сдан";
+            }        
+        }
+    }
 
-    public TestResultView(bool passed, int mistakes)
+public TestResultView(bool passed, int mistakes, TestTypes testType)
     {
         InitializeComponent();
 
         Passed = passed;
+        TestType = testType;
         Mistakes = mistakes;
 
         BindingContext = this;

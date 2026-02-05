@@ -16,8 +16,6 @@
             
             <converters:BytesToImageConverter x:Key="BytesToImageConverter" />
             <converters:NullToBoolConverter x:Key="NullToBoolConverter" />
-            <converters:SelectedCorrectConverter x:Key="SelectedCorrectConverter" />
-            <converters:HasSelectedAnswerConverter x:Key="HasSelectedAnswerConverter" />
             <converters:PercentToProgressConverter x:Key="PercentToProgressConverter" />
 
         </ResourceDictionary>

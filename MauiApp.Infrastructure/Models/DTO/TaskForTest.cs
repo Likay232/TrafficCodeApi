@@ -4,6 +4,7 @@ namespace MauiApp.Infrastructure.Models.DTO;
 
 public class TaskForTest : BaseModel
 {
+    public int ThemeId { get; set; }
     public string Text { get; set; } = string.Empty;
 
     public string CorrectAnswer { get; set; } = string.Empty;

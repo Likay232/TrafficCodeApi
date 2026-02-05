@@ -11,7 +11,7 @@ public partial class TestView
     {
         set
         {
-            if (Enum.TryParse<TestTypes>(value, out var result))
+            if (Enum.TryParse<TestTypes>(value, out var result) && FirstAppearance)
                 ((TestViewModel)BindingContext).TestType = result;
         }
     }
@@ -22,10 +22,22 @@ public partial class TestView
         set
         {
             ((TestViewModel)BindingContext).ThemeId = value;
+        }
+    }
+
+    private bool FirstAppearance { get; set; } = true;
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        
+        if (FirstAppearance)
+        {
+            FirstAppearance = false;
             ((TestViewModel)BindingContext).LoadTestAsync();
         }
     }
-    
+
     public TestView(TestViewModel viewModel)
     {
         InitializeComponent();

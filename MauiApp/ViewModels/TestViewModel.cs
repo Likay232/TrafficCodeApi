@@ -11,10 +11,25 @@ namespace MauiApp.ViewModels;
 public class TestViewModel : ViewModelBase<Test>
 {
     public ObservableCollection<TaskNavigationItem> TaskNavigation { get; private set; } = new();
-    public TestTypes TestType { get; set; }
+
+    private TestTypes _testType;
+    public TestTypes TestType
+    {
+        get => _testType;
+        set
+        {
+            _testType = value;
+            OnPropertyChanged(nameof(IsExam));
+        }
+        
+    }
     public int ThemeId { get; set; }
     public bool IsExam => TestType == TestTypes.Exam;
-    private bool IsFinished { get; set; }
+    private bool IsFinished => TestType == TestTypes.Finished;
+    
+    public bool ShouldShowHint =>
+        !IsExam &&
+        SelectedAnswerVariant is { IsCorrect: false };
 
     private int _currentIndex;
 
@@ -26,13 +41,12 @@ public class TestViewModel : ViewModelBase<Test>
             _currentIndex = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(CurrentTask));
-
-            ((RelayCommand)NextTaskCommand).RaiseCanExecuteChanged();
-            ((RelayCommand)PreviousTaskCommand).RaiseCanExecuteChanged();
             
             UpdateNavigationState();
             OnPropertyChanged(nameof(TaskNavigation));
-            ScrollToCurrentRequested?.Invoke();
+            
+            ((RelayCommand)NextTaskCommand).RaiseCanExecuteChanged();
+            ((RelayCommand)PreviousTaskCommand).RaiseCanExecuteChanged();
         }
     }
 
@@ -49,22 +63,37 @@ public class TestViewModel : ViewModelBase<Test>
                     v.IsSelected = v == value;
 
                 SaveSelectedAnswer();
+                OnPropertyChanged(nameof(ShouldShowHint));
             }
         }
     }
 
-    public TaskForTest? CurrentTask =>
-        Model.Tasks.Count > CurrentIndex ? Model.Tasks[CurrentIndex] : null;
+    private TimeSpan _remainingTime;
+
+    public TimeSpan RemainingTime
+    {
+        get => _remainingTime;
+        set => SetProperty(ref _remainingTime, value);
+    }
+
+    public string RemainingTimeDisplay => RemainingTime.ToString(@"mm\:ss");
+
+    private System.Timers.Timer? _timer;
+
+    public TaskForTest? CurrentTask => TaskNavigation.Count > CurrentIndex 
+        ? TaskNavigation[CurrentIndex].Task 
+        : null;
 
     private readonly List<UserAnswer> _answers = new();
+    private readonly List<UserAnswer> _additionalQuestionsAnswers = new();
 
     public ICommand NextTaskCommand { get; }
     public ICommand PreviousTaskCommand { get; }
     public ICommand SelectAnswerCommand { get; }
     public ICommand GoToTaskCommand { get; }
-    
+
     public Action? ScrollToCurrentRequested;
-    
+
     public TestViewModel(ApiService service)
     {
         ApiService = service;
@@ -74,14 +103,13 @@ public class TestViewModel : ViewModelBase<Test>
         SelectAnswerCommand = new RelayCommand(ExecuteSelectAnswer, _ => CanExecuteSelectAnswer());
         GoToTaskCommand = new RelayCommand(GoToTask, _ => CanGoToTask());
     }
-    
-    
+
 
     public async void LoadTestAsync()
     {
         var userId = Preferences.Default.Get("user_id", 0);
-        var result = await ApiService.GenerateTest(TestType, userId,ThemeId);
-        
+        var result = await ApiService.GenerateTest(TestType, userId, ThemeId);
+
         Model = result ?? new Test();
 
         foreach (var task in Model.Tasks)
@@ -97,9 +125,9 @@ public class TestViewModel : ViewModelBase<Test>
                 Answer = null
             });
         }
-
-        CurrentIndex = 0;
         
+        CurrentIndex = 0;
+
         TaskNavigation.Clear();
 
         for (int i = 0; i < Model.Tasks.Count; i++)
@@ -110,22 +138,29 @@ public class TestViewModel : ViewModelBase<Test>
                 Task = Model.Tasks[i]
             });
         }
-
+        
         UpdateNavigationState();
+        
+        ((RelayCommand)NextTaskCommand).RaiseCanExecuteChanged();
+        ((RelayCommand)PreviousTaskCommand).RaiseCanExecuteChanged();
 
         OnPropertyChanged(nameof(TaskNavigation));
 
         OnPropertyChanged(nameof(Model));
         OnPropertyChanged(nameof(CurrentTask));
+        
+        if (IsExam)
+            StartExamTimer(20);
     }
-    
+
     private void UpdateNavigationState()
     {
         foreach (var item in TaskNavigation)
         {
             item.IsCurrent = item.Index == CurrentIndex;
 
-            var answer = _answers.FirstOrDefault(a => a.TaskId == item.Task.Id);
+            var answer = _answers.FirstOrDefault(a => a.TaskId == item.Task.Id)
+                ?? _additionalQuestionsAnswers.FirstOrDefault(a => a.TaskId == item.Task.Id);
 
             if (answer?.Answer == null)
             {
@@ -145,7 +180,7 @@ public class TestViewModel : ViewModelBase<Test>
             }
         }
     }
-    
+
     private void GoToTask(object obj)
     {
         if (obj is not TaskNavigationItem item)
@@ -154,7 +189,7 @@ public class TestViewModel : ViewModelBase<Test>
         CurrentIndex = item.Index;
         RestoreSelectedAnswer();
     }
-    
+
     private bool CanGoToTask()
     {
         return true;
@@ -168,7 +203,7 @@ public class TestViewModel : ViewModelBase<Test>
         RestoreSelectedAnswer();
     }
 
-    private bool CanNext() => CurrentIndex < Model.Tasks.Count - 1;
+    private bool CanNext() => CurrentIndex < TaskNavigation.Count - 1;
 
     private void PreviousTask()
     {
@@ -185,70 +220,181 @@ public class TestViewModel : ViewModelBase<Test>
         if (CurrentTask == null || SelectedAnswerVariant == null)
             return;
 
-        var answer = _answers.First(a => a.TaskId == CurrentTask.Id);
+        var answer = _answers.FirstOrDefault(a => a.TaskId == CurrentTask.Id) 
+            ?? _additionalQuestionsAnswers.First(a => a.TaskId == CurrentTask.Id);
+        
         answer.Answer = SelectedAnswerVariant.Text;
     }
 
     private void RestoreSelectedAnswer()
     {
-        if (CurrentTask == null)
-            return;
+        if (CurrentTask == null) return;
 
-        var saved = _answers.FirstOrDefault(a => a.TaskId == CurrentTask.Id);
-        if (saved == null)
-            return;
-    
+        var saved = _answers.Concat(_additionalQuestionsAnswers)
+            .FirstOrDefault(a => a.TaskId == CurrentTask.Id);
+        if (saved == null) return;
+
         SelectedAnswerVariant =
             CurrentTask.AnswerVariantsWithFlag
                 .FirstOrDefault(v => v.Text == saved.Answer);
     }
-    
+
     private async void ExecuteSelectAnswer(object obj)
     {
         if (obj is not AnswerVariant answer)
             return;
-        
+
         var userId = Preferences.Get("user_id", 0);
-        var taskId =  CurrentTask!.Id;
+        var taskId = CurrentTask!.Id;
         var isCorrect = answer.IsCorrect;
-        
+
         SelectedAnswerVariant = answer;
 
         if (!IsExam) await ApiService.SaveAnswer(userId, taskId, isCorrect);
 
         UpdateNavigationState();
-        
-        if (_answers.All(a => a.Answer is not null))
-        {
-            IsFinished = true;
-            
-            int mistakesCount = 0;
-            foreach (var a in _answers)
-            {
-                var task = Model.Tasks.FirstOrDefault(t => t.Id == a.TaskId);
 
-                var selectedVariant = task?.AnswerVariantsWithFlag.FirstOrDefault(v => v.Text == a.Answer);
-                if (selectedVariant is { IsCorrect: false })
-                    mistakesCount++;
+        if (_answers.Concat(_additionalQuestionsAnswers).All(a => a.Answer != null) ||
+            (!isCorrect && TestType == TestTypes.Marathon))
+        {
+            ShowResult();
+        }
+    }
+
+    private void AddAdditionalQuestions(List<int> wrongThemes)
+    {
+        if (wrongThemes.Count == 0)
+            return;
+
+        foreach (var themeId in wrongThemes)
+        {
+            if (!Model.AdditionalQuestions.TryGetValue(themeId, out var tasks))
+                continue;
+
+            foreach (var task in tasks)
+            {
+                task.BuildVariants();
+
+                Model.Tasks.Add(task);
+
+                _additionalQuestionsAnswers.Add(new UserAnswer
+                {
+                    TaskId = task.Id,
+                    Answer = null
+                });
+
+                TaskNavigation.Add(new TaskNavigationItem
+                {
+                    Index = TaskNavigation.Count,
+                    Task = task
+                });
+            }
+        }
+
+        OnPropertyChanged(nameof(Model));
+        OnPropertyChanged(nameof(TaskNavigation));
+        
+        ((RelayCommand)NextTaskCommand).RaiseCanExecuteChanged();
+    }
+
+    private async void ShowResult()
+    {
+        int mistakesCount = 0;
+        var wrongThemes = new HashSet<int>();
+        bool additionalFailed = false;
+
+        foreach (var a in _answers)
+        {
+            var task = Model.Tasks.FirstOrDefault(t => t.Id == a.TaskId);
+            var selectedVariant =
+                task?.AnswerVariantsWithFlag.FirstOrDefault(v => v.Text == a.Answer);
+
+            if (selectedVariant is { IsCorrect: false })
+            {
+                mistakesCount++;
+                wrongThemes.Add(task!.ThemeId);
+            }
+        }
+
+        if (IsExam)
+        {
+            if (mistakesCount is > 0 and < 3 && 
+                _additionalQuestionsAnswers.Count == 0 && 
+                wrongThemes.Count == mistakesCount)
+            {
+                
+                AddAdditionalQuestions(wrongThemes.ToList());
+                return;
             }
 
-            var passed = mistakesCount <= 2;
+            additionalFailed = _additionalQuestionsAnswers.Any(a =>
+            {
+                var task = Model.Tasks.FirstOrDefault(t => t.Id == a.TaskId);
+                var selected =
+                    task?.AnswerVariantsWithFlag.FirstOrDefault(v => v.Text == a.Answer);
 
-            var resultPage = new TestResultView(passed, mistakesCount);
-
-            await Shell.Current.Navigation.PushModalAsync(resultPage, animated:false);
+                return selected is { IsCorrect: false };
+            });
         }
-            
+
+        var passed = mistakesCount <= 2 &&
+                     !additionalFailed &&
+                     _answers.Concat(_additionalQuestionsAnswers).All(a => a.Answer != null);
+
+        if (TestType == TestTypes.Marathon && mistakesCount > 0 || wrongThemes.Count != mistakesCount)
+        {
+            passed = false;
+        }
+
+        var resultPage = new TestResultView(passed, mistakesCount, TestType);
+        
+        if (_timer is not null)
+        {
+            _timer.Stop();
+            _timer.Dispose();
+        }
+
+        TestType = TestTypes.Finished;
+        UpdateNavigationState();
+
+        await Shell.Current.Navigation.PushModalAsync(resultPage, false);
     }
+
     private bool CanExecuteSelectAnswer()
     {
+        if (CurrentTask is null || IsFinished) return false;
+
         if (IsExam) return true;
-        if (CurrentTask is null || IsFinished) return  false;
         
-        var task = _answers.FirstOrDefault(a => a.TaskId == CurrentTask.Id);
-        
+        var task = _answers.FirstOrDefault(a => a.TaskId == CurrentTask.Id)
+            ?? _additionalQuestionsAnswers.FirstOrDefault(a => a.TaskId == CurrentTask.Id);
+
         if (task is null) return true;
-        
+
         return task.Answer is null;
+    }
+
+    public void StartExamTimer(int minutes)
+    {
+        if (!IsExam || IsFinished)
+            return;
+
+        RemainingTime = TimeSpan.FromMinutes(minutes);
+        OnPropertyChanged(nameof(RemainingTimeDisplay));
+
+        _timer = new System.Timers.Timer(1000);
+        _timer.Elapsed += (_, _) =>
+        {
+            RemainingTime = RemainingTime.Add(TimeSpan.FromSeconds(-1));
+            OnPropertyChanged(nameof(RemainingTimeDisplay));
+
+            if (RemainingTime <= TimeSpan.Zero)
+            {
+                _timer.Stop();
+                _timer.Dispose();
+                ShowResult();
+            }
+        };
+        _timer.Start();
     }
 }

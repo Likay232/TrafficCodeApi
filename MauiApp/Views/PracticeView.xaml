@@ -48,6 +48,7 @@
                     </HorizontalStackLayout>
 
                     <Button Text="Начать экзамен"
+                            Clicked="ExamClicked"
                             BackgroundColor="Transparent"
                             BorderColor="#1976D2"
                             BorderWidth="1"
@@ -83,6 +84,7 @@
                     </HorizontalStackLayout>
 
                     <Button Text="Начать марафон"
+                            Clicked="MarathonClicked"
                             BackgroundColor="Transparent"
                             BorderColor="#2E7D32"
                             BorderWidth="1"
@@ -118,6 +120,7 @@
                     </HorizontalStackLayout>
 
                     <Button Text="Повторить сложные вопросы"
+                            Clicked="ChallengingQuestionsClicked"
                             BackgroundColor="Transparent"
                             BorderColor="#C62828"
                             BorderWidth="1"
