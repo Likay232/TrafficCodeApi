@@ -44,20 +44,4 @@ public partial class TestView
         
         BindingContext = viewModel;
     }
-    
-    protected override void OnBindingContextChanged()
-    {
-        base.OnBindingContextChanged();
-
-        if (BindingContext is TestViewModel vm)
-        {
-            vm.ScrollToCurrentRequested = () =>
-            {
-                if (vm.TaskNavigation.Count > vm.CurrentIndex)
-                    QuestionNav.ScrollTo(vm.CurrentIndex,
-                        position: ScrollToPosition.Center,
-                        animate: true);
-            };
-        }
-    }
 }
