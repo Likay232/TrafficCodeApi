@@ -13,4 +13,5 @@ public class Task : BaseEntity
     public string? FilePath { get; set; }
     
     public int ThemeId { get; set; }
+    public Theme Theme { get; set; }
 }

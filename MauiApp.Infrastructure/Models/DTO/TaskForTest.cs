@@ -1,4 +1,5 @@
-﻿using MauiApp.Infrastructure.Services;
+﻿using MauiApp.Infrastructure.Models.Repositories;
+using MauiApp.Infrastructure.Services;
 
 namespace MauiApp.Infrastructure.Models.DTO;
 
@@ -17,7 +18,7 @@ public class TaskForTest : BaseModel
 
     public string? FilePath
     {
-        set => ImageUrl = ApiService.GetAbsoluteFilePath(value);
+        set => ImageUrl = AppRepository.GetFileAbsolutePath(value);
     }
 
     public string? ImageUrl { get; set; }

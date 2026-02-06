@@ -1,3 +1,4 @@
+using EFCore.BulkExtensions;
 using MauiApp.Infrastructure.Models.Storage;
 using Microsoft.EntityFrameworkCore;
 using Task = MauiApp.Infrastructure.Models.Storage.Task;
@@ -36,6 +37,20 @@ public class DataComponent
             context.Entry(entityItem).State = EntityState.Modified;
             context.Update(entityItem);
             await context.SaveChangesAsync();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    
+    public async Task<bool> BulkUpdateAsync<T>(List<T> entities) where T : class
+    {
+        try
+        {
+            await using var context = new AppDbContext();
+            await context.BulkUpdateAsync(entities);
             return true;
         }
         catch

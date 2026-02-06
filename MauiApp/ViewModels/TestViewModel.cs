@@ -91,9 +91,7 @@ public class TestViewModel : ViewModelBase<Test>
     public ICommand PreviousTaskCommand { get; }
     public ICommand SelectAnswerCommand { get; }
     public ICommand GoToTaskCommand { get; }
-
-    public Action? ScrollToCurrentRequested;
-
+    
     public TestViewModel(ApiService service)
     {
         ApiService = service;
@@ -108,7 +106,7 @@ public class TestViewModel : ViewModelBase<Test>
     public async void LoadTestAsync()
     {
         var userId = Preferences.Default.Get("user_id", 0);
-        var result = await ApiService.GenerateTest(TestType, userId, ThemeId);
+        var result = await AppRepository.GenerateTest(TestType, userId, ThemeId);
 
         Model = result ?? new Test();
 
@@ -224,6 +222,7 @@ public class TestViewModel : ViewModelBase<Test>
             ?? _additionalQuestionsAnswers.First(a => a.TaskId == CurrentTask.Id);
         
         answer.Answer = SelectedAnswerVariant.Text;
+        answer.IsCorrect = SelectedAnswerVariant.IsCorrect;
     }
 
     private void RestoreSelectedAnswer()
@@ -250,7 +249,7 @@ public class TestViewModel : ViewModelBase<Test>
 
         SelectedAnswerVariant = answer;
 
-        if (!IsExam) await ApiService.SaveAnswer(userId, taskId, isCorrect);
+        if (!IsExam) await AppRepository.SaveAnswer(userId, taskId, isCorrect);
 
         UpdateNavigationState();
 
@@ -374,7 +373,7 @@ public class TestViewModel : ViewModelBase<Test>
         return task.Answer is null;
     }
 
-    public void StartExamTimer(int minutes)
+    private void StartExamTimer(int minutes)
     {
         if (!IsExam || IsFinished)
             return;

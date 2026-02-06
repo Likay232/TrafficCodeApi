@@ -17,7 +17,7 @@ public class LessonsViewModel : ViewModelBase<List<Lesson>>
 
     public async void LoadLessonsAsync()
     {
-        var result = await ApiService.GetLessonsForThemeAsync(ThemeId);
+        var result = await AppRepository.GetLessonsForTheme(ThemeId);
         
         Model = result ?? new List<Lesson>();
         

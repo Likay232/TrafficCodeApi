@@ -12,7 +12,7 @@ public class ThemesViewModel : ViewModelBase<List<Theme>>
     
     public async void LoadThemesAsync()
     {
-        var result = await ApiService.GetThemesAsync();
+        var result = await AppRepository.GetThemesAsync();
 
         Model = result ?? new List<Theme>();
 

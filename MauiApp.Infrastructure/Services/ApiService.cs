@@ -125,39 +125,7 @@ public class ApiService
             return null;
         }
     }
-
-    public async Task<CheckedTest?> CheckTestAsync(TestForCheck request)
-    {
-        try
-        {
-            var response = await GetClient().PostAsJsonAsync("/Client/CheckTest", request, _jsonSerializerOptions);
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content.ReadFromJsonAsync<CheckedTest>(_jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[CheckTestAsync] {e.Message}");
-            return null;
-        }
-    }
-
-    public async Task<TaskForTest?> GetTaskById(int taskId)
-    {
-        try
-        {
-            var response = await GetClient().GetAsync($"/Client/GetTaskById?taskId={taskId}");
-            response.EnsureSuccessStatusCode();
-            
-            return await response.Content.ReadFromJsonAsync<TaskForTest>(_jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine($"[GetTaskById] {e.Message}");
-            return null;
-        }
-    }
-
+    
     public async Task<TaskForTest?> GetRandomTask()
     {
         try
@@ -175,23 +143,7 @@ public class ApiService
             return null;
         }
     }
-
-    public async Task<bool> CheckTask(CheckTask answer)
-    {
-        try
-        {
-            var response = await GetClient().PostAsJsonAsync("/Client/CheckTask", answer, _jsonSerializerOptions);
-            response.EnsureSuccessStatusCode();
-            
-            return await response.Content.ReadFromJsonAsync<bool>(_jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine($"[CheckTask] {e.Message}");
-            return false;
-        }
-    }
-
+    
     public async Task<bool> RegisterUser(RegisterModel request)
     {
         var response = await GetClient().PostAsJsonAsync("/Auth/Register", request, _jsonSerializerOptions);
@@ -243,6 +195,28 @@ public class ApiService
                 await GetClient().PostAsync($"/Client/SaveAnswer?userId={userId}&taskId={taskId}&isCorrect={isCorrect}", null);
             response.EnsureSuccessStatusCode();
     
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+    
+    public async Task<bool> SaveAnswers(int userId, List<UserAnswer> answers)
+    {
+        try
+        {
+            var payload = new
+            {
+                userId,
+                answers
+            };
+
+            var response = await GetClient()
+                .PostAsJsonAsync("/Client/SaveAnswers", payload, _jsonSerializerOptions);
+
+            response.EnsureSuccessStatusCode();
             return true;
         }
         catch (Exception)

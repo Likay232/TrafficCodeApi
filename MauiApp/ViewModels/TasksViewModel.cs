@@ -19,7 +19,7 @@ public class TasksViewModel : ViewModelBase<ObservableCollection<TaskForTest>>
 
         var userId = Preferences.Default.Get("user_id", 0);
         
-        var result = await ApiService.GetTasksForThemeAsync(ThemeId, userId);
+        var result = await AppRepository.GetTasksForTheme(ThemeId, userId);
 
         if (result is null)
         {

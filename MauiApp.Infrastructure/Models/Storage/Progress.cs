@@ -6,7 +6,7 @@ public class Progress : BaseEntity
     public int ThemeId { get; set; }
     
     public int Level { get; set; }
-    public int AmountToLevelUp { get; set; }
+    public double AmountToLevelUp { get; set; }
     
     public bool IsSynced { get; set; }
 }

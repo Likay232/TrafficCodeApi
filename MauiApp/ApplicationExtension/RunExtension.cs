@@ -31,7 +31,7 @@ public static class RunExtension
     public static MauiAppBuilder RegisterServices(this MauiAppBuilder builder)
     {
         builder.Services.AddSingleton<ApiService>();
-        builder.Services.AddSingleton<LocalDbService>();
+        builder.Services.AddSingleton<LocalDataService>();
         builder.Services.AddSingleton<SharedObjectStorageService>();
         builder.Services.AddTransient<AppRepository>();
         builder.Services.AddTransient<DataComponent>();
