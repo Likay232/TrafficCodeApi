@@ -3,6 +3,7 @@ using System;
 using MauiApp.Infrastructure.Models.Сomponents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MauiApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260208194019_AddModifiedAt")]
+    partial class AddModifiedAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.12");
@@ -20,6 +23,7 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.CompletedTask", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CompletedAt")
@@ -61,6 +65,7 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.Lesson", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Link")
@@ -85,6 +90,7 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.Progress", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<double>("AmountToLevelUp")
@@ -110,6 +116,7 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.Task", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("AnswerVariants")
@@ -150,6 +157,7 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.Theme", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Description")
@@ -170,6 +178,7 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.User", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FirstName")

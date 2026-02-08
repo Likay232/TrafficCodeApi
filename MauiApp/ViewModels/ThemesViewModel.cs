@@ -1,13 +1,13 @@
 ﻿using MauiApp.Infrastructure.Models.DTO;
-using MauiApp.Infrastructure.Services;
+using MauiApp.Infrastructure.Models.Repositories;
 
 namespace MauiApp.ViewModels;
 
 public class ThemesViewModel : ViewModelBase<List<Theme>>
 {
-    public ThemesViewModel(ApiService service)
+    public ThemesViewModel(AppRepository repository)
     {
-        ApiService = service;
+        AppRepository = repository;
     }
     
     public async void LoadThemesAsync()

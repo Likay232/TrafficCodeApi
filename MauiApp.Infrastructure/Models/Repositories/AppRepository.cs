@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Infrastructure.Models.Enums;
 using MauiApp.Infrastructure.Services;
@@ -10,7 +11,9 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.Login(authModel);
+            var token = await apiService.Login(authModel);
+            
+            return token;
         }
         catch (HttpRequestException)
         {
@@ -22,11 +25,13 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.RegisterUser(regModel);
+            var registered =  await apiService.RegisterUser(regModel) && await localDataService.Register(regModel, isSynced: true);
+            
+            return registered;
         }
         catch (HttpRequestException)
         {
-            return await localDataService.Register(regModel);
+            return await localDataService.Register(regModel, isSynced: false);
         }
     }
 
@@ -94,7 +99,7 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.SaveAnswer(userId, taskId, isCorrect);
+            return await apiService.SaveAnswer(userId, taskId, isCorrect) && await localDataService.SaveAnswer(userId, taskId, isCorrect);
         }
         catch (HttpRequestException)
         {
@@ -107,7 +112,7 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.SaveAnswers(userId, answers);
+            return await apiService.SaveAnswers(userId, answers) && await localDataService.SaveAnswers(userId, answers);
         }
         catch (HttpRequestException)
         {

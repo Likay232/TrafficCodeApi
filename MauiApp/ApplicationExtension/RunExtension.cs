@@ -36,6 +36,7 @@ public static class RunExtension
         builder.Services.AddTransient<AppRepository>();
         builder.Services.AddTransient<DataComponent>();
         builder.Services.AddDbContext<AppDbContext>();
+        builder.Services.AddTransient<ServerPingService>();
 
         
         return builder;
@@ -46,11 +47,8 @@ public static class RunExtension
         builder.Services.AddTransient<AuthViewModel>();
         builder.Services.AddTransient<LessonsViewModel>();
         builder.Services.AddTransient<TasksViewModel>();
-        builder.Services.AddTransient<TestsViewModel>();
         builder.Services.AddTransient<TestViewModel>();
         builder.Services.AddTransient<ThemesViewModel>();
-        builder.Services.AddTransient<CheckedTestViewModel>();
-        builder.Services.AddTransient<TaskViewModel>();
         builder.Services.AddTransient<RegisterViewModel>();
         builder.Services.AddTransient<ProfileViewModel>();
         
@@ -62,10 +60,8 @@ public static class RunExtension
         builder.Services.AddTransient<AuthView>();
         builder.Services.AddTransient<LessonsView>();
         builder.Services.AddTransient<TasksView>();
-        builder.Services.AddTransient<TestsView>();
         builder.Services.AddTransient<TestView>();
         builder.Services.AddTransient<ThemesView>();
-        builder.Services.AddTransient<CheckedTestView>();
         builder.Services.AddTransient<RegisterView>();
         builder.Services.AddTransient<ProfileView>();
         builder.Services.AddTransient<PracticeView>();

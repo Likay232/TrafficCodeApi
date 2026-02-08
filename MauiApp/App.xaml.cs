@@ -1,25 +1,26 @@
-﻿using System.Text.Json;
+﻿using MauiApp.Infrastructure.Models.Repositories;
 using MauiApp.Infrastructure.Services;
 using MauiApp.Services;
 using MauiApp.Views;
 
 namespace MauiApp;
 
-#if ANDROID
-    using Android.Content;
-#endif
-
 public partial class App
 {
-    public App(AuthView authView)
+    private ServerPingService PingService { get; set; }
+    public App(AuthView authView, ServerPingService service)
     {
+        PingService = service;
+        
         InitializeComponent();
 
         Current!.UserAppTheme = AppTheme.Light;
         
         var token = SecureStorage.GetAsync("auth_token").Result;
+        var username = SecureStorage.GetAsync("username").Result;
         
-        if (string.IsNullOrEmpty(token) || TokenParseService.IsExpired())
+        if ((string.IsNullOrEmpty(token) && string.IsNullOrEmpty(username)) ||
+            TokenParseService.IsExpired())
         {
             MainPage = authView;
         }
@@ -29,22 +30,17 @@ public partial class App
         }
     }
 
-    protected override async void OnStart()
+    protected override void OnStart()
     {
         base.OnStart();
 
-#if ANDROID
+        PingService.Start();
+    }
+
+    protected override void OnSleep()
+    {
+        base.OnSleep();
         
-        var task = await new ApiService().GetRandomTask();
-        if (task != null)
-        {
-            var serializedTask = JsonSerializer.Serialize(task);
-            var context = Android.App.Application.Context;
-            var intent = new Intent(context, typeof(RandomTaskWidget));
-            intent.SetAction("com.myapp.ACTION_UPDATE_WIDGET");
-            intent.PutExtra("task", serializedTask);
-            context.SendBroadcast(intent);
-        }
-#endif
+        PingService.Stop();
     }
 }

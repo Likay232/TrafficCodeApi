@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using MauiApp.Infrastructure.Models.DTO;
-using MauiApp.Infrastructure.Services;
+using MauiApp.Infrastructure.Models.Repositories;
 
 namespace MauiApp.ViewModels;
 
@@ -8,9 +8,9 @@ public class TasksViewModel : ViewModelBase<ObservableCollection<TaskForTest>>
 {
     public int ThemeId { get; set; }
     
-    public TasksViewModel(ApiService service)
+    public TasksViewModel(AppRepository appRepository)
     {
-        ApiService = service;
+        AppRepository = appRepository;
     }
 
     public async Task LoadTasksAsync()

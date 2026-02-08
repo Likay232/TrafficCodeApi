@@ -3,7 +3,7 @@ using System.Windows.Input;
 using MauiApp.Infrastructure.Models.Commands;
 using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Infrastructure.Models.Enums;
-using MauiApp.Infrastructure.Services;
+using MauiApp.Infrastructure.Models.Repositories;
 using MauiApp.Views;
 
 namespace MauiApp.ViewModels;
@@ -92,9 +92,9 @@ public class TestViewModel : ViewModelBase<Test>
     public ICommand SelectAnswerCommand { get; }
     public ICommand GoToTaskCommand { get; }
     
-    public TestViewModel(ApiService service)
+    public TestViewModel(AppRepository repository)
     {
-        ApiService = service;
+        AppRepository = repository;
 
         NextTaskCommand = new RelayCommand(_ => NextTask(), _ => CanNext());
         PreviousTaskCommand = new RelayCommand(_ => PreviousTask(), _ => CanPrevious());
@@ -334,6 +334,10 @@ public class TestViewModel : ViewModelBase<Test>
 
                 return selected is { IsCorrect: false };
             });
+
+            var userId = Preferences.Default.Get("user_id", 0);
+            
+            await AppRepository.SaveAnswers(userId, _answers.Concat(_additionalQuestionsAnswers).ToList());
         }
 
         var passed = mistakesCount <= 2 &&

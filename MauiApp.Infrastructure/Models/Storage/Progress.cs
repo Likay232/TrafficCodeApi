@@ -7,6 +7,4 @@ public class Progress : BaseEntity
     
     public int Level { get; set; }
     public double AmountToLevelUp { get; set; }
-    
-    public bool IsSynced { get; set; }
 }

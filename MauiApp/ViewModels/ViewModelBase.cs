@@ -2,7 +2,6 @@
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using MauiApp.Infrastructure.Models.Repositories;
-using MauiApp.Infrastructure.Services;
 
 namespace MauiApp.ViewModels;
 
@@ -17,7 +16,6 @@ public class ViewModelBase<T> : INotifyPropertyChanged where T : class, new()
 
     public T Model { get; set; } = new ();
     
-    protected ApiService ApiService = new();
     protected AppRepository AppRepository = null!;
     
     public event PropertyChangedEventHandler? PropertyChanged;

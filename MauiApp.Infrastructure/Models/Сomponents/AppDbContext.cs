@@ -15,12 +15,33 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>().ToTable("users");
+        modelBuilder.Entity<User>()
+            .ToTable("users");
+        
+        modelBuilder.Entity<User>()
+            .Property(u => u.Id)
+            .ValueGeneratedOnAdd();
+        
         modelBuilder.Entity<Theme>().ToTable("themes");
         modelBuilder.Entity<Task>().ToTable("tasks");
         modelBuilder.Entity<Progress>().ToTable("progresses");
+        
+        modelBuilder.Entity<Progress>()
+            .Property(u => u.Id)
+            .ValueGeneratedOnAdd();
+        
         modelBuilder.Entity<Lesson>().ToTable("lessons");
         modelBuilder.Entity<CompletedTask>().ToTable("completed_tasks");
+        
+        modelBuilder.Entity<Lesson>()
+            .Property(u => u.Id)
+            .ValueGeneratedOnAdd();
+        
+        modelBuilder.Entity<ExchangeHistory>().ToTable("exchange_history");
+        
+        modelBuilder.Entity<ExchangeHistory>()
+            .Property(u => u.Id)
+            .ValueGeneratedOnAdd();
     }
     
     public DbSet<User> Users { get; set; }
@@ -29,4 +50,5 @@ public class AppDbContext : DbContext
     public DbSet<Progress> Progresses { get; set; }
     public DbSet<Lesson> Lessons { get; set; }
     public DbSet<CompletedTask> CompletedTasks { get; set; }
+    public DbSet<ExchangeHistory> ExchangeHistory { get; set; }
 }

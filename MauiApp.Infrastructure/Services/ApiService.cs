@@ -1,11 +1,11 @@
-﻿using System.Diagnostics;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Infrastructure.Models.Enums;
-using Microsoft.Maui.Storage;
+using MauiApp.Infrastructure.Models.Requests;
+using MauiApp.Infrastructure.Models.Responses;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -13,14 +13,56 @@ namespace MauiApp.Infrastructure.Services;
 
 public class ApiService
 {
-    private static readonly string ServerAddress = $"http://192.168.1.124:5000/";
+    private const string ServerAddress = "http://192.168.55.110:5000/";
 
-    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
-    private HttpClient GetClient()
+    public async Task<bool> PingServer()
+    {
+        var response = await GetClient().GetAsync("/ping");
+
+        response.EnsureSuccessStatusCode();
+
+        return true;
+    }
+
+    public async Task<bool> UploadData(UploadData request)
+    {
+        try
+        {
+            var response = await GetClient().PostAsync("Client/UploadData",
+                new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<bool>();
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<NewData?> GetNewData(DateTime? lastExchange)
+    {
+        try
+        {
+            var response = await GetClient().GetAsync($"Client/GetNewData?lastExchange={lastExchange}");
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            return JsonConvert.DeserializeObject<NewData>(json);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static HttpClient GetClient()
     {
         var client = new HttpClient();
         client.DefaultRequestHeaders.Add("Accept", "application/json");
@@ -34,215 +76,99 @@ public class ApiService
 
     public async Task<string?> Login(AuthModel authModel)
     {
-        var response = await GetClient().PostAsJsonAsync("/Auth/Login", authModel, _jsonSerializerOptions);
+        var response = await GetClient().PostAsJsonAsync("/Auth/Login", authModel, JsonSerializerOptions);
         response.EnsureSuccessStatusCode();
-        
-        var token = await response.Content.ReadFromJsonAsync<string>(_jsonSerializerOptions);
+
+        var token = await response.Content.ReadFromJsonAsync<string>(JsonSerializerOptions);
 
         return token;
     }
-    
+
 
     public async Task<List<Theme>?> GetThemesAsync()
     {
-        try
-        {
-            var response = await GetClient().GetAsync("Client/GetThemes");
-            response.EnsureSuccessStatusCode();
+        var response = await GetClient().GetAsync("Client/GetThemes");
+        response.EnsureSuccessStatusCode();
 
-            var json = await response.Content.ReadAsStringAsync();
+        var json = await response.Content.ReadAsStringAsync();
 
-            return JsonSerializer.Deserialize<List<Theme>>(json, _jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine($"[GetThemesAsync] Exception: {e}");
-            return null;
-        }
+        return JsonSerializer.Deserialize<List<Theme>>(json, JsonSerializerOptions);
     }
 
 
     public async Task<List<TaskForTest>?> GetTasksForThemeAsync(int themeId, int userId)
     {
-        try
-        {
-            var response = await GetClient().PostAsJsonAsync($"/Client/GetTasksForTheme", new { themeId, userId }, _jsonSerializerOptions);
-            response.EnsureSuccessStatusCode();
+        var response = await GetClient().PostAsJsonAsync($"/Client/GetTasksForTheme", new { themeId, userId },
+            JsonSerializerOptions);
+        response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<TaskForTest>>(_jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[GetTasksForThemeAsync] {e.Message}");
-            return null;
-        }
+        return await response.Content.ReadFromJsonAsync<List<TaskForTest>>(JsonSerializerOptions);
     }
 
     public async Task<List<Lesson>?> GetLessonsForThemeAsync(int themeId)
     {
-        try
-        {
-            var response = await GetClient().GetAsync($"/Client/GetLessonsForTheme?themeId={themeId}");
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content.ReadFromJsonAsync<List<Lesson>>(_jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[GetLessonsForThemeAsync] {e.Message}");
-            return null;
-        }
-    }
-
-    public async Task<List<Test>?> GetTestsAsync()
-    {
-        try
-        {
-            var response = await GetClient().GetAsync("/Client/GetTests");
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content.ReadFromJsonAsync<List<Test>>(_jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[GetTestsAsync] {e.Message}");
-            return null;
-        }
-    }
-
-    public async Task<List<TaskForTest>?> GetTestAsync(int testId)
-    {
-        try
-        {
-            var response = await GetClient().GetAsync($"/Client/GetTest?testId={testId}");
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content.ReadFromJsonAsync<List<TaskForTest>>(_jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[GetTestAsync] {e.Message}");
-            return null;
-        }
-    }
-    
-    public async Task<TaskForTest?> GetRandomTask()
-    {
-        try
-        {
-            var response = await GetClient().GetAsync($"/Client/GetRandomTask");
-            response.EnsureSuccessStatusCode();
-            
-            Debug.WriteLine(response);
-            
-            return await response.Content.ReadFromJsonAsync<TaskForTest>(_jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine($"[GetRandomTask] {e.Message}");
-            return null;
-        }
-    }
-    
-    public async Task<bool> RegisterUser(RegisterModel request)
-    {
-        var response = await GetClient().PostAsJsonAsync("/Auth/Register", request, _jsonSerializerOptions);
+        var response = await GetClient().GetAsync($"/Client/GetLessonsForTheme?themeId={themeId}");
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<bool>(_jsonSerializerOptions);
+        return await response.Content.ReadFromJsonAsync<List<Lesson>>(JsonSerializerOptions);
     }
-    
+
+    public async Task<bool> RegisterUser(RegisterModel request)
+    {
+        var response = await GetClient().PostAsJsonAsync("/Auth/Register", request, JsonSerializerOptions);
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<bool>(JsonSerializerOptions);
+    }
+
     public async Task<Test?> GenerateTest(TestTypes testType, int userId, int? themeId = null)
     {
-        try
-        {
-            var response = await GetClient()
-                .GetAsync($"/Client/GenerateTest?testType={testType}&themeId={themeId}&userId={userId}");
-            response.EnsureSuccessStatusCode();
+        var response = await GetClient()
+            .GetAsync($"/Client/GenerateTest?testType={testType}&themeId={themeId}&userId={userId}");
+        response.EnsureSuccessStatusCode();
 
-            var temp = await response.Content.ReadAsStringAsync();
+        var temp = await response.Content.ReadAsStringAsync();
 
-            var result = JsonConvert.DeserializeObject<Test>(temp);
-            
-            return result;
-        }
-        catch (Exception e)
-        {
-            return null;
-        }
+        var result = JsonConvert.DeserializeObject<Test>(temp);
+
+        return result;
     }
-    
+
     public async Task<ProfileInfo?> GetProfileInfo(int userId)
     {
-        try
-        {
-            var response = await GetClient().GetAsync($"/Client/GetProfileInfo?userId={userId}");
-            response.EnsureSuccessStatusCode();
-    
-            return await response.Content.ReadFromJsonAsync<ProfileInfo>(_jsonSerializerOptions);
-        }
-        catch (Exception)
-        {
-            return null;
-        }
+        var response = await GetClient().GetAsync($"/Client/GetProfileInfo?userId={userId}");
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadFromJsonAsync<ProfileInfo>(JsonSerializerOptions);
     }
-    
+
     public async Task<bool> SaveAnswer(int userId, int taskId, bool isCorrect)
     {
-        try
-        {
-            var response = 
-                await GetClient().PostAsync($"/Client/SaveAnswer?userId={userId}&taskId={taskId}&isCorrect={isCorrect}", null);
-            response.EnsureSuccessStatusCode();
-    
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
+        var response =
+            await GetClient()
+                .PostAsync($"/Client/SaveAnswer?userId={userId}&taskId={taskId}&isCorrect={isCorrect}", null);
+        response.EnsureSuccessStatusCode();
+
+        return true;
     }
-    
+
     public async Task<bool> SaveAnswers(int userId, List<UserAnswer> answers)
     {
-        try
+        var payload = new
         {
-            var payload = new
-            {
-                userId,
-                answers
-            };
+            userId,
+            answers
+        };
 
-            var response = await GetClient()
-                .PostAsJsonAsync("/Client/SaveAnswers", payload, _jsonSerializerOptions);
+        var response = await GetClient()
+            .PostAsJsonAsync("/Client/SaveAnswers", payload, JsonSerializerOptions);
 
-            response.EnsureSuccessStatusCode();
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
+        response.EnsureSuccessStatusCode();
+        return true;
     }
 
     public static string? GetAbsoluteFilePath(string? filePath)
     {
         return filePath is null ? null : $"{ServerAddress}{filePath}";
-    }
-
-    public async Task<byte[]?> GetFileBytes(string fileName)
-    {
-        try
-        {
-            var response = await GetClient().GetAsync($"/Client/GetFileBytes?fileName={fileName}");
-            response.EnsureSuccessStatusCode();
-            
-            return await response.Content.ReadFromJsonAsync<byte[]?>(_jsonSerializerOptions);
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine($"[GetFileBytes] {e.Message}");
-            return null;
-        }
     }
 }

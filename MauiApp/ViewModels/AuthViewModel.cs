@@ -96,6 +96,7 @@ public class AuthViewModel : ViewModelBase<AuthModel>
     {
         var token = await AppRepository.Login(authModel);
 
+        if (token == "local_session") return true;
         if (token == null) return false;
         
         try

@@ -10,5 +10,5 @@ public class User : BaseEntity
 
     public DateTime LastLogin { get; set; }
     public bool IsBlocked { get; set; }
-    public bool IsSynced { get; set; } = true;
+    public DateTime RegistrationDate { get; set; }
 }

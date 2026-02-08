@@ -3,6 +3,7 @@ using System;
 using MauiApp.Infrastructure.Models.Сomponents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MauiApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260208143451_ModelTweak")]
+    partial class ModelTweak
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.12");
@@ -20,6 +23,7 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.CompletedTask", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CompletedAt")
@@ -28,8 +32,8 @@ namespace MauiApp.Infrastructure.Migrations
                     b.Property<bool?>("IsCorrect")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("TEXT");
+                    b.Property<bool>("IsSynced")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("TaskId")
                         .HasColumnType("INTEGER");
@@ -44,29 +48,13 @@ namespace MauiApp.Infrastructure.Migrations
                     b.ToTable("completed_tasks", (string)null);
                 });
 
-            modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.ExchangeHistory", b =>
+            modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.Lesson", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("ExchangedAt")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("exchange_history", (string)null);
-                });
-
-            modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.Lesson", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Link")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Text")
@@ -85,16 +73,17 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.Progress", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<double>("AmountToLevelUp")
                         .HasColumnType("REAL");
 
-                    b.Property<int>("Level")
+                    b.Property<bool>("IsSynced")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Level")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("ThemeId")
                         .HasColumnType("INTEGER");
@@ -110,6 +99,7 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.Task", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("AnswerVariants")
@@ -130,9 +120,6 @@ namespace MauiApp.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -150,12 +137,10 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.Theme", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("ModifiedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
@@ -170,6 +155,7 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.User", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("FirstName")
@@ -179,6 +165,9 @@ namespace MauiApp.Infrastructure.Migrations
                     b.Property<bool>("IsBlocked")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsSynced")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("LastLogin")
                         .HasColumnType("TEXT");
 
@@ -186,14 +175,8 @@ namespace MauiApp.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("RegistrationDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Username")

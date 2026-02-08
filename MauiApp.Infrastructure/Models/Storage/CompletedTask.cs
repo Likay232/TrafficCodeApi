@@ -8,6 +8,4 @@ public class CompletedTask : BaseEntity
     public bool? IsCorrect { get; set; }
     
     public DateTime CompletedAt { get; set; }
-    
-    public bool IsSynced { get; set; }
 }

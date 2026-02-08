@@ -1,52 +1,91 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using EFCore.BulkExtensions;
 using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Infrastructure.Models.Enums;
+using MauiApp.Infrastructure.Models.Requests;
+using MauiApp.Infrastructure.Models.Responses;
 using MauiApp.Infrastructure.Models.Storage;
 using MauiApp.Infrastructure.Models.Сomponents;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace MauiApp.Infrastructure.Services;
 
 public class LocalDataService(DataComponent component)
 {
+    public DateTime? GetLastExchange()
+    {
+        return component.ExchangeHistory
+            .OrderBy(h => h.ExchangedAt)
+            .LastOrDefault()?.ExchangedAt;
+    }
+
+    public async Task<bool> SaveExchange()
+    {
+        return await component.Insert(new ExchangeHistory()
+        {
+            ExchangedAt = DateTime.UtcNow,
+        });
+    }
+    
+    public UploadData GetDataToUpload()
+    {
+        var uploadData = new UploadData();
+        
+        var lastExchange = GetLastExchange();
+        
+        if (lastExchange is null) return uploadData;
+
+        Parallel.Invoke(
+            () => uploadData.Users = component.Users.Where(u => u.ModifiedAt > lastExchange).ToList(),
+            () => uploadData.CompletedTasks = component.CompletedTasks.Where(u => u.ModifiedAt > lastExchange).ToList(),
+            () => uploadData.Progresses =  component.Progresses.Where(u => u.ModifiedAt > lastExchange).ToList());
+        
+        return uploadData;
+    }
+
+    public async Task<bool> ProcessNewData(NewData newData)
+    {
+        await component.ClearTableAsync<User>();
+        await component.ClearTableAsync<Models.Storage.Theme>();
+        await component.ClearTableAsync<Models.Storage.Task>();
+        await component.ClearTableAsync<Progress>();
+        await component.ClearTableAsync<Models.Storage.Lesson>();
+        await component.ClearTableAsync<CompletedTask>();
+
+        await component.BulkInsertAsync(newData.Users, new BulkConfig { SetOutputIdentity = false });
+        await component.BulkInsertAsync(newData.Themes, new BulkConfig { SetOutputIdentity = false });
+        await component.BulkInsertAsync(newData.Tasks, new BulkConfig { SetOutputIdentity = false });
+        await component.BulkInsertAsync(newData.Progresses, new BulkConfig { SetOutputIdentity = false });
+        await component.BulkInsertAsync(newData.Lessons, new BulkConfig { SetOutputIdentity = false });
+        await component.BulkInsertAsync(newData.CompletedTasks, new BulkConfig { SetOutputIdentity = false });
+        
+        return true;
+    }
+    
     public async Task<string?> Login(AuthModel login)
     {
         var user = component.Users.FirstOrDefault(u =>
-            u.Username == login.Username && u.Password == login.Password);
+            u.Username == login.Username &&
+            u.Password == login.Password);
 
         if (user == null || user.IsBlocked)
             return null;
 
         user.LastLogin = DateTime.Now;
+        user.ModifiedAt = DateTime.UtcNow;
+
         await component.Update(user);
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "super_secret_key_12345";
-
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, login.Username ?? "")
-        };
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddHours(3),
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-                SecurityAlgorithms.HmacSha256Signature)
-        };
-
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        await SecureStorage.SetAsync("username", login.Username ?? "");
+        await SecureStorage.SetAsync("password", login.Password ?? "");
+        
+        Preferences.Default.Set("user_id", user.Id);
+        Preferences.Default.Set("username", user.Username);
+        
+        return "local_session";
     }
 
-    public async Task<bool> Register(RegisterModel request)
+    public async Task<bool> Register(RegisterModel request, bool isSynced)
     {
         var user = await component.Users.FirstOrDefaultAsync(u =>
             u.Username == request.Username);
@@ -61,7 +100,6 @@ public class LocalDataService(DataComponent component)
             Username = request.Username,
             Password = request.Password,
             LastLogin = DateTime.MaxValue,
-            IsSynced = false
         };
 
         return await component.Insert(newUser);
@@ -181,15 +219,17 @@ public class LocalDataService(DataComponent component)
         return statistic.Values.ToList();
     }
 
-    public async System.Threading.Tasks.Task SaveAnswers(int userId, List<UserAnswer> answers)
+    public async Task<bool> SaveAnswers(int userId, List<UserAnswer> answers)
     {
         foreach (var answer in answers)
         {
             await SaveAnswer(userId, answer.TaskId, answer.IsCorrect);
         }
+
+        return true;
     }
 
-    public async System.Threading.Tasks.Task SaveAnswer(int userId, int taskId, bool isCorrect)
+    public async Task<bool> SaveAnswer(int userId, int taskId, bool isCorrect)
     {
         var task = component.Tasks.FirstOrDefault(t => t.Id == taskId);
 
@@ -204,72 +244,14 @@ public class LocalDataService(DataComponent component)
             UserId = userId,
             TaskId = taskId,
             IsCorrect = isCorrect,
-            CompletedAt = DateTime.UtcNow
+            CompletedAt = DateTime.UtcNow,
         };
 
         await ChangeUserProgress(task, userId, isCorrect);
-        await AlignDifficultyLevels();
-
-
-        await component.Insert(completedTask);
+        
+        return await component.Insert(completedTask);
     }
-
-    private async System.Threading.Tasks.Task AlignDifficultyLevels()
-    {
-        var tasks = component.Tasks.ToList();
-
-        var completedTasksAmount = component.CompletedTasks
-            .GroupBy(ct => ct.TaskId)
-            .ToDictionary(g => g.Key, g => g.Count());
-
-        var correctCounts = component.CompletedTasks
-            .Where(ct => ct.IsCorrect == true)
-            .GroupBy(ct => ct.TaskId)
-            .ToDictionary(g => g.Key, g => g.Count());
-
-        var tasksToUpdate = new List<Models.Storage.Task>();
-
-        foreach (var task in tasks)
-        {
-            if (!completedTasksAmount.TryGetValue(task.Id, out var totalCompleted))
-                continue;
-
-            var correctCount = correctCounts.TryGetValue(task.Id, out var count) ? count : 0;
-
-            var percentage = totalCompleted > 0 ? (double)correctCount / totalCompleted * 100 : 0;
-
-            int correctLevelForPercentage;
-            switch (percentage)
-            {
-                case >= 0 and <= 20:
-                    correctLevelForPercentage = 1;
-                    break;
-                case > 20 and <= 40:
-                    correctLevelForPercentage = 2;
-                    break;
-                case > 40 and <= 60:
-                    correctLevelForPercentage = 3;
-                    break;
-                case > 60 and <= 80:
-                    correctLevelForPercentage = 4;
-                    break;
-                case > 80 and <= 100:
-                    correctLevelForPercentage = 5;
-                    break;
-                default:
-                    correctLevelForPercentage = 1;
-                    break;
-            }
-
-            if (task.DifficultyLevel == correctLevelForPercentage) continue;
-
-            task.DifficultyLevel = correctLevelForPercentage;
-            tasksToUpdate.Add(task);
-        }
-
-        await component.BulkUpdateAsync(tasksToUpdate);
-    }
-
+    
     private double GetExperience(bool isCorrect, int difficultyLevel, int currentLevel)
     {
         return !isCorrect ? 10 * (double)difficultyLevel / currentLevel : 10 * (double)currentLevel / difficultyLevel;

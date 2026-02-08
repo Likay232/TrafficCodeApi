@@ -1,5 +1,5 @@
 ﻿using MauiApp.Infrastructure.Models.DTO;
-using MauiApp.Infrastructure.Services;
+using MauiApp.Infrastructure.Models.Repositories;
 
 namespace MauiApp.ViewModels;
 
@@ -10,9 +10,9 @@ public class LessonsViewModel : ViewModelBase<List<Lesson>>
     public bool HasItems => Model is { Count: > 0 };
     public bool IsEmpty => Model is not { Count: not 0 };
 
-    public LessonsViewModel(ApiService service)
+    public LessonsViewModel(AppRepository repository)
     {
-        ApiService = service;
+        AppRepository = repository;
     }
 
     public async void LoadLessonsAsync()
