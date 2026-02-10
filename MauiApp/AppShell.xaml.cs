@@ -27,7 +27,7 @@ public partial class AppShell
     private async void OnLogoutClicked(object? sender, EventArgs e)
     {
         Preferences.Default.Clear();
-        SecureStorage.RemoveAll();
+        SecureStorage.Remove("auth_token");
 
         await Current.GoToAsync(nameof(AuthView));
     }

@@ -3,6 +3,7 @@ using System.Windows.Input;
 using MauiApp.Infrastructure.Models.Commands;
 using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Infrastructure.Models.Repositories;
+using MauiApp.Infrastructure.Services;
 using MauiApp.Services;
 
 namespace MauiApp.ViewModels;
@@ -94,31 +95,20 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         
     private async Task<bool> AuthenticateUser(AuthModel authModel)
     {
-        var token = await AppRepository.Login(authModel);
+        var tokens = await AppRepository.Login(authModel);
 
-        if (token == "local_session") return true;
-        if (token == null) return false;
+        if (tokens == null) return false;
+        if (string.IsNullOrEmpty(tokens.Value.AccessToken) && string.IsNullOrEmpty(tokens.Value.RefreshToken))
+        {
+            if (Preferences.Get("username", null) is null)
+                Preferences.Default.Set("username", "Нет сети");
+            
+            return true;
+        }
         
         try
         {
-            await SecureStorage.Default.SetAsync("auth_token", token);
-            
-            var claims = TokenParseService.DecodeClaims(token);
-            
-            if (claims.TryGetValue("nameid", out var userId))
-            { 
-                Preferences.Default.Set("user_id", Convert.ToInt32(userId));
-            }
-
-            if (claims.TryGetValue("unique_name", out var username))
-            {
-                Preferences.Default.Set("username", username);
-            }
-
-            if (claims.TryGetValue("exp", out var exp))
-            {
-                Preferences.Default.Set("exp", exp);
-            }
+            await LocalDataService.SetUserInfo(tokens.Value.AccessToken, tokens.Value.RefreshToken);
             
             return true;
         }

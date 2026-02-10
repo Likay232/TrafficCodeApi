@@ -1,4 +1,3 @@
-using EFCore.BulkExtensions;
 using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Infrastructure.Models.Enums;
 using MauiApp.Infrastructure.Models.Requests;
@@ -12,6 +11,26 @@ namespace MauiApp.Infrastructure.Services;
 
 public class LocalDataService(DataComponent component)
 {
+    public static async System.Threading.Tasks.Task SetUserInfo(string authToken, string refreshToken)
+    {
+        await SecureStorage.Default.SetAsync("auth_token", authToken);
+        await SecureStorage.Default.SetAsync("refresh_token", refreshToken);
+            
+        if (string.IsNullOrEmpty(authToken)) return;
+        
+        var claims = TokenService.DecodeClaims(authToken);
+            
+        if (claims.TryGetValue("nameid", out var userId))
+        { 
+            Preferences.Default.Set("user_id", Convert.ToInt32(userId));
+        }
+
+        if (claims.TryGetValue("unique_name", out var username))
+        {
+            Preferences.Default.Set("username", username);
+        }
+    }
+    
     public DateTime? GetLastExchange()
     {
         return component.ExchangeHistory
@@ -29,82 +48,62 @@ public class LocalDataService(DataComponent component)
     
     public UploadData GetDataToUpload()
     {
-        var uploadData = new UploadData();
-        
+        var userId = Preferences.Get("user_id", 0);
         var lastExchange = GetLastExchange();
-        
-        if (lastExchange is null) return uploadData;
+        var uploadData = new UploadData();
+
+        if (lastExchange is null) 
+            return uploadData;
+
+        var completedTasks = component.CompletedTasks
+            .Where(u => u.ModifiedAt > lastExchange)
+            .ToList();
+
+        var progresses = component.Progresses
+            .Where(u => u.ModifiedAt > lastExchange)
+            .ToList();
 
         Parallel.Invoke(
-            () => uploadData.Users = component.Users.Where(u => u.ModifiedAt > lastExchange).ToList(),
-            () => uploadData.CompletedTasks = component.CompletedTasks.Where(u => u.ModifiedAt > lastExchange).ToList(),
-            () => uploadData.Progresses =  component.Progresses.Where(u => u.ModifiedAt > lastExchange).ToList());
-        
+            () =>
+            {
+                completedTasks.Where(c => c.UserId == 0)
+                    .ToList()
+                    .ForEach(c => c.UserId = userId);
+            },
+            () =>
+            {
+                progresses.Where(p => p.UserId == 0)
+                    .ToList()
+                    .ForEach(p => p.UserId = userId);
+            }
+        );
+
+        uploadData.CompletedTasks = completedTasks;
+        uploadData.Progresses = progresses;
+
         return uploadData;
     }
 
     public async Task<bool> ProcessNewData(NewData newData)
     {
-        await component.ClearTableAsync<User>();
         await component.ClearTableAsync<Models.Storage.Theme>();
         await component.ClearTableAsync<Models.Storage.Task>();
-        await component.ClearTableAsync<Progress>();
         await component.ClearTableAsync<Models.Storage.Lesson>();
         await component.ClearTableAsync<CompletedTask>();
 
-        await component.BulkInsertAsync(newData.Users, new BulkConfig { SetOutputIdentity = false });
-        await component.BulkInsertAsync(newData.Themes, new BulkConfig { SetOutputIdentity = false });
-        await component.BulkInsertAsync(newData.Tasks, new BulkConfig { SetOutputIdentity = false });
-        await component.BulkInsertAsync(newData.Progresses, new BulkConfig { SetOutputIdentity = false });
-        await component.BulkInsertAsync(newData.Lessons, new BulkConfig { SetOutputIdentity = false });
-        await component.BulkInsertAsync(newData.CompletedTasks, new BulkConfig { SetOutputIdentity = false });
+        await component.BulkInsertAsync(newData.Themes);
+        await component.BulkInsertAsync(newData.Tasks);
+        await component.BulkInsertAsync(newData.Lessons);
+        await component.BulkInsertAsync(newData.Progresses);
         
         return true;
     }
     
-    public async Task<string?> Login(AuthModel login)
+    public async Task<string?> Login()
     {
-        var user = component.Users.FirstOrDefault(u =>
-            u.Username == login.Username &&
-            u.Password == login.Password);
-
-        if (user == null || user.IsBlocked)
-            return null;
-
-        user.LastLogin = DateTime.Now;
-        user.ModifiedAt = DateTime.UtcNow;
-
-        await component.Update(user);
-
-        await SecureStorage.SetAsync("username", login.Username ?? "");
-        await SecureStorage.SetAsync("password", login.Password ?? "");
-        
-        Preferences.Default.Set("user_id", user.Id);
-        Preferences.Default.Set("username", user.Username);
-        
-        return "local_session";
+        return await SecureStorage.GetAsync("refresh_token");
     }
-
-    public async Task<bool> Register(RegisterModel request, bool isSynced)
-    {
-        var user = await component.Users.FirstOrDefaultAsync(u =>
-            u.Username == request.Username);
-
-        if (user != null)
-            throw new Exception("Имя пользователя занято.");
-
-        var newUser = new User
-        {
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Username = request.Username,
-            Password = request.Password,
-            LastLogin = DateTime.MaxValue,
-        };
-
-        return await component.Insert(newUser);
-    }
-
+    
     public async Task<List<Models.DTO.Theme>?> GetThemesAsync()
     {
         return await component.Themes.Select(t => new Models.DTO.Theme
@@ -164,68 +163,52 @@ public class LocalDataService(DataComponent component)
 
     public async Task<ProfileInfo> GetProfileInfo(int userId)
     {
-        var user = await component.Users.FirstOrDefaultAsync(u => u.Id == userId);
-
-        if (user == null) throw new Exception("Информация о пользователе не найдена");
-
-        var themeStat = await GetStatisticForThemes(user.Id);
+        var lastName = Preferences.Get("last_name", "");
+        var firstName = Preferences.Get("first_name", "");
+        var username = Preferences.Get("username", "");
+        
+        var themeStat = await GetStatisticForThemes();
 
         return new ProfileInfo
         {
-            LastName = user.LastName,
-            FirstName = user.FirstName,
-            Username = user.Username,
-            ThemesStatistics = themeStat,
+            LastName = lastName,
+            FirstName = firstName,
+            Username = username,
+            ThemesStatistics = themeStat
         };
     }
 
-    private async Task<List<ThemesStatistic>> GetStatisticForThemes(int userId)
+    private async Task<List<ThemesStatistic>> GetStatisticForThemes()
     {
-        var progresses = await component.Progresses.ToListAsync();
-
-        var tasks = await component.Tasks
-            .Include(t => t.Theme)
-            .ToListAsync();
-
-        var completedTasks = await component.CompletedTasks
-            .Where(x => x.UserId == userId)
-            .GroupBy(x => x.TaskId)
-            .Select(g => g
-                .OrderByDescending(x => x.CompletedAt)
-                .First())
-            .ToDictionaryAsync(x => x.TaskId, x => x.IsCorrect == true);
-
-        var statistic = tasks
-            .GroupBy(t => new { t.ThemeId, t.Theme.Title })
-            .ToDictionary(g => g.Key, g =>
-            {
-                var total = g.Count();
-                var solved = g.Count(t => completedTasks.ContainsKey(t.Id));
-                var solvedCorrect = g.Count(t => completedTasks.TryGetValue(t.Id, out var cor) && cor);
-
-                var solvedPercent = total == 0 ? 0.0 : (double)solved / total * 100;
-                var correctPercent = solved == 0 ? 0.0 : (double)solvedCorrect / solved * 100;
-
-                return new ThemesStatistic
-                {
-                    SolvedPercent = Math.Round(solvedPercent, 0),
-                    SolvedCorrectPercent = Math.Round(correctPercent, 0),
-                    ThemeId = g.Key.ThemeId,
-                    ThemeName = g.Key.Title,
-                    Level = progresses.FirstOrDefault(p => p.ThemeId == g.Key.ThemeId)?.Level ?? 1
-                };
-            });
-
-        return statistic.Values.ToList();
+        return new List<ThemesStatistic>();
     }
 
     public async Task<bool> SaveAnswers(int userId, List<UserAnswer> answers)
     {
+        var tasks = new List<CompletedTask>();
+        
         foreach (var answer in answers)
         {
-            await SaveAnswer(userId, answer.TaskId, answer.IsCorrect);
+            var task = component.Tasks.FirstOrDefault(t => t.Id == answer.TaskId);
+
+            if (task is null)
+                throw new Exception($"Не найдено задание с id {answer.TaskId}");
+
+            var completedTask = new CompletedTask()
+            {
+                UserId = userId,
+                TaskId = answer.TaskId,
+                IsCorrect = answer.IsCorrect,
+                CompletedAt = DateTime.UtcNow,
+            };
+
+            await ChangeUserProgress(task, userId, answer.IsCorrect);
+            
+            tasks.Add(completedTask);
         }
 
+        await component.BulkInsertAsync(tasks);
+        
         return true;
     }
 
@@ -235,9 +218,6 @@ public class LocalDataService(DataComponent component)
 
         if (task is null)
             throw new Exception($"Не найдено задание с id {taskId}");
-
-        if (!component.Users.Any(u => u.Id == userId))
-            throw new Exception($"Не найден пользователь с id {userId}");
 
         var completedTask = new CompletedTask()
         {

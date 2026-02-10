@@ -15,36 +15,29 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>()
-            .ToTable("users");
-        
-        modelBuilder.Entity<User>()
-            .Property(u => u.Id)
-            .ValueGeneratedOnAdd();
-        
         modelBuilder.Entity<Theme>().ToTable("themes");
-        modelBuilder.Entity<Task>().ToTable("tasks");
-        modelBuilder.Entity<Progress>().ToTable("progresses");
+
+        modelBuilder.Entity<Theme>()
+            .Property(t => t.Id)
+            .ValueGeneratedNever();
         
-        modelBuilder.Entity<Progress>()
-            .Property(u => u.Id)
-            .ValueGeneratedOnAdd();
-        
-        modelBuilder.Entity<Lesson>().ToTable("lessons");
-        modelBuilder.Entity<CompletedTask>().ToTable("completed_tasks");
-        
+        modelBuilder.Entity<Task>()
+            .Property(t => t.Id)
+            .ValueGeneratedNever();
+
         modelBuilder.Entity<Lesson>()
-            .Property(u => u.Id)
-            .ValueGeneratedOnAdd();
+            .Property(t => t.Id)
+            .ValueGeneratedNever();
         
+        modelBuilder.Entity<Task>().ToTable("tasks");
+        modelBuilder.Entity<Lesson>().ToTable("lessons");
+
+        
+        modelBuilder.Entity<Progress>().ToTable("progresses");
+        modelBuilder.Entity<CompletedTask>().ToTable("completed_tasks");
         modelBuilder.Entity<ExchangeHistory>().ToTable("exchange_history");
-        
-        modelBuilder.Entity<ExchangeHistory>()
-            .Property(u => u.Id)
-            .ValueGeneratedOnAdd();
     }
     
-    public DbSet<User> Users { get; set; }
     public DbSet<Theme> Themes { get; set; }
     public DbSet<Task> Tasks { get; set; }
     public DbSet<Progress> Progresses { get; set; }

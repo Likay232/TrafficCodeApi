@@ -20,6 +20,7 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.CompletedTask", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CompletedAt")
@@ -85,6 +86,7 @@ namespace MauiApp.Infrastructure.Migrations
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.Progress", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<double>("AmountToLevelUp")
@@ -165,44 +167,6 @@ namespace MauiApp.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("themes", (string)null);
-                });
-
-            modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsBlocked")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("LastLogin")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("RegistrationDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("MauiApp.Infrastructure.Models.Storage.CompletedTask", b =>

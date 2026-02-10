@@ -36,7 +36,7 @@ public static class RunExtension
         builder.Services.AddTransient<AppRepository>();
         builder.Services.AddTransient<DataComponent>();
         builder.Services.AddDbContext<AppDbContext>();
-        builder.Services.AddTransient<ServerPingService>();
+        builder.Services.AddTransient<ServerPingBackgroundService>();
 
         
         return builder;

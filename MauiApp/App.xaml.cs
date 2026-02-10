@@ -7,20 +7,19 @@ namespace MauiApp;
 
 public partial class App
 {
-    private ServerPingService PingService { get; set; }
-    public App(AuthView authView, ServerPingService service)
+    private ServerPingBackgroundService PingBackgroundService { get; set; }
+    public App(AuthView authView, ServerPingBackgroundService backgroundService)
     {
-        PingService = service;
+        PingBackgroundService = backgroundService;
         
         InitializeComponent();
 
         Current!.UserAppTheme = AppTheme.Light;
         
-        var token = SecureStorage.GetAsync("auth_token").Result;
-        var username = SecureStorage.GetAsync("username").Result;
+        var accessToken = SecureStorage.GetAsync("auth_token").Result;
         
-        if ((string.IsNullOrEmpty(token) && string.IsNullOrEmpty(username)) ||
-            TokenParseService.IsExpired())
+        if ((string.IsNullOrEmpty(accessToken)) ||
+            TokenService.IsExpired(accessToken))
         {
             MainPage = authView;
         }
@@ -30,17 +29,38 @@ public partial class App
         }
     }
 
-    protected override void OnStart()
+    protected override async void OnStart()
     {
         base.OnStart();
 
-        PingService.Start();
+        PingBackgroundService.Start();
+        
+        // var accessToken = SecureStorage.GetAsync("auth_token").Result;
+        // var refreshToken = SecureStorage.GetAsync("refresh_token").Result;
+        //
+        // if (TokenService.IsExpired(accessToken) || TokenService.ShouldRefresh(accessToken))
+        // {
+        //     if (!ApiService.PingServer().Result)
+        //         MainPage = new AppShell();
+        //     
+        //     var tokens = ApiService.RefreshToken(refreshToken).Result;
+        //
+        //     if (tokens is null)
+        //     {
+        //         SecureStorage.Remove("auth_token");
+        //         SecureStorage.Remove("refresh_token");
+        //         Preferences.Clear();
+        //
+        //         await Shell.Current.GoToAsync("//AuthView");
+        //     }
+        // }
+
     }
 
     protected override void OnSleep()
     {
         base.OnSleep();
         
-        PingService.Stop();
+        PingBackgroundService.Stop();
     }
 }

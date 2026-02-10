@@ -1,9 +1,8 @@
 using System.Diagnostics;
-using MauiApp.Infrastructure.Models.DTO;
 
 namespace MauiApp.Infrastructure.Services;
 
-public class ServerPingService(LocalDataService localDataService, ApiService apiService)
+public class ServerPingBackgroundService(LocalDataService localDataService, ApiService apiService)
 {
     private readonly TimeSpan _interval = TimeSpan.FromMinutes(30);
     private readonly CancellationTokenSource _cts = new();
@@ -24,27 +23,19 @@ public class ServerPingService(LocalDataService localDataService, ApiService api
         {
             try
             {
-                var serverAvailable = await PingServerAsync();
-
-                if (serverAvailable)
+                if (await ApiService.PingServer())
                 {
-                    await ExchangeDataWithServer();
-
                     var authToken = await SecureStorage.GetAsync("auth_token");
                     
-                    if (!string.IsNullOrEmpty(authToken)) return;
-                    
-                    var username = await SecureStorage.GetAsync("username");
-                    var password = await SecureStorage.GetAsync("password");
-
-                    authToken = await apiService.Login(new AuthModel
+                    if (!string.IsNullOrEmpty(authToken) && !TokenService.IsExpired(authToken) && !TokenService.ShouldRefresh(authToken))
                     {
-                        Username = username,
-                        Password = password
-                    });
+                        await ExchangeDataWithServer();
+                        return;
+                    }
+
+                    await TokenService.RefreshToken();
                     
-                    if (authToken is not null)
-                        await SecureStorage.SetAsync("token", authToken);
+                    await ExchangeDataWithServer();
                 }
             }
             catch
@@ -55,24 +46,16 @@ public class ServerPingService(LocalDataService localDataService, ApiService api
             await Task.Delay(_interval, token);
         }
     }
-
-    private async Task<bool> PingServerAsync()
-    {
-        try
-        {
-            return await apiService.PingServer();
-        }
-        catch (Exception ex)
-        {
-            return false;
-        }
-    }
     
     private async Task ActualizeLocalDataBase()
     {
         var lastExchange = localDataService.GetLastExchange();
 
-        var newData = await apiService.GetNewData(lastExchange);
+        var userId = Preferences.Get("user_id", 0);
+
+        if (userId is 0) return;
+
+        var newData = await apiService.GetNewData(lastExchange, userId);
         
         if (newData is null) return;
 

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Infrastructure.Models.Enums;
 using MauiApp.Infrastructure.Services;
@@ -7,7 +6,7 @@ namespace MauiApp.Infrastructure.Models.Repositories;
 
 public class AppRepository(ApiService apiService, LocalDataService localDataService)
 {
-    public async Task<string?> Login(AuthModel authModel)
+    public async Task<(string AccessToken, string RefreshToken)?> Login(AuthModel authModel)
     {
         try
         {
@@ -17,7 +16,11 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
         }
         catch (HttpRequestException)
         {
-            return await localDataService.Login(authModel);
+            var refreshToken = await localDataService.Login();
+
+            if (refreshToken is null) return ("", "");
+            
+            return ("", refreshToken);
         }
     }
 
@@ -25,13 +28,13 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            var registered =  await apiService.RegisterUser(regModel) && await localDataService.Register(regModel, isSynced: true);
+            var registered =  await apiService.RegisterUser(regModel);
             
             return registered;
         }
         catch (HttpRequestException)
         {
-            return await localDataService.Register(regModel, isSynced: false);
+            return false;
         }
     }
 
@@ -39,9 +42,9 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.GetThemesAsync();
+            return await ApiService.GetData<List<Theme>>("Client/GetThemes");
         }
-        catch (HttpRequestException)
+        catch (Exception)
         {
             return await localDataService.GetThemesAsync();
         }
@@ -99,7 +102,7 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.SaveAnswer(userId, taskId, isCorrect) && await localDataService.SaveAnswer(userId, taskId, isCorrect);
+            return await apiService.SaveAnswer(userId, taskId, isCorrect);
         }
         catch (HttpRequestException)
         {
@@ -112,7 +115,7 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.SaveAnswers(userId, answers) && await localDataService.SaveAnswers(userId, answers);
+            return await apiService.SaveAnswers(userId, answers);
         }
         catch (HttpRequestException)
         {

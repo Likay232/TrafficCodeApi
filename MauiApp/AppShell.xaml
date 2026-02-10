@@ -29,15 +29,15 @@
                    Margin="0,0,0,0" />
         </Grid>
     </Shell.FlyoutHeader>
-
-    <FlyoutItem Title="Профиль" Route="ProfileView">
-        <ShellContent Title="Профиль" ContentTemplate="{DataTemplate pages:ProfileView}" />
-    </FlyoutItem>
     
     <FlyoutItem Title="Темы" Route="ThemesView">
         <ShellContent Title="Темы" ContentTemplate="{DataTemplate pages:ThemesView}" />
     </FlyoutItem>
 
+    <FlyoutItem Title="Профиль" Route="ProfileView">
+        <ShellContent Title="Профиль" ContentTemplate="{DataTemplate pages:ProfileView}" />
+    </FlyoutItem>
+    
     <FlyoutItem Title="Практика" Route="PracticeView">
         <ShellContent Title="Практика" ContentTemplate="{DataTemplate pages:PracticeView}" />
     </FlyoutItem>
