@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace MauiApp.Infrastructure.Services;
 
-public class ServerPingBackgroundService(LocalDataService localDataService, ApiService apiService)
+public class ServerPingBackgroundService(ExchangeDataService service)
 {
     private readonly TimeSpan _interval = TimeSpan.FromMinutes(30);
     private readonly CancellationTokenSource _cts = new();
@@ -29,13 +29,12 @@ public class ServerPingBackgroundService(LocalDataService localDataService, ApiS
                     
                     if (!string.IsNullOrEmpty(authToken) && !TokenService.IsExpired(authToken) && !TokenService.ShouldRefresh(authToken))
                     {
-                        await ExchangeDataWithServer();
+                        await service.ExchangeDataWithServer();
                         return;
                     }
 
-                    await TokenService.RefreshToken();
-                    
-                    await ExchangeDataWithServer();
+                    if (await TokenService.RefreshToken())
+                        await service.ExchangeDataWithServer();
                 }
             }
             catch
@@ -44,43 +43,6 @@ public class ServerPingBackgroundService(LocalDataService localDataService, ApiS
             }
 
             await Task.Delay(_interval, token);
-        }
-    }
-    
-    private async Task ActualizeLocalDataBase()
-    {
-        var lastExchange = localDataService.GetLastExchange();
-
-        var userId = Preferences.Get("user_id", 0);
-
-        if (userId is 0) return;
-
-        var newData = await apiService.GetNewData(lastExchange, userId);
-        
-        if (newData is null) return;
-
-        await localDataService.ProcessNewData(newData);
-    }
-
-    private async Task UploadData()
-    {
-        var uploadData = localDataService.GetDataToUpload();
-        
-        await apiService.UploadData(uploadData);
-    }
-
-    private async Task ExchangeDataWithServer()
-    {
-        try
-        {
-            await UploadData();
-            await ActualizeLocalDataBase();
-
-            await localDataService.SaveExchange();
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine(e.Message);
         }
     }
 }

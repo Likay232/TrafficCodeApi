@@ -89,6 +89,7 @@ public class LocalDataService(DataComponent component)
         await component.ClearTableAsync<Models.Storage.Theme>();
         await component.ClearTableAsync<Models.Storage.Task>();
         await component.ClearTableAsync<Models.Storage.Lesson>();
+        await component.ClearTableAsync<Progress>();
         await component.ClearTableAsync<CompletedTask>();
 
         await component.BulkInsertAsync(newData.Themes);
@@ -268,6 +269,8 @@ public class LocalDataService(DataComponent component)
             currentProgress.Level += 1;
             currentProgress.AmountToLevelUp = 100 * Math.Pow(2, currentProgress.Level);
         }
+        
+        currentProgress.ModifiedAt = DateTime.UtcNow;
 
         if (toUpdate) await component.Update(currentProgress);
         else await component.Insert(currentProgress);

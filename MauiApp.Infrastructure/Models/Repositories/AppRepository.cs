@@ -1,12 +1,13 @@
 using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Infrastructure.Models.Enums;
+using MauiApp.Infrastructure.Models.Responses;
 using MauiApp.Infrastructure.Services;
 
 namespace MauiApp.Infrastructure.Models.Repositories;
 
 public class AppRepository(ApiService apiService, LocalDataService localDataService)
 {
-    public async Task<(string AccessToken, string RefreshToken)?> Login(AuthModel authModel)
+    public async Task<Login?> Login(AuthModel authModel)
     {
         try
         {
@@ -14,13 +15,22 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
             
             return token;
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException ex)
         {
-            var refreshToken = await localDataService.Login();
+            if (ex.StatusCode is null)
+            {
+                var response = new Login();
+                
+                var refreshToken = await localDataService.Login();
 
-            if (refreshToken is null) return ("", "");
+                if (refreshToken is null) return response;
             
-            return ("", refreshToken);
+                response.RefreshToken = refreshToken;
+                
+                return response;
+            }
+
+            return null;
         }
     }
 
@@ -66,7 +76,7 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.GetLessonsForThemeAsync(themeId);
+            return await ApiService.GetData<List<Lesson>>($"/Client/GetLessonsForTheme?themeId={themeId}");
         }
         catch (HttpRequestException)
         {

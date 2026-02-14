@@ -4,25 +4,25 @@ using MauiApp.Infrastructure.Models.Commands;
 using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Infrastructure.Models.Repositories;
 using MauiApp.Infrastructure.Services;
-using MauiApp.Services;
 
 namespace MauiApp.ViewModels;
 
 public class AuthViewModel : ViewModelBase<AuthModel>
 {
     private string? _errorMessage;
+
     public string? ErrorMessage
     {
         get => _errorMessage;
         set
         {
             if (_errorMessage == value) return;
-            
+
             _errorMessage = value;
             OnPropertyChanged();
         }
     }
-    
+
     public string? Username
     {
         get => Model.Username;
@@ -30,7 +30,7 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         set
         {
             if (Username == value) return;
-            
+
             Model.Username = value;
             OnPropertyChanged();
             ((RelayCommand)LoginCommand).RaiseCanExecuteChanged();
@@ -43,7 +43,7 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         set
         {
             if (Password == value) return;
-            
+
             Model.Password = value;
             OnPropertyChanged();
             ((RelayCommand)LoginCommand).RaiseCanExecuteChanged();
@@ -51,10 +51,12 @@ public class AuthViewModel : ViewModelBase<AuthModel>
     }
 
     public ICommand LoginCommand { get; set; }
+    private ExchangeDataService ExchangeDataService { get; set; }
 
-    public AuthViewModel(AppRepository repository)
+public AuthViewModel(AppRepository repository, ExchangeDataService exchangeDataService)
     {
         AppRepository = repository;
+        ExchangeDataService = exchangeDataService;
 
         Model = new AuthModel();
         
@@ -98,7 +100,7 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         var tokens = await AppRepository.Login(authModel);
 
         if (tokens == null) return false;
-        if (string.IsNullOrEmpty(tokens.Value.AccessToken) && string.IsNullOrEmpty(tokens.Value.RefreshToken))
+        if (string.IsNullOrEmpty(tokens.AccessToken) && string.IsNullOrEmpty(tokens.RefreshToken))
         {
             if (Preferences.Get("username", null) is null)
                 Preferences.Default.Set("username", "Нет сети");
@@ -108,7 +110,9 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         
         try
         {
-            await LocalDataService.SetUserInfo(tokens.Value.AccessToken, tokens.Value.RefreshToken);
+            await LocalDataService.SetUserInfo(tokens.AccessToken, tokens.RefreshToken);
+
+            await ExchangeDataService.ExchangeDataWithServer();
             
             return true;
         }

@@ -17,9 +17,10 @@ public partial class App
         Current!.UserAppTheme = AppTheme.Light;
         
         var accessToken = SecureStorage.GetAsync("auth_token").Result;
+        var refreshToken = SecureStorage.GetAsync("refresh_token").Result;
         
-        if ((string.IsNullOrEmpty(accessToken)) ||
-            TokenService.IsExpired(accessToken))
+        if ((string.IsNullOrEmpty(accessToken) ||
+            TokenService.IsExpired(accessToken)) && string.IsNullOrEmpty(refreshToken))
         {
             MainPage = authView;
         }

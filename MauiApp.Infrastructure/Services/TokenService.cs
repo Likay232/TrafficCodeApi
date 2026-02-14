@@ -46,17 +46,17 @@ public static class TokenService
         return expirationTime <= DateTimeOffset.UtcNow.AddMinutes(15);
     }
 
-    public static async Task RefreshToken()
+    public static async Task<bool> RefreshToken()
     {
         var tokens = await ApiService.RefreshToken();
         
-        if (tokens is null && ApiService.IsAvailable())
+        if (tokens is null)
         {
             await Shell.Current.GoToAsync("/AuthView");
-            return;
+            return false;
         }
         
-        if (tokens is not null)
-            await LocalDataService.SetUserInfo(tokens.Value.AccessToken, tokens.Value.RefreshToken);
+        await LocalDataService.SetUserInfo(tokens.Value.AccessToken, tokens.Value.RefreshToken);
+        return true;
     }
 }

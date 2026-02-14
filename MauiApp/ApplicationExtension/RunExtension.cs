@@ -1,7 +1,6 @@
 ﻿using MauiApp.Infrastructure.Models.Repositories;
 using MauiApp.Infrastructure.Models.Сomponents;
 using MauiApp.Infrastructure.Services;
-using MauiApp.Services;
 using MauiApp.ViewModels;
 using MauiApp.Views;
 using Microsoft.EntityFrameworkCore;
@@ -37,6 +36,7 @@ public static class RunExtension
         builder.Services.AddTransient<DataComponent>();
         builder.Services.AddDbContext<AppDbContext>();
         builder.Services.AddTransient<ServerPingBackgroundService>();
+        builder.Services.AddTransient<ExchangeDataService>();
 
         
         return builder;

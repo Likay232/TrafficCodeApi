@@ -28,6 +28,7 @@ public partial class AppShell
     {
         Preferences.Default.Clear();
         SecureStorage.Remove("auth_token");
+        SecureStorage.Remove("refresh_token");
 
         await Current.GoToAsync(nameof(AuthView));
     }
