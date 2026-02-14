@@ -1,5 +1,6 @@
 using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Infrastructure.Models.Enums;
+using MauiApp.Infrastructure.Models.Requests;
 using MauiApp.Infrastructure.Models.Responses;
 using MauiApp.Infrastructure.Services;
 
@@ -64,7 +65,11 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.GetTasksForThemeAsync(themeId, userId);
+            return await ApiService.PostData<List<TaskForTest>, GetTasks>("/Client/GetTasksForTheme", new GetTasks
+            {
+                ThemeId = themeId, 
+                UserId = userId
+            });
         }
         catch (HttpRequestException)
         {
@@ -88,7 +93,7 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.GenerateTest(type, userId, themeId);
+            return await ApiService.GetData<Test>($"/Client/GenerateTest?testType={type}&themeId={themeId}&userId={userId}");
         }
         catch (HttpRequestException)
         {
@@ -100,7 +105,7 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.GetProfileInfo(userId);
+            return await ApiService.GetData<ProfileInfo>($"/Client/GetProfileInfo?userId={userId}");
         }
         catch (HttpRequestException)
         {
@@ -112,7 +117,7 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.SaveAnswer(userId, taskId, isCorrect);
+            return await ApiService.PostData<bool, object?>($"/Client/SaveAnswer?userId={userId}&taskId={taskId}&isCorrect={isCorrect}");
         }
         catch (HttpRequestException)
         {
@@ -125,7 +130,12 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
     {
         try
         {
-            return await apiService.SaveAnswers(userId, answers);
+            return await ApiService.PostData<bool, SaveAnswers>("/Client/SaveAnswers", new SaveAnswers()
+            {
+                UserId = userId,
+                UserAnswers = answers
+            });
+
         }
         catch (HttpRequestException)
         {
