@@ -36,9 +36,9 @@ public class ApiService
     public static async Task<TData?> GetData<TData>(string path)
     {
         var authToken = await SecureStorage.GetAsync("auth_token");
-        if (TokenService.ShouldRefresh(authToken))
+        if (TokenService.ShouldRefresh(authToken) && !await TokenService.RefreshToken())
         {
-            await TokenService.RefreshToken();
+            return default;
         }
 
         var response = await GetClient().GetAsync(path);
@@ -52,9 +52,9 @@ public class ApiService
     public static async Task<TData?> PostData<TData, TBody>(string path, TBody? body = default)
     {
         var authToken = await SecureStorage.GetAsync("auth_token");
-        if (TokenService.ShouldRefresh(authToken))
+        if (TokenService.ShouldRefresh(authToken) && !await TokenService.RefreshToken())
         {
-            await TokenService.RefreshToken();
+            return default;
         }
 
         HttpContent content;

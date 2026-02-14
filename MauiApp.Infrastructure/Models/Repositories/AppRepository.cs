@@ -55,8 +55,9 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
         {
             return await ApiService.GetData<List<Theme>>("Client/GetThemes");
         }
-        catch (Exception)
+        catch (HttpRequestException)
         {
+            
             return await localDataService.GetThemesAsync();
         }
     }
