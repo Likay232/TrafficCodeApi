@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "685547470464",
+    "project_id": "trafficrules-88f13",
+    "storage_bucket": "trafficrules-88f13.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:685547470464:android:92ac45b92bb182b7df7065",
+        "android_client_info": {
+          "package_name": "com.diploma.traffic"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALFmtu5ZTxnGyqofy3N3H9BX2O1tJfdRs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:685547470464:android:91bd49dc3959df7ddf7065",
+        "android_client_info": {
+          "package_name": "com.diplomaproject.traffic"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALFmtu5ZTxnGyqofy3N3H9BX2O1tJfdRs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
