@@ -1,4 +1,6 @@
-﻿using MauiApp.ViewModels;
+﻿using System.Diagnostics;
+using MauiApp.ViewModels;
+using Plugin.Firebase.CloudMessaging;
 
 namespace MauiApp.Views;
 
@@ -16,9 +18,13 @@ public partial class AuthView
         Shell.SetFlyoutBehavior(this, FlyoutBehavior.Disabled);
     }
     
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
+        var token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
+        Debug.WriteLine($"Token: {token}");
 
         Shell.SetBackButtonBehavior(this, new BackButtonBehavior { IsVisible = false });
     }

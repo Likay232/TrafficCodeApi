@@ -4,11 +4,33 @@ using MauiApp.Infrastructure.Services;
 using MauiApp.ViewModels;
 using MauiApp.Views;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Maui.LifecycleEvents;
 
 namespace MauiApp.ApplicationExtension;
 
 public static class RunExtension
 {
+    public static MauiAppBuilder RegisterFirebaseServices(this MauiAppBuilder builder)
+    {
+        builder.ConfigureLifecycleEvents(events =>
+        {
+#if ANDROID
+            events.AddAndroid(android => android.OnCreate((activity, _) =>
+            {
+                Firebase.FirebaseApp.InitializeApp(activity);
+            }));
+#elif IOS
+            events.AddiOS(iOS => iOS.FinishedLaunching((app, options) =>
+            {
+                Firebase.Core.App.Configure();
+                return true;
+            }));
+#endif
+        });
+
+        return builder;
+    }
+
     public static Microsoft.Maui.Hosting.MauiApp MigrateLocalDatabase(this Microsoft.Maui.Hosting.MauiApp app)
     {
         using var scope = app.Services.CreateScope();

@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Runtime;
+using Firebase;
 
 namespace MauiApp;
 
@@ -16,8 +17,9 @@ public class MainApplication : MauiApplication
     public override void OnCreate()
     {
         base.OnCreate();
-        Console.WriteLine("MainApplication.OnCreate()");
-        //FirebasePushNotificationManager.Initialize(this, true);
+
+        FirebaseApp.InitializeApp(this);
+
     }
 
     protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();

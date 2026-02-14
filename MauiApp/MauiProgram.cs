@@ -18,7 +18,8 @@ public static class MauiProgram
             })
             .RegisterServices()
             .RegisterViewModels()
-            .RegisterViews();
+            .RegisterViews()
+            .RegisterFirebaseServices();
         
         
 #if DEBUG

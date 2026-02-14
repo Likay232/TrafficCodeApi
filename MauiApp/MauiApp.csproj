@@ -21,7 +21,7 @@
         <ApplicationVersion>1</ApplicationVersion>
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -55,8 +55,22 @@
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.11.0" />
     </ItemGroup>
 
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <GoogleServicesJson Include="google-services.json" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <BundleResource Include="GoogleService-Info.plist" />
+    </ItemGroup>    
+    
     <ItemGroup>
       <ProjectReference Include="..\MauiApp.Infrastructure\MauiApp.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+        <PackageReference Include="Xamarin.AndroidX.Navigation.Runtime" Version="2.8.9.1" />
+        <PackageReference Include="Xamarin.AndroidX.Navigation.Fragment" Version="2.8.9.1" />
+        <PackageReference Include="Xamarin.AndroidX.Navigation.UI" Version="2.8.9.1" />
     </ItemGroup>
 
 </Project>
