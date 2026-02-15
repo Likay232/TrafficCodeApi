@@ -84,6 +84,14 @@ public class LocalDataService(DataComponent component)
         return uploadData;
     }
 
+    public static string? GetLocalPath(string? path)
+    {
+        if (string.IsNullOrEmpty(path)) return null;
+        
+        var fileName = Path.GetFileName(path);
+        return Path.Combine(FileSystem.AppDataDirectory, fileName);
+    }
+
     public async Task<bool> ProcessNewData(NewData newData)
     {
         await component.ClearTableAsync<Models.Storage.Theme>();
@@ -93,6 +101,24 @@ public class LocalDataService(DataComponent component)
         await component.ClearTableAsync<CompletedTask>();
 
         await component.BulkInsertAsync(newData.Themes);
+
+        foreach (var task in newData.Tasks)
+        {
+            if (string.IsNullOrEmpty(task.FilePath)) continue;
+            
+            var bytes = await ApiService.GetFileBytes(task.FilePath);
+            
+            if (bytes is null) continue;
+            
+            var localPath = GetLocalPath(task.FilePath);
+
+            if (localPath is null) continue;
+            
+            await File.WriteAllBytesAsync(localPath, bytes);
+            
+            task.FilePath = localPath;
+        }
+        
         await component.BulkInsertAsync(newData.Tasks);
         await component.BulkInsertAsync(newData.Lessons);
         await component.BulkInsertAsync(newData.Progresses);

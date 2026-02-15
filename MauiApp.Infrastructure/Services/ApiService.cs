@@ -20,6 +20,22 @@ public class ApiService
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
+    public static async Task<byte[]?> GetFileBytes(string? path)
+    {
+        try
+        {
+            if (path is null) return null;
+            
+            var bytes = await GetClient().GetByteArrayAsync(path);
+            
+            return bytes;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+
     public static async Task<bool> RegisterDevice(string? deviceToken = null)
     {
         try

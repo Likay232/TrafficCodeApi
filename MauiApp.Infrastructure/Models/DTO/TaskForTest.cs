@@ -18,10 +18,15 @@ public class TaskForTest : BaseModel
 
     public string? FilePath
     {
-        set => ImageUrl = AppRepository.GetFileAbsolutePath(value);
+        set
+        {
+            ImageUrl = ApiService.GetAbsoluteFilePath(value);
+            LocalPath = LocalDataService.GetLocalPath(value);
+        }
     }
 
     public string? ImageUrl { get; set; }
+    public string? LocalPath { get; set; }
 
     public bool? IsCorrect { get; set; }
 

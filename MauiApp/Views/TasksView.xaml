@@ -31,10 +31,10 @@
 
                             <VerticalStackLayout Spacing="12">
 
-                                <Image Source="{Binding ImageUrl}"
+                                <Image Source="{Binding LocalPath}"
                                        HeightRequest="180"
                                        Aspect="AspectFit"
-                                       IsVisible="{Binding ImageUrl, Converter={StaticResource NullToBoolConverter}}" />
+                                       IsVisible="{Binding LocalPath, Converter={StaticResource NullToBoolConverter}}" />
 
                                 <Label Text="{Binding Text}"
                                        FontSize="17"

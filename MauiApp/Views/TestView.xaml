@@ -41,8 +41,8 @@
                            HorizontalOptions="Center" />
 
                     <ContentView
-                        IsVisible="{Binding CurrentTask.ImageUrl, Converter={StaticResource NullToBoolConverter}}">
-                        <Image Source="{Binding CurrentTask.ImageUrl}"
+                        IsVisible="{Binding CurrentTask.LocalPath, Converter={StaticResource NullToBoolConverter}}">
+                        <Image Source="{Binding CurrentTask.LocalPath}"
                                Aspect="AspectFit"
                                HorizontalOptions="Center"
                                HeightRequest="180" />

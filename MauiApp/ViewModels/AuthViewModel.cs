@@ -111,9 +111,9 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         try
         {
             await LocalDataService.SetUserInfo(tokens.AccessToken, tokens.RefreshToken);
-            await ApiService.RegisterDevice();
-
-            await ExchangeDataService.ExchangeDataWithServer();
+            
+            _ = ApiService.RegisterDevice();
+            _ = ExchangeDataService.ExchangeDataWithServer();
 
             return true;
         }
