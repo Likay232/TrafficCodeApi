@@ -7,4 +7,5 @@ public class ProfileInfo
     public string LastName { get; set; } = string.Empty;
 
     public List<ThemesStatistic> ThemesStatistics { get; set; } = [];
+    public ExamStatistic ExamStatistic { get; set; } = new ();
 }

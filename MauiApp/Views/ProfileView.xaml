@@ -38,6 +38,71 @@
                     </VerticalStackLayout>
                 </Frame>
 
+                <Frame BackgroundColor="White"
+                       CornerRadius="12"
+                       HasShadow="True"
+                       Padding="14"
+                       Margin="4">
+
+                    <VerticalStackLayout Spacing="10">
+
+                        <Grid ColumnDefinitions="*,Auto"
+                              ColumnSpacing="8">
+
+                            <Label Text="Экзамены"
+                                   FontAttributes="Bold"
+                                   LineBreakMode="WordWrap"
+                                   Grid.Column="0" />
+
+                            <Frame BackgroundColor="#E3F2FD"
+                                   Padding="6,2"
+                                   CornerRadius="12"
+                                   Grid.Column="1"
+                                   VerticalOptions="Start">
+
+                                <Label Text="{Binding Model.ExamStatistic.Solved, StringFormat='Сдано: {0}'}"
+                                       FontSize="12"
+                                       TextColor="#1565C0" />
+                            </Frame>
+
+                        </Grid>
+
+                        <VerticalStackLayout Spacing="4">
+                            <HorizontalStackLayout>
+                                <Label Text="Среднее количество ошибок:  "
+                                       FontSize="12"
+                                       TextColor="#555"
+                                       HorizontalOptions="StartAndExpand" />
+
+                                <Label
+                                    Text="{Binding Model.ExamStatistic.AverageMistakesAmount, StringFormat='{0:F0}'}"
+                                    FontSize="12"
+                                    TextColor="#555" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="4">
+                            <HorizontalStackLayout>
+                                <Label Text="Решено верно:  "
+                                       FontSize="12"
+                                       TextColor="#555"
+                                       HorizontalOptions="StartAndExpand" />
+
+                                <Label Text="{Binding Model.ExamStatistic.CorrectPercent, StringFormat='{0:F0}%'}"
+                                       FontSize="12"
+                                       TextColor="#555" />
+                            </HorizontalStackLayout>
+
+                            <ProgressBar
+                                Progress="{Binding Model.ExamStatistic.CorrectPercent, Converter={StaticResource PercentToProgressConverter}}"
+                                HeightRequest="6"
+                                BackgroundColor="#E6F4EA"
+                                ProgressColor="#2E7D32" />
+                        </VerticalStackLayout>
+
+                    </VerticalStackLayout>
+                </Frame>
+
                 <Label Text="Статистика по темам"
                        FontSize="18"
                        FontAttributes="Bold"

@@ -88,6 +88,10 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
         {
             return await localDataService.GetLessonsForTheme(themeId);
         }
+        catch
+        {
+            return null;
+        }
     }
 
     public async Task<Test?> GenerateTest(TestTypes type, int userId, int? themeId = null)
@@ -99,6 +103,10 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
         catch (HttpRequestException)
         {
             return await localDataService.GenerateTest(type, userId, themeId);
+        }
+        catch
+        {
+            return null;
         }
     }
 
@@ -112,6 +120,10 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
         {
             return null;
         }
+        catch
+        {
+            return null;
+        }
     }
 
     public async Task<bool> SaveAnswer(int userId, int taskId, bool isCorrect)
@@ -122,27 +134,36 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
         }
         catch (HttpRequestException)
         {
-            await localDataService.SaveAnswer(userId, taskId, isCorrect);
-            return true;
+            return await localDataService.SaveAnswer(userId, taskId, isCorrect);
+        }
+        catch
+        {
+            return false;
         }
     }
     
-    public async Task<bool> SaveAnswers(int userId, List<UserAnswer> answers)
+    public async Task<bool> SaveAnswers(int userId, bool passed, int mistakes,List<UserAnswer> answers)
     {
         try
         {
             return await ApiService.PostData<bool, SaveAnswers>("/Client/SaveAnswers", new SaveAnswers()
             {
                 UserId = userId,
-                UserAnswers = answers
+                UserAnswers = answers,
+                IsPassed = passed,
+                MistakesCount = mistakes
             });
 
         }
         catch (HttpRequestException)
         {
-            await localDataService.SaveAnswers(userId, answers);
-            return true;
+            return await localDataService.SaveAnswers(userId, answers);
         }
+        catch
+        {
+            return false;
+        }
+
     }
     
     public static string? GetFileAbsolutePath(string? filePath)
@@ -152,6 +173,10 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
             return ApiService.GetAbsoluteFilePath(filePath);
         }
         catch (HttpRequestException)
+        {
+            return null;
+        }
+        catch
         {
             return null;
         }

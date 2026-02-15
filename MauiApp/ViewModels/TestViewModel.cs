@@ -339,15 +339,19 @@ public class TestViewModel : ViewModelBase<Test>
                 return selected is { IsCorrect: false };
             });
 
-            var userId = Preferences.Default.Get("user_id", 0);
-            
-            await AppRepository.SaveAnswers(userId, _answers.Concat(_additionalQuestionsAnswers).ToList());
         }
 
         var passed = mistakesCount <= 2 &&
                      !additionalFailed &&
                      _answers.Concat(_additionalQuestionsAnswers).All(a => a.Answer != null);
 
+        if (IsExam)
+        {
+            var userId = Preferences.Get("user_id", 0);
+            
+            _ = AppRepository.SaveAnswers(userId, passed, mistakesCount,_answers.Concat(_additionalQuestionsAnswers).ToList());
+        }
+        
         if (TestType == TestTypes.Marathon && mistakesCount > 0 || wrongThemes.Count != mistakesCount)
         {
             passed = false;
