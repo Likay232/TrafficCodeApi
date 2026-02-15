@@ -1,10 +1,12 @@
-﻿using MauiApp.Infrastructure.Models.Repositories;
+﻿using Firebase.Messaging;
+using MauiApp.Infrastructure.Models.Repositories;
 using MauiApp.Infrastructure.Models.Сomponents;
 using MauiApp.Infrastructure.Services;
 using MauiApp.ViewModels;
 using MauiApp.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Maui.LifecycleEvents;
+using Plugin.Firebase.CloudMessaging;
 
 namespace MauiApp.ApplicationExtension;
 
@@ -48,12 +50,24 @@ public static class RunExtension
 
         return app;
     }
+    
+    public static Microsoft.Maui.Hosting.MauiApp SetUpdateDeviceTokenStrategy(this Microsoft.Maui.Hosting.MauiApp app)
+    {
+        CrossFirebaseCloudMessaging.Current.TokenChanged += async (sender, args) =>
+        {
+            var newToken = args.Token;
+
+            await ApiService.RegisterDevice(newToken);
+        };
+
+        return app;
+    }
+
 
     public static MauiAppBuilder RegisterServices(this MauiAppBuilder builder)
     {
         builder.Services.AddSingleton<ApiService>();
         builder.Services.AddSingleton<LocalDataService>();
-        builder.Services.AddSingleton<SharedObjectStorageService>();
         builder.Services.AddTransient<AppRepository>();
         builder.Services.AddTransient<DataComponent>();
         builder.Services.AddDbContext<AppDbContext>();

@@ -53,16 +53,16 @@ public class AuthViewModel : ViewModelBase<AuthModel>
     public ICommand LoginCommand { get; set; }
     private ExchangeDataService ExchangeDataService { get; set; }
 
-public AuthViewModel(AppRepository repository, ExchangeDataService exchangeDataService)
+    public AuthViewModel(AppRepository repository, ExchangeDataService exchangeDataService)
     {
         AppRepository = repository;
         ExchangeDataService = exchangeDataService;
 
         Model = new AuthModel();
-        
+
         LoginCommand = new RelayCommand(ExecuteLogin, CanExecuteLogin);
     }
-    
+
     private bool CanExecuteLogin(object obj)
     {
         if (obj is not AuthModel authModel) return false;
@@ -72,7 +72,7 @@ public AuthViewModel(AppRepository repository, ExchangeDataService exchangeDataS
     private async void ExecuteLogin(object obj)
     {
         if (obj is not AuthModel authModel) return;
-            
+
         if (string.IsNullOrWhiteSpace(authModel.Username) || string.IsNullOrWhiteSpace(authModel.Password))
         {
             return;
@@ -81,7 +81,7 @@ public AuthViewModel(AppRepository repository, ExchangeDataService exchangeDataS
         if (await AuthenticateUser(authModel))
         {
             ErrorMessage = null;
-            
+
             MainThread.BeginInvokeOnMainThread(async void () =>
             {
                 if (Application.Current != null) Application.Current.MainPage = new AppShell();
@@ -94,7 +94,7 @@ public AuthViewModel(AppRepository repository, ExchangeDataService exchangeDataS
             ErrorMessage = "Ошибка при входе";
         }
     }
-        
+
     private async Task<bool> AuthenticateUser(AuthModel authModel)
     {
         var tokens = await AppRepository.Login(authModel);
@@ -104,16 +104,17 @@ public AuthViewModel(AppRepository repository, ExchangeDataService exchangeDataS
         {
             if (Preferences.Get("username", null) is null)
                 Preferences.Default.Set("username", "Нет сети");
-            
+
             return true;
         }
-        
+
         try
         {
             await LocalDataService.SetUserInfo(tokens.AccessToken, tokens.RefreshToken);
+            await ApiService.RegisterDevice();
 
             await ExchangeDataService.ExchangeDataWithServer();
-            
+
             return true;
         }
         catch (Exception e)

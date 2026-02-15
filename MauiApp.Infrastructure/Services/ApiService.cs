@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -6,18 +7,51 @@ using MauiApp.Infrastructure.Models.DTO;
 using MauiApp.Infrastructure.Models.Requests;
 using MauiApp.Infrastructure.Models.Responses;
 using Newtonsoft.Json;
+using Plugin.Firebase.CloudMessaging;
 
 namespace MauiApp.Infrastructure.Services;
 
 public class ApiService
 {
-    private const string ServerAddress = "http://192.168.55.111:5000/";
+    private const string ServerAddress = "http://192.168.55.108:5000/";
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
+    public static async Task<bool> RegisterDevice(string? deviceToken = null)
+    {
+        try
+        {
+            await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
+
+            var userId = Preferences.Get("user_id", 0);
+            deviceToken ??= await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
+
+            var payload = new
+            {
+                UserId = userId,
+                DeviceToken = deviceToken
+            };
+
+            var json = JsonConvert.SerializeObject(payload);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await GetClient().PostAsync("/Client/RegisterDevice", content);
+            response.EnsureSuccessStatusCode();
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return !string.IsNullOrEmpty(responseContent) &&
+                   JsonConvert.DeserializeObject<bool>(responseContent);
+
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
     
     private static HttpClient GetClient()
     {

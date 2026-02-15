@@ -18,14 +18,10 @@ public partial class AuthView
         Shell.SetFlyoutBehavior(this, FlyoutBehavior.Disabled);
     }
     
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-
-        await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
-        var token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
-        Debug.WriteLine($"Token: {token}");
-
+        
         Shell.SetBackButtonBehavior(this, new BackButtonBehavior { IsVisible = false });
     }
 

@@ -29,6 +29,7 @@ public static class MauiProgram
         var app = builder.Build();
 
         app.MigrateLocalDatabase();
+        app.SetUpdateDeviceTokenStrategy();
         
         return app;
     }
