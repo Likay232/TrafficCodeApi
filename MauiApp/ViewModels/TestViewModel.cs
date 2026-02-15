@@ -105,6 +105,8 @@ public class TestViewModel : ViewModelBase<Test>
 
     public async void LoadTestAsync()
     {
+        IsLoading = true;
+        
         var userId = Preferences.Default.Get("user_id", 0);
         var result = await AppRepository.GenerateTest(TestType, userId, ThemeId);
 
@@ -149,6 +151,8 @@ public class TestViewModel : ViewModelBase<Test>
         
         if (IsExam)
             StartExamTimer(20);
+        
+        IsLoading = false;
     }
 
     private void UpdateNavigationState()

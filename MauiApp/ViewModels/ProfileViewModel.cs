@@ -5,6 +5,13 @@ namespace MauiApp.ViewModels;
 
 public class ProfileViewModel : ViewModelBase<ProfileInfo>
 {
+    private bool _noInfo;
+
+    public bool NoInfo
+    {
+        get => _noInfo;
+        set => SetProperty(ref _noInfo, value);
+    }
     public ProfileViewModel(AppRepository repository)
     {
         AppRepository = repository;
@@ -15,6 +22,10 @@ public class ProfileViewModel : ViewModelBase<ProfileInfo>
         var userId = Preferences.Default.Get("user_id", 0);
 
         var result = await AppRepository.GetProfileInfo(userId);
+        
+        NoInfo = result is null;
+        
+        if (NoInfo) return;
         
         Model = result ?? new ProfileInfo();
         

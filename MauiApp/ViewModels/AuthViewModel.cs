@@ -73,6 +73,8 @@ public class AuthViewModel : ViewModelBase<AuthModel>
     {
         if (obj is not AuthModel authModel) return;
 
+        IsLoading = true;
+        
         if (string.IsNullOrWhiteSpace(authModel.Username) || string.IsNullOrWhiteSpace(authModel.Password))
         {
             return;
@@ -93,6 +95,8 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         {
             ErrorMessage = "Ошибка при входе";
         }
+
+        IsLoading = false;
     }
 
     private async Task<bool> AuthenticateUser(AuthModel authModel)
@@ -112,8 +116,8 @@ public class AuthViewModel : ViewModelBase<AuthModel>
         {
             await LocalDataService.SetUserInfo(tokens.AccessToken, tokens.RefreshToken);
             
-            _ = ApiService.RegisterDevice();
-            _ = ExchangeDataService.ExchangeDataWithServer();
+            await ApiService.RegisterDevice();
+            await ExchangeDataService.ExchangeDataWithServer();
 
             return true;
         }

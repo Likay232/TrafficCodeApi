@@ -9,63 +9,79 @@
              BackgroundColor="White">
 
     <ContentPage.Content>
-        <CollectionView ItemsSource="{Binding Model}"
-                        SelectionMode="Single"
-                        SelectionChanged="SelectableItemsView_OnSelectionChanged"
-                        BackgroundColor="White">
+        <Grid>
+            <CollectionView IsVisible="{Binding IsLoading, 
+                            Converter={StaticResource InvertBoolConverter}}"
+                            ItemsSource="{Binding Model}"
+                            SelectionMode="Single"
+                            SelectionChanged="SelectableItemsView_OnSelectionChanged"
+                            BackgroundColor="White">
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="dto:Theme">
-                    <Frame Padding="15"
-                           Margin="10"
-                           BackgroundColor="White"
-                           BorderColor="#DDD"
-                           CornerRadius="10"
-                           HasShadow="True">
-                        
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnThemeTapped" CommandParameter="{Binding .}" />
-                        </Frame.GestureRecognizers>
-                        
-                        <VerticalStackLayout Spacing="15" HorizontalOptions="FillAndExpand">
-                            <!-- Заголовок -->
-                            <Label Text="{Binding Title}" 
-                                   FontSize="20" 
-                                   HorizontalOptions="Center" />
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dto:Theme">
+                        <Frame Padding="15"
+                               Margin="10"
+                               BackgroundColor="White"
+                               BorderColor="#DDD"
+                               CornerRadius="10"
+                               HasShadow="True">
 
-                            <Label Text="{Binding Description}" 
-                                   FontSize="14"
-                                   TextColor="#666"
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnThemeTapped" CommandParameter="{Binding .}" />
+                            </Frame.GestureRecognizers>
+
+                            <VerticalStackLayout Spacing="15" HorizontalOptions="FillAndExpand">
+                                <!-- Заголовок -->
+                                <Label Text="{Binding Title}"
+                                       FontSize="20"
+                                       HorizontalOptions="Center" />
+
+                                <Label Text="{Binding Description}"
+                                       FontSize="14"
+                                       TextColor="#666"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       Margin="0,0,0,10" />
+
+                                <HorizontalStackLayout Spacing="15" HorizontalOptions="Center" WidthRequest="250">
+
+                                    <Button Text="Задания"
+                                            FontSize="14"
+                                            Padding="10,6"
+                                            CornerRadius="8"
+                                            BackgroundColor="#E6F4EA"
+                                            TextColor="#2E7D32"
+                                            WidthRequest="120"
+                                            CommandParameter="{Binding .}"
+                                            Clicked="OnTasksClicked" />
+
+                                    <Button Text="Материалы"
+                                            FontSize="14"
+                                            Padding="10,6"
+                                            CornerRadius="8"
+                                            BackgroundColor="#E3F2FD"
+                                            TextColor="#1565C0"
+                                            WidthRequest="120"
+                                            CommandParameter="{Binding .}"
+                                            Clicked="OnMaterialsClicked" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Grid BackgroundColor="#88000000"
+                  IsVisible="{Binding IsLoading}"
+                  InputTransparent="False">
+
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                   Color="White"
+                                   WidthRequest="50"
+                                   HeightRequest="50"
                                    HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   Margin="0,0,0,10" />
-
-                            <HorizontalStackLayout Spacing="15" HorizontalOptions="Center" WidthRequest="250">
-
-                                <Button Text="Задания"
-                                        FontSize="14"
-                                        Padding="10,6"
-                                        CornerRadius="8"
-                                        BackgroundColor="#E6F4EA"   
-                                        TextColor="#2E7D32"         
-                                        WidthRequest="120"
-                                        CommandParameter="{Binding .}"
-                                        Clicked="OnTasksClicked" />
-
-                                <Button Text="Материалы"
-                                        FontSize="14"
-                                        Padding="10,6"
-                                        CornerRadius="8"
-                                        BackgroundColor="#E3F2FD"   
-                                        TextColor="#1565C0"         
-                                        WidthRequest="120"
-                                        CommandParameter="{Binding .}"
-                                        Clicked="OnMaterialsClicked" />
-                            </HorizontalStackLayout>
-                        </VerticalStackLayout>
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                                   VerticalOptions="Center" />
+            </Grid>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

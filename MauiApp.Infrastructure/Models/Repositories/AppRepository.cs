@@ -110,7 +110,7 @@ public class AppRepository(ApiService apiService, LocalDataService localDataServ
         }
         catch (HttpRequestException)
         {
-            return await localDataService.GetProfileInfo(userId);
+            return null;
         }
     }
 

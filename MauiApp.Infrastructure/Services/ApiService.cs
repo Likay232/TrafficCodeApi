@@ -40,8 +40,6 @@ public class ApiService
     {
         try
         {
-            await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
-
             var userId = Preferences.Get("user_id", 0);
             deviceToken ??= await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
 

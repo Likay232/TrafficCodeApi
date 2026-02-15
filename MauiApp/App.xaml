@@ -17,6 +17,7 @@
             <converters:BytesToImageConverter x:Key="BytesToImageConverter" />
             <converters:NullToBoolConverter x:Key="NullToBoolConverter" />
             <converters:PercentToProgressConverter x:Key="PercentToProgressConverter" />
+            <converters:InvertBoolConverter x:Key="InvertBoolConverter" />
 
         </ResourceDictionary>
     </Application.Resources>
