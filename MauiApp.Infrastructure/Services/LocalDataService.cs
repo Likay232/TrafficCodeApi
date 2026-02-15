@@ -187,29 +187,7 @@ public class LocalDataService(DataComponent component)
             })
             .ToListAsync();
     }
-
-    public async Task<ProfileInfo> GetProfileInfo(int userId)
-    {
-        var lastName = Preferences.Get("last_name", "");
-        var firstName = Preferences.Get("first_name", "");
-        var username = Preferences.Get("username", "");
-        
-        var themeStat = await GetStatisticForThemes();
-
-        return new ProfileInfo
-        {
-            LastName = lastName,
-            FirstName = firstName,
-            Username = username,
-            ThemesStatistics = themeStat
-        };
-    }
-
-    private async Task<List<ThemesStatistic>> GetStatisticForThemes()
-    {
-        return new List<ThemesStatistic>();
-    }
-
+    
     public async Task<bool> SaveAnswers(int userId, List<UserAnswer> answers)
     {
         var tasks = new List<CompletedTask>();
